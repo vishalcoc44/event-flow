@@ -14,6 +14,7 @@ import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, DollarSign, Search, Filter, ArrowRight } from 'lucide-react'
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import { EventRating } from '@/components/EventRating'
 
 export default function EventsPage() {
     const { user } = useAuth()
@@ -28,7 +29,7 @@ export default function EventsPage() {
     useEffect(() => {
         if (user && bookings) {
             const bookedEventIds = bookings
-                .filter(booking => booking.user_id === user.id)
+                .filter(booking => booking.user_id === user.id && booking.status === 'CONFIRMED')
                 .map(booking => booking.event?.id)
                 .filter(Boolean) as string[]
             setUserBookedEvents(bookedEventIds)
@@ -266,6 +267,15 @@ export default function EventsPage() {
                                                 <div className="flex items-center text-sm text-gray-500">
                                                     <MapPin className="h-4 w-4 mr-2" />
                                                     <span className="line-clamp-1">{event.location || 'Location TBD'}</span>
+                                                </div>
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <EventRating 
+                                                        rating={4.2} 
+                                                        reviewCount={8} 
+                                                        size="sm" 
+                                                        showCount={false}
+                                                        className="text-sm"
+                                                    />
                                                 </div>
                                             </div>
 

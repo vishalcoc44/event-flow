@@ -13,6 +13,7 @@ import { useEvents } from '@/contexts/EventContext'
 import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, DollarSign, ArrowLeft, Users, User, CalendarDays } from 'lucide-react'
+import { ReviewSystem } from '@/components/ReviewSystem'
 
 type Event = {
     id: string
@@ -56,7 +57,10 @@ export default function EventDetails() {
                 booking.user_id === user.id && booking.event?.id === event.id
             )
             setUserBookings(userEventBookings)
-            setIsBooked(userEventBookings.length > 0)
+            
+            // Only consider confirmed bookings for "isBooked" status
+            const confirmedBookings = userEventBookings.filter(booking => booking.status === 'CONFIRMED')
+            setIsBooked(confirmedBookings.length > 0)
         }
     }, [user, bookings, event])
 
@@ -226,7 +230,19 @@ export default function EventDetails() {
                                             <span className="font-medium text-green-800">You're Booked!</span>
                                         </div>
                                         <p className="text-green-700 text-sm">
-                                            You have {userBookings.length} ticket(s) for this event
+                                            You have {userBookings.filter(b => b.status === 'CONFIRMED').length} confirmed ticket(s) for this event
+                                        </p>
+                                    </div>
+                                )}
+
+                                {userBookings.some(b => b.status === 'CANCELLED') && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div className="flex items-center mb-2">
+                                            <CalendarDays className="h-5 w-5 text-red-600 mr-2" />
+                                            <span className="font-medium text-red-800">Booking Cancelled</span>
+                                        </div>
+                                        <p className="text-red-700 text-sm">
+                                            You previously had {userBookings.filter(b => b.status === 'CANCELLED').length} cancelled ticket(s) for this event
                                         </p>
                                     </div>
                                 )}
@@ -261,6 +277,14 @@ export default function EventDetails() {
                                     </Link>
                                 )}
 
+                                {userBookings.some(b => b.status === 'CANCELLED') && !isBooked && (
+                                    <Link href={`/customer/book-event/${event.id}`} className="w-full">
+                                        <Button className="w-full bg-[#6CDAEC] hover:bg-[#5BC8D9]">
+                                            Rebook Tickets
+                                        </Button>
+                                    </Link>
+                                )}
+
                                 <Link href="/events" className="w-full">
                                     <Button variant="outline" className="w-full">
                                         Browse More Events
@@ -279,6 +303,21 @@ export default function EventDetails() {
                         </Card>
                     </motion.div>
                 </div>
+
+                {/* Reviews Section */}
+                <motion.div
+                    className="mt-12"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                    <ReviewSystem 
+                        eventId={event.id} 
+                        eventTitle={event.title} 
+                        eventDate={event.date}
+                        userBookings={userBookings}
+                    />
+                </motion.div>
             </main>
             
             <Footer />

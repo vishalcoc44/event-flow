@@ -154,16 +154,30 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('notification_summary')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const { data, error } = await supabase.rpc('get_notification_summary', {
+        p_user_id: user.id
+      });
 
-      if (error && error.code !== 'PGRST116') throw error;
-      setSummary(data || null);
+      if (error) throw error;
+      
+      // The function returns an array, so we take the first (and only) result
+      const summaryData = data && data.length > 0 ? data[0] : null;
+      setSummary(summaryData);
     } catch (error) {
       console.error('Error loading notification summary:', error);
+      // Fallback: calculate summary from notifications
+      const unreadCount = notifications.filter(n => !n.is_read).length;
+      const reminderCount = notifications.filter(n => n.type === 'EVENT_REMINDER').length;
+      const bookingCount = notifications.filter(n => n.type === 'BOOKING_CONFIRMED').length;
+      
+      setSummary({
+        user_id: user.id,
+        total_notifications: notifications.length,
+        unread_count: unreadCount,
+        reminder_count: reminderCount,
+        booking_count: bookingCount,
+        latest_notification: notifications.length > 0 ? notifications[0].created_at : undefined
+      });
     }
   };
 

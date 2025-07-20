@@ -8,7 +8,7 @@ type Event = {
     id: string
     title: string
     description: string
-    category_id?: string
+    category_id?: string | null
     location: string
     price: number
     date: string

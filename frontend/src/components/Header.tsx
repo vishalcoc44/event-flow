@@ -46,58 +46,66 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                 <nav className="hidden md:flex items-center space-x-6">
                     {(user?.role === 'admin' || user?.role === 'ADMIN') && (
                         <div className="flex items-center space-x-6">
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/dashboard" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Dashboard
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/event" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Add Event
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/category" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Add Category
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/events" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     All Events
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/bookings" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     All Bookings
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/customers" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Customers
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/admin-requests" 
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/admin-requests') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Admin Requests
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/register" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Register Admin
                                 </Link>
@@ -107,44 +115,52 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
 
                     {user?.role === 'customer' && (
                         <div className="flex items-center space-x-6">
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/customer/dashboard" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Dashboard
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/events" 
-                                    className={`text-sm font-medium ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Events
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/social" 
-                                    className={`text-sm font-medium ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Social
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/customer/bookings" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     My Bookings
                                 </Link>
                             </HoverShadowEffect>
-                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/customer/profile" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Profile
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/customer/admin-request-status" 
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/admin-request-status') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Admin Request
                                 </Link>
                             </HoverShadowEffect>
                         </div>
@@ -237,43 +253,43 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                             <>
                                 <Link 
                                     href="/admin/dashboard" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Dashboard
                                 </Link>
                                 <Link 
                                     href="/admin/event" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/event') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Add Event
                                 </Link>
                                 <Link 
                                     href="/admin/category" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/category') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Add Category
                                 </Link>
                                 <Link 
                                     href="/admin/events" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     All Events
                                 </Link>
                                 <Link 
                                     href="/admin/bookings" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     All Bookings
                                 </Link>
                                 <Link 
                                     href="/admin/customers" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/customers') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Customers
                                 </Link>
                                 <Link 
                                     href="/admin/register" 
-                                    className={`text-sm font-medium ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/register') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Register Admin
                                 </Link>
@@ -284,31 +300,31 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                             <>
                                 <Link 
                                     href="/customer/dashboard" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Dashboard
                                 </Link>
                                 <Link 
                                     href="/events" 
-                                    className={`text-sm font-medium ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Events
                                 </Link>
                                 <Link 
                                     href="/social" 
-                                    className={`text-sm font-medium ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/social') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Social
                                 </Link>
                                 <Link 
                                     href="/customer/bookings" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     My Bookings
                                 </Link>
                                 <Link 
                                     href="/customer/profile" 
-                                    className={`text-sm font-medium ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/profile') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Profile
                                 </Link>
@@ -319,25 +335,25 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                             <>
                                 <Link 
                                     href="/" 
-                                    className={`text-sm font-medium ${pathname === '/' ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname === '/' ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Home
                                 </Link>
                                 <Link 
                                     href="/events" 
-                                    className={`text-sm font-medium ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Events
                                 </Link>
                                 <Link 
                                     href="/about" 
-                                    className={`text-sm font-medium ${pathname.includes('/about') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/about') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     About Us
                                 </Link>
                                 <Link 
                                     href="/contact" 
-                                    className={`text-sm font-medium ${pathname.includes('/contact') ? 'text-primary' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/contact') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Contact
                                 </Link>

@@ -41,23 +41,49 @@ export default function Register() {
         setError(null)
         
         try {
-            const success = await register({
-                email: formData.email,
-                password: formData.password,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                contactNumber: formData.contactNumber,
-                city: formData.city,
-                pincode: formData.pincode,
-                streetAddress: formData.streetAddress,
-                role: isAdmin ? 'ADMIN' : 'USER'
-            })
-            
-            if (success) {
-                // Redirect will happen in the register function
-                console.log('Registration successful')
+            if (isAdmin) {
+                // For admin registration, we need to create a request instead of direct registration
+                const success = await register({
+                    email: formData.email,
+                    password: formData.password,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    contactNumber: formData.contactNumber,
+                    city: formData.city,
+                    pincode: formData.pincode,
+                    streetAddress: formData.streetAddress,
+                    role: 'USER', // Always register as USER first
+                    isAdminRequest: true // Flag to indicate this is an admin request
+                })
+                
+                if (success) {
+                    // Show success message for admin request
+                    setError(null)
+                    alert('Registration successful! Your admin request has been submitted and is pending approval. You will be notified once it is reviewed.')
+                    router.push('/login')
+                } else {
+                    setError('Registration failed. Please try again.')
+                }
             } else {
-                setError('Registration failed. Please try again.')
+                // Regular user registration
+                const success = await register({
+                    email: formData.email,
+                    password: formData.password,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    contactNumber: formData.contactNumber,
+                    city: formData.city,
+                    pincode: formData.pincode,
+                    streetAddress: formData.streetAddress,
+                    role: 'USER'
+                })
+                
+                if (success) {
+                    // Redirect will happen in the register function
+                    console.log('Registration successful')
+                } else {
+                    setError('Registration failed. Please try again.')
+                }
             }
         } catch (err) {
             setError('Registration failed. Please try again.')

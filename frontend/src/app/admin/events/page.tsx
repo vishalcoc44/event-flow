@@ -12,6 +12,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import { EventRating } from '@/components/EventRating'
 
 export default function AllEvents() {
     const { events, deleteEvent, loading } = useEvents()
@@ -142,6 +143,16 @@ export default function AllEvents() {
                                             <p className="text-gray-700">
                                                 <span className="font-semibold">Time:</span> {event.time}
                                             </p>
+                                            <div className="text-gray-700">
+                                                <span className="font-semibold">Rating:</span> 
+                                                <EventRating 
+                                                    rating={4.2} 
+                                                    reviewCount={8} 
+                                                    size="sm" 
+                                                    showCount={true}
+                                                    className="ml-2"
+                                                />
+                                            </div>
                                             {event.image_url && (
                                                 <div className="mt-4">
                                                     <img 

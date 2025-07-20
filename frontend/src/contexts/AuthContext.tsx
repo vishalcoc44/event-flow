@@ -33,7 +33,8 @@ type AuthContextType = {
         city?: string,
         pincode?: string,
         streetAddress?: string,
-        role?: string
+        role?: string,
+        isAdminRequest?: boolean
     }) => Promise<boolean>
     isLoading: boolean
 }
@@ -160,7 +161,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         city?: string,
         pincode?: string,
         streetAddress?: string,
-        role?: string
+        role?: string,
+        isAdminRequest?: boolean
     }) => {
         try {
             setIsLoading(true);
@@ -189,28 +191,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             // If registration is successful and we have a user
             if (data.user) {
-                try {
-                    // Sign in the user immediately after registration
-                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-                        email: userData.email,
-                        password: userData.password
-                    });
-                    
-                    if (signInError) {
-                        throw signInError;
+                // If this is an admin request, create the request in the database
+                if (userData.isAdminRequest) {
+                    try {
+                        const { error: requestError } = await supabase.rpc('create_admin_request', {
+                            p_user_id: data.user.id,
+                            p_email: userData.email,
+                            p_reason: 'Admin access requested during registration',
+                            p_first_name: userData.firstName || '',
+                            p_last_name: userData.lastName || '',
+                            p_contact_number: userData.contactNumber || '',
+                            p_organization: '',
+                            p_experience_level: 'INTERMEDIATE',
+                            p_intended_use: 'Event management and administration'
+                        });
+                        
+                        if (requestError) {
+                            console.error('Error creating admin request:', requestError);
+                            // Continue anyway as the user is registered
+                        }
+                    } catch (requestError) {
+                        console.error('Error creating admin request:', requestError);
+                        // Continue anyway as the user is registered
                     }
                     
-                    // Determine where to redirect based on role
-                    const role = userData.role || 'USER';
-                    
-                    if (role === 'ADMIN') {
-                        router.push('/admin/dashboard');
-                    } else {
-                        router.push('/customer/dashboard');
+                    // Don't sign in automatically for admin requests
+                    // User will need to wait for approval
+                    return true;
+                } else {
+                    // Regular user registration - sign in immediately
+                    try {
+                        // Sign in the user immediately after registration
+                        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                            email: userData.email,
+                            password: userData.password
+                        });
+                        
+                        if (signInError) {
+                            throw signInError;
+                        }
+                        
+                        // Determine where to redirect based on role
+                        const role = userData.role || 'USER';
+                        
+                        if (role === 'ADMIN') {
+                            router.push('/admin/dashboard');
+                        } else {
+                            router.push('/customer/dashboard');
+                        }
+                    } catch (signInError) {
+                        console.error('Error signing in after registration:', signInError);
+                        router.push('/login');
                     }
-                } catch (signInError) {
-                    console.error('Error signing in after registration:', signInError);
-                    router.push('/login');
                 }
             }
             

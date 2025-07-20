@@ -9,6 +9,7 @@ import { BookingProvider } from '@/contexts/BookingContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
 import { SocialProvider } from '@/contexts/SocialContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
+import { ReviewProvider } from '@/contexts/ReviewContext'
 import { Toaster } from "@/components/ui/toaster";
 import PageTransition from '@/components/PageTransition';
 
@@ -33,10 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                                 <CustomerProvider>
                                     <SocialProvider>
                                         <NotificationProvider>
-                                            <PageTransition>
-                                                {children}
-                                            </PageTransition>
-                                            <Toaster />
+                                            <ReviewProvider>
+                                                <PageTransition>
+                                                    {children}
+                                                </PageTransition>
+                                                <Toaster />
+                                            </ReviewProvider>
                                         </NotificationProvider>
                                     </SocialProvider>
                                 </CustomerProvider>
