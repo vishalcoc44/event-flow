@@ -318,9 +318,7 @@ export const categoriesAPI = {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('*')
-        .eq('id', id)
-        .single();
+        .select('*');
         
       if (error) throw error;
       return data;
@@ -379,9 +377,405 @@ export const categoriesAPI = {
   },
 };
 
+// Social Features API
+export const socialAPI = {
+  // Follow/Unfollow functionality
+  followUser: async (targetUserId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      if (user.id === targetUserId) throw new Error('Cannot follow yourself');
+      
+      const { data, error } = await supabase
+        .from('follows')
+        .insert([{
+          follower_id: user.id,
+          target_id: targetUserId,
+          target_type: 'USER'
+        }])
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Follow user error:', error);
+      throw error;
+    }
+  },
+  
+  unfollowUser: async (targetUserId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('target_id', targetUserId)
+        .eq('target_type', 'USER');
+        
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Unfollow user error:', error);
+      throw error;
+    }
+  },
+  
+  followEvent: async (eventId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from('follows')
+        .insert([{
+          follower_id: user.id,
+          target_id: eventId,
+          target_type: 'EVENT'
+        }])
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Follow event error:', error);
+      throw error;
+    }
+  },
+  
+  unfollowEvent: async (eventId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('target_id', eventId)
+        .eq('target_type', 'EVENT');
+        
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Unfollow event error:', error);
+      throw error;
+    }
+  },
+  
+  followCategory: async (categoryId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from('follows')
+        .insert([{
+          follower_id: user.id,
+          target_id: categoryId,
+          target_type: 'CATEGORY'
+        }])
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Follow category error:', error);
+      throw error;
+    }
+  },
+  
+  unfollowCategory: async (categoryId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('target_id', categoryId)
+        .eq('target_type', 'CATEGORY');
+        
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Unfollow category error:', error);
+      throw error;
+    }
+  },
+  
+  // Check follow status
+  isFollowing: async (targetId: string, targetType: 'USER' | 'EVENT' | 'CATEGORY') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .from('follows')
+        .select('id')
+        .eq('follower_id', user.id)
+        .eq('target_id', targetId)
+        .eq('target_type', targetType)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      return !!data;
+    } catch (error) {
+      console.error('Check follow status error:', error);
+      return false;
+    }
+  },
+  
+  // Get user's follows
+  getUserFollows: async (targetType?: 'USER' | 'EVENT' | 'CATEGORY') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error('User not authenticated');
+      
+      let query = supabase
+        .from('follows')
+        .select('*')
+        .eq('follower_id', user.id);
+        
+      if (targetType) {
+        query = query.eq('target_type', targetType);
+      }
+      
+      const { data, error } = await query;
+        
+      if (error) throw error;
+      
+      // Fetch related data separately to avoid foreign key issues
+      const followsWithData = await Promise.all(
+        data.map(async (follow) => {
+          let targetData = null;
+          
+          if (follow.target_type === 'USER') {
+            const { data: userData } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', follow.target_id)
+              .single();
+            targetData = userData;
+          } else if (follow.target_type === 'EVENT') {
+            const { data: eventData } = await supabase
+              .from('events')
+              .select('*')
+              .eq('id', follow.target_id)
+              .single();
+            targetData = eventData;
+          } else if (follow.target_type === 'CATEGORY') {
+            const { data: categoryData } = await supabase
+              .from('categories')
+              .select('*')
+              .eq('id', follow.target_id)
+              .single();
+            targetData = categoryData;
+          }
+          
+          return {
+            ...follow,
+            target_user: follow.target_type === 'USER' ? targetData : null,
+            target_event: follow.target_type === 'EVENT' ? targetData : null,
+            target_category: follow.target_type === 'CATEGORY' ? targetData : null,
+          };
+        })
+      );
+      
+      return followsWithData;
+    } catch (error) {
+      console.error('Get user follows error:', error);
+      throw error;
+    }
+  },
+  
+  // Get user's followers
+  getUserFollowers: async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('target_id', userId)
+        .eq('target_type', 'USER');
+        
+      if (error) throw error;
+      
+      // Fetch follower data separately
+      const followersWithData = await Promise.all(
+        data.map(async (follow) => {
+          const { data: followerData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', follow.follower_id)
+            .single();
+          
+          return {
+            ...follow,
+            follower: followerData,
+          };
+        })
+      );
+      
+      return followersWithData;
+    } catch (error) {
+      console.error('Get user followers error:', error);
+      throw error;
+    }
+  },
+  
+  // Get event followers
+  getEventFollowers: async (eventId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('target_id', eventId)
+        .eq('target_type', 'EVENT');
+        
+      if (error) throw error;
+      
+      // Fetch follower data separately
+      const followersWithData = await Promise.all(
+        data.map(async (follow) => {
+          const { data: followerData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', follow.follower_id)
+            .single();
+          
+          return {
+            ...follow,
+            follower: followerData,
+          };
+        })
+      );
+      
+      return followersWithData;
+    } catch (error) {
+      console.error('Get event followers error:', error);
+      throw error;
+    }
+  },
+  
+  // Get category followers
+  getCategoryFollowers: async (categoryId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('target_id', categoryId)
+        .eq('target_type', 'CATEGORY');
+        
+      if (error) throw error;
+      
+      // Fetch follower data separately
+      const followersWithData = await Promise.all(
+        data.map(async (follow) => {
+          const { data: followerData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', follow.follower_id)
+            .single();
+          
+          return {
+            ...follow,
+            follower: followerData,
+          };
+        })
+      );
+      
+      return followersWithData;
+    } catch (error) {
+      console.error('Get category followers error:', error);
+      throw error;
+    }
+  },
+  
+  // Get user profile with follower counts
+  getUserProfile: async (userId: string) => {
+    try {
+      // Get user data
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (userError) throw userError;
+      
+      // Get follower count
+      const { count: followerCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_id', userId)
+        .eq('target_type', 'USER');
+      
+      // Get following count
+      const { count: followingCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId);
+      
+      return {
+        ...userData,
+        follower_count: followerCount || 0,
+        following_count: followingCount || 0,
+      };
+    } catch (error) {
+      console.error('Get user profile error:', error);
+      throw error;
+    }
+  },
+  
+  // Get events with follower counts
+  getEventsWithFollowCounts: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*, categories(*), created_by:users(*)');
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get events with follow counts error:', error);
+      throw error;
+    }
+  },
+  
+  // Get categories with follower counts
+  getCategoriesWithFollowCounts: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*');
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get categories with follow counts error:', error);
+      throw error;
+    }
+  },
+};
+
 export default {
   auth: authAPI,
   events: eventsAPI,
   bookings: bookingsAPI,
-  categories: categoriesAPI
+  categories: categoriesAPI,
+  social: socialAPI
 }; 

@@ -93,7 +93,7 @@ export default function Home() {
             </section>
 
             {/* Features Section */}
-            <section className="py-20">
+            <section className="py-20 bg-gradient-to-br from-gray-50 to-white shadow-[0_8_32px_rgba(59,130,246,0.2),0_16_64px_rgba(0,0,0,0.1)] border border-blue-100/50 rounded-3xl mx-4 my-8">
                 <div className="container mx-auto px-4">
                     <motion.h2 
                         className="text-3xl font-bold text-center text-gray-900 mb-12"
@@ -184,7 +184,7 @@ export default function Home() {
 
             {/* CTA Section */}
             <motion.section 
-                className="bg-[#E8FBFD] py-16"
+                className="bg-[#E8FBFD] py-16 shadow-[0_10_40px_rgba(6,182,212,0.25),0_20_80px_rgba(0,0,0,0.15)] border border-cyan-200/60 rounded-3xl mx-4 my-8"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
@@ -229,7 +229,7 @@ export default function Home() {
 
             {/* Testimonials Section */}
             <motion.section 
-                className="py-20"
+                className="py-20 bg-gradient-to-br from-purple-50 to-pink-50 shadow-[0_8_32px_rgba(168,85,247,0.2),0_16_64px_rgba(0,0,0,0.1)] border border-purple-200/50 rounded-3xl mx-4 my-8"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
@@ -296,7 +296,7 @@ export default function Home() {
 
             {/* Trusted By Section */}
             <motion.section 
-                className="py-12 border-t border-gray-100"
+                className="py-12 bg-gradient-to-br from-gray-50 to-slate-100 shadow-[0_6_24px_rgba(100,116,139,0.2),0_12_48px_rgba(0,0,0,0.1)] border border-slate-200/60 rounded-3xl mx-4 my-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}

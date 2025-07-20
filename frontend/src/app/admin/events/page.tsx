@@ -11,6 +11,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function AllEvents() {
     const { events, deleteEvent, loading } = useEvents()
@@ -85,11 +86,13 @@ export default function AllEvents() {
                         All Events
                     </motion.h1>
                     
-                    <Link href="/admin/event">
-                        <Button>
-                            + Add New Event
-                        </Button>
-                    </Link>
+                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                        <Link href="/admin/event">
+                            <Button>
+                                + Add New Event
+                            </Button>
+                        </Link>
+                    </HoverShadowEffect>
                 </div>
                 
                 {loading ? (
@@ -104,18 +107,21 @@ export default function AllEvents() {
                     <div className="text-center py-12">
                         <h3 className="text-xl font-medium text-gray-600 mb-4">No events found</h3>
                         <p className="text-gray-500 mb-6">Get started by creating your first event</p>
-                        <Link href="/admin/event">
-                            <Button>
-                                Create Event
-                            </Button>
-                        </Link>
+                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                            <Link href="/admin/event">
+                                <Button>
+                                    Create Event
+                                </Button>
+                            </Link>
+                        </HoverShadowEffect>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <AnimatePresence>
                             {events.map((event) => (
                                 <motion.div key={event.id} variants={itemVariants} layout exit={{ opacity: 0, scale: 0.8 }}>
-                                    <Card className="overflow-hidden h-full flex flex-col">
+                                    <HoverShadowEffect className="cursor-pointer h-full" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Card className="overflow-hidden h-full flex flex-col">
                                         <CardHeader className="bg-gradient-to-r from-primary/80 to-primary pb-4">
                                             <CardTitle className="text-xl font-bold text-white">{event.title}</CardTitle>
                                         </CardHeader>
@@ -147,34 +153,39 @@ export default function AllEvents() {
                                             )}
                                         </CardContent>
                                         <CardFooter className="border-t p-4 bg-gray-50 flex justify-between">
-                                            <Link href={`/admin/event?id=${event.id}`}>
+                                            <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                                <Link href={`/admin/event?id=${event.id}`}>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="flex items-center"
+                                                    >
+                                                        <Edit className="mr-2 h-4 w-4" /> Edit
+                                                    </Button>
+                                                </Link>
+                                            </HoverShadowEffect>
+                                            <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
                                                 <Button
-                                                    variant="outline"
+                                                    onClick={() => handleDelete(event.id)}
+                                                    variant="destructive"
                                                     className="flex items-center"
+                                                    disabled={deletingId === event.id}
                                                 >
-                                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                                    {deletingId === event.id ? (
+                                                        <motion.div
+                                                            className="w-5 h-5 border-t-2 border-white rounded-full"
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                        </>
+                                                    )}
                                                 </Button>
-                                            </Link>
-                                            <Button
-                                                onClick={() => handleDelete(event.id)}
-                                                variant="destructive"
-                                                className="flex items-center"
-                                                disabled={deletingId === event.id}
-                                            >
-                                                {deletingId === event.id ? (
-                                                    <motion.div
-                                                        className="w-5 h-5 border-t-2 border-white rounded-full"
-                                                        animate={{ rotate: 360 }}
-                                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                    />
-                                                ) : (
-                                                    <>
-                                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                                    </>
-                                                )}
-                                            </Button>
+                                            </HoverShadowEffect>
                                         </CardFooter>
                                     </Card>
+                                    </HoverShadowEffect>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

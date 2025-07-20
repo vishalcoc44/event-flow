@@ -13,6 +13,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
 import { Calendar, Clock, MapPin, DollarSign, Search, Filter } from 'lucide-react'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function CustomerBookings() {
     const { user } = useAuth()
@@ -128,13 +129,24 @@ export default function CustomerBookings() {
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             <main className="flex-grow container mx-auto px-4 py-8">
-                <div className="mb-8">
+                <motion.div 
+                    className="mb-8"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
                     <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
                     <p className="text-gray-600">Manage and view all your event bookings</p>
-                </div>
+                </motion.div>
 
                 {/* Search and Filter */}
-                <div className="mb-6">
+                <motion.div 
+                    className="mb-6"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-grow">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -159,7 +171,7 @@ export default function CustomerBookings() {
                             </select>
                         </div>
                     </div>
-                </div>
+                </motion.div>
                 
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
@@ -197,14 +209,27 @@ export default function CustomerBookings() {
             ) : (
                     <motion.div 
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        initial="hidden"
-                        animate="visible"
-                        variants={containerVariants}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
                     >
                         <AnimatePresence>
-                            {filteredBookings.map((bookingGroup) => (
-                                <motion.div key={bookingGroup.eventId} variants={itemVariants} layout>
-                                    <Card className="overflow-hidden border border-gray-200 shadow-sm">
+                            {filteredBookings.map((bookingGroup, index) => (
+                                <motion.div 
+                                    key={bookingGroup.eventId} 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    whileHover={{ 
+                                        scale: 1.02,
+                                        transition: { duration: 0.2 }
+                                    }}
+                                    layout
+                                >
+                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                        <Card className="overflow-hidden border-0 shadow-none">
                                         <div className="relative h-48">
                                             <img 
                                                 src={bookingGroup.event?.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
@@ -294,7 +319,8 @@ export default function CustomerBookings() {
                                                 )}
                                             </div>
                                         </CardFooter>
-                                    </Card>
+                                        </Card>
+                                    </HoverShadowEffect>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

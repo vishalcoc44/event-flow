@@ -13,6 +13,7 @@ import { useEvents } from '@/contexts/EventContext'
 import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, DollarSign, Search, Filter, ArrowRight } from 'lucide-react'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function EventsPage() {
     const { user } = useAuth()
@@ -88,13 +89,24 @@ export default function EventsPage() {
             
             <main className="flex-grow container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="mb-8">
+                <motion.div 
+                    className="mb-8"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover Events</h1>
                     <p className="text-gray-600">Find and book amazing events happening around you</p>
-                </div>
+                </motion.div>
 
                 {/* Search and Filters */}
-                <div className="mb-8">
+                <motion.div 
+                    className="mb-8"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Search */}
                         <div className="md:col-span-2">
@@ -139,14 +151,20 @@ export default function EventsPage() {
                             </select>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Results Count */}
-                <div className="mb-6">
+                <motion.div 
+                    className="mb-6"
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                >
                     <p className="text-gray-600">
                         {eventsLoading ? 'Loading events...' : `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''} found`}
                     </p>
-                </div>
+                </motion.div>
 
                 {/* Events Grid */}
                 {eventsLoading ? (
@@ -181,16 +199,28 @@ export default function EventsPage() {
                 ) : (
                     <motion.div 
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        initial="hidden"
-                        animate="visible"
-                        variants={containerVariants}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        {filteredEvents.map((event) => {
+                        {filteredEvents.map((event, index) => {
                             const isBooked = userBookedEvents.includes(event.id)
                             
                             return (
-                                <motion.div key={event.id} variants={itemVariants}>
-                                    <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                                <motion.div 
+                                    key={event.id} 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    whileHover={{ 
+                                        scale: 1.02,
+                                        transition: { duration: 0.2 }
+                                    }}
+                                >
+                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                        <Card className="overflow-hidden border-0 shadow-none">
                                         <div className="relative h-48">
                                             <img 
                                                 src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
@@ -267,7 +297,8 @@ export default function EventsPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </Card>
+                                        </Card>
+                                    </HoverShadowEffect>
                                 </motion.div>
                             )
                         })}

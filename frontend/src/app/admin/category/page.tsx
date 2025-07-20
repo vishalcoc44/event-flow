@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag, Plus, Edit, Trash2, Calendar } from 'lucide-react'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function AddCategory() {
     const { addCategory, categories, loading, error, fetchCategories } = useCategories()
@@ -102,7 +103,8 @@ export default function AddCategory() {
                     
                     {/* Add Category Form */}
                     <motion.div variants={itemVariants} className="mb-12">
-                        <Card className="shadow-sm border border-gray-200">
+                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                            <Card className="shadow-sm border border-gray-200">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Plus className="h-5 w-5 text-[#6CDAEC]" />
@@ -136,24 +138,29 @@ export default function AddCategory() {
                                     </div>
                                     
                                     <div className="pt-4 flex justify-end space-x-4">
-                                        <Button 
-                                            type="button" 
-                                            variant="outline"
-                                            onClick={() => setCategory({ name: '', description: '' })}
-                                        >
-                                            Clear Form
-                                        </Button>
-                                        <Button 
-                                            type="submit" 
-                                            className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
-                                            disabled={isSubmitting || loading}
-                                        >
-                                            {isSubmitting ? 'Creating...' : 'Create Category'}
-                                        </Button>
+                                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                            <Button 
+                                                type="button" 
+                                                variant="outline"
+                                                onClick={() => setCategory({ name: '', description: '' })}
+                                            >
+                                                Clear Form
+                                            </Button>
+                                        </HoverShadowEffect>
+                                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                            <Button 
+                                                type="submit" 
+                                                className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
+                                                disabled={isSubmitting || loading}
+                                            >
+                                                {isSubmitting ? 'Creating...' : 'Create Category'}
+                                            </Button>
+                                        </HoverShadowEffect>
                                     </div>
                                 </form>
                             </CardContent>
                         </Card>
+                        </HoverShadowEffect>
                     </motion.div>
 
                     {/* Existing Categories */}
@@ -192,7 +199,8 @@ export default function AddCategory() {
                                             variants={itemVariants}
                                             layout
                                         >
-                                            <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                                            <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                                <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                                                 <CardHeader className="pb-3">
                                                     <div className="flex items-center justify-between">
                                                         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -213,6 +221,7 @@ export default function AddCategory() {
                                                     </div>
                                                 </CardContent>
                                             </Card>
+                                            </HoverShadowEffect>
                                         </motion.div>
                                     ))}
                                 </AnimatePresence>

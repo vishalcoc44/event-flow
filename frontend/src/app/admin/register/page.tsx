@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Label } from '@/components/ui/label'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function RegisterAdmin() {
     const { register, isLoading, user } = useAuth()
@@ -171,20 +172,24 @@ export default function RegisterAdmin() {
                                 </div>
                                 
                                 <div className="pt-4 flex justify-end space-x-4">
-                                    <Button 
-                                        type="button" 
-                                        variant="outline"
-                                        onClick={() => router.push('/admin/dashboard')}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button 
-                                        type="submit" 
-                                        className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? 'Registering...' : 'Register Admin'}
-                                    </Button>
+                                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Button 
+                                            type="button" 
+                                            variant="outline"
+                                            onClick={() => router.push('/admin/dashboard')}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </HoverShadowEffect>
+                                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Button 
+                                            type="submit" 
+                                            className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
+                                            disabled={isLoading}
+                                        >
+                                            {isLoading ? 'Registering...' : 'Register Admin'}
+                                        </Button>
+                                    </HoverShadowEffect>
                                 </div>
                 </form>
             </CardContent>

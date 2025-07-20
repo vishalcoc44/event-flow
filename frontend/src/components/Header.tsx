@@ -7,6 +7,8 @@ import { GradientButton } from './ui/gradient-button'
 import { GradientLink } from './ui/gradient-link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { HoverShadowEffect } from './ui/hover-shadow-effect'
+import { NotificationBell } from './NotificationBell'
 
 interface HeaderProps {
     onRegisterClick?: () => void
@@ -44,77 +46,107 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                 <nav className="hidden md:flex items-center space-x-6">
                     {(user?.role === 'admin' || user?.role === 'ADMIN') && (
                         <div className="flex items-center space-x-6">
-                            <Link 
-                                href="/admin/dashboard" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Dashboard
-                            </Link>
-                            <Link 
-                                href="/admin/event" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Add Event
-                            </Link>
-                            <Link 
-                                href="/admin/category" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Add Category
-                            </Link>
-                            <Link 
-                                href="/admin/events" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                All Events
-                            </Link>
-                            <Link 
-                                href="/admin/bookings" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                All Bookings
-                            </Link>
-                            <Link 
-                                href="/admin/customers" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Customers
-                            </Link>
-                            <Link 
-                                href="/admin/register" 
-                                className={`text-sm font-medium ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Register Admin
-                            </Link>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/dashboard" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Dashboard
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/event" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Add Event
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/category" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Add Category
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/events" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    All Events
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/bookings" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    All Bookings
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/customers" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Customers
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/admin/register" 
+                                    className={`text-sm font-medium ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Register Admin
+                                </Link>
+                            </HoverShadowEffect>
                         </div>
                     )}
 
                     {user?.role === 'customer' && (
                         <div className="flex items-center space-x-6">
-                            <Link 
-                                href="/customer/dashboard" 
-                                className={`text-sm font-medium ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Dashboard
-                            </Link>
-                            <Link 
-                                href="/events" 
-                                className={`text-sm font-medium ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Events
-                            </Link>
-                            <Link 
-                                href="/customer/bookings" 
-                                className={`text-sm font-medium ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                My Bookings
-                            </Link>
-                            <Link 
-                                href="/customer/profile" 
-                                className={`text-sm font-medium ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                            >
-                                Profile
-                            </Link>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/customer/dashboard" 
+                                    className={`text-sm font-medium ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Dashboard
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/events" 
+                                    className={`text-sm font-medium ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Events
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/social" 
+                                    className={`text-sm font-medium ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Social
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/customer/bookings" 
+                                    className={`text-sm font-medium ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    My Bookings
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-3 py-2 rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
+                                    href="/customer/profile" 
+                                    className={`text-sm font-medium ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Profile
+                                </Link>
+                            </HoverShadowEffect>
                         </div>
                     )}
 
@@ -150,13 +182,18 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
 
                 <div className="hidden md:flex items-center space-x-4">
                     {user ? (
-                        <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </Button>
+                        <>
+                            <NotificationBell />
+                            <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </Button>
+                            </HoverShadowEffect>
+                        </>
                     ) : (
                         <>
                             <GradientButton 
@@ -258,6 +295,12 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                                     Events
                                 </Link>
                                 <Link 
+                                    href="/social" 
+                                    className={`text-sm font-medium ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600'}`}
+                                >
+                                    Social
+                                </Link>
+                                <Link 
                                     href="/customer/bookings" 
                                     className={`text-sm font-medium ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600'}`}
                                 >
@@ -302,14 +345,16 @@ export default function Header({ onRegisterClick, onLoginClick, user }: HeaderPr
                         )}
 
                         {user ? (
-                            <Button 
-                                variant="destructive" 
-                                size="sm" 
-                                onClick={handleLogout}
-                                className="w-full mt-4"
-                            >
-                                Logout
-                            </Button>
+                            <HoverShadowEffect className="w-full mt-4 cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    onClick={handleLogout}
+                                    className="w-full mt-4"
+                                >
+                                    Logout
+                                </Button>
+                            </HoverShadowEffect>
                         ) : (
                             <div className="flex flex-col space-y-2 mt-4">
                                 <GradientButton 

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card'
 import { Button } from './ui/button'
+import { FollowButton } from './ui/follow-button'
 import { useEvents } from '@/contexts/EventContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBookings } from '@/contexts/BookingContext'
@@ -11,59 +12,36 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from './ui/input'
 import { useToast } from '@/components/ui/use-toast'
 
-interface Event {
-    id: string;
-    title: string;
-    description: string;
-    category: string;
-    venueName: string;
-    location: string;
-    numberOfTickets: number;
-    ticketPrice: number;
-    startTime: string; // or Date if your data uses Date objects
-    endTime: string; // or Date
-}
-
 
 export default function EventList() {
     const { events, updateEvent } = useEvents()
     const { user } = useAuth()
     const { addBooking } = useBookings()
     const { toast } = useToast()
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+    const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
     const [ticketQuantity, setTicketQuantity] = useState(1)
 
-    const handleBuyTicket = (event: Event) => {
+    const handleBuyTicket = (event: any) => {
         setSelectedEvent(event)
         setTicketQuantity(1)
     }
 
     const handleConfirmPurchase = async () => {
         if (selectedEvent && user) {
-            const totalPrice = selectedEvent.ticketPrice * ticketQuantity
-            const updatedEvent = {
-                ...selectedEvent,
-                numberOfTickets: selectedEvent.numberOfTickets - ticketQuantity
+            try {
+                await addBooking(selectedEvent.id)
+                setSelectedEvent(null);
+                toast({
+                    title: "Booking Successful",
+                    description: `You have successfully booked ${selectedEvent.title}.`,
+                });
+            } catch (error) {
+                toast({
+                    title: "Booking Failed",
+                    description: "There was an error processing your booking.",
+                    variant: "destructive"
+                });
             }
-
-            await updateEvent(selectedEvent.id, updatedEvent)
-            await addBooking({
-                eventId: selectedEvent.id,
-                eventTitle: selectedEvent.title,
-                customerId: user.id,
-                customerName: `${user.firstName} ${user.lastName}`, // Template literal for customer name
-                customerEmail: user.email, // Email property
-                numberOfTickets: ticketQuantity, // Ticket quantity
-                totalPrice: totalPrice, // Total price
-            })
-
-
-            setSelectedEvent(null);
-            toast({
-                title: "Purchase Successful",
-                description: `You have successfully purchased ${ticketQuantity} ticket(s) for ${selectedEvent?.title}.`, // Use backticks for template literals
-            });
-
         }
     }
 
@@ -90,25 +68,34 @@ export default function EventList() {
                                 </CardHeader>
                                 <CardContent className="p-4 space-y-2">
                                     <p>{event.description}</p>
-                                    <p><span className="font-semibold">Category:</span> {event.category}</p>
-                                    <p><span className="font-semibold">Venue:</span> {event.venueName}</p>
+                                    <p><span className="font-semibold">Category:</span> {event.categories?.name || 'Uncategorized'}</p>
                                     <p><span className="font-semibold">Location:</span> {event.location}</p>
-                                    <p><span className="font-semibold">Available Tickets:</span> {event.numberOfTickets}</p>
-                                    <p><span className="font-semibold">Price:</span> ${event.ticketPrice}</p>
-                                    <p><span className="font-semibold">Date:</span> {new Date(event.startTime).toLocaleDateString()}</p>
-                                    <p><span className="font-semibold">Time:</span> {new Date(event.startTime).toLocaleTimeString()} - {new Date(event.endTime).toLocaleTimeString()}</p>
+                                    <p><span className="font-semibold">Price:</span> ${event.price}</p>
+                                    <p><span className="font-semibold">Date:</span> {new Date(event.date).toLocaleDateString()}</p>
+                                    <p><span className="font-semibold">Time:</span> {event.time}</p>
+                                    {(event as any).follower_count !== undefined && (
+                                        <p><span className="font-semibold">Followers:</span> {(event as any).follower_count}</p>
+                                    )}
                                 </CardContent>
-                                {user && user.role === 'customer' && (
-                                    <CardFooter>
+                                <CardFooter className="flex flex-col space-y-2">
+                                    {user && user.role === 'USER' && (
                                         <Button
                                             onClick={() => handleBuyTicket(event)}
-                                            disabled={event.numberOfTickets === 0}
                                             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                                         >
-                                            {event.numberOfTickets > 0 ? 'Buy Ticket' : 'Sold Out'}
+                                            Book Event
                                         </Button>
-                                    </CardFooter>
-                                )}
+                                    )}
+                                    <FollowButton
+                                        targetId={event.id}
+                                        targetType="EVENT"
+                                        targetName={event.title}
+                                        followerCount={(event as any).follower_count || 0}
+                                        variant="outline"
+                                        size="sm"
+                                        className="w-full"
+                                    />
+                                </CardFooter>
                             </Card>
                         </motion.div>
                     ))
@@ -122,16 +109,10 @@ export default function EventList() {
                     </DialogHeader>
                     <div className="space-y-4">
                         <p className="text-gray-700">Event: {selectedEvent?.title}</p>
-                        <p className="text-gray-700">Price per ticket: ${selectedEvent?.ticketPrice}</p>
-                        <Input
-                            type="number"
-                            min="1"
-                            max={selectedEvent?.numberOfTickets}
-                            value={ticketQuantity}
-                            onChange={(e) => setTicketQuantity(parseInt(e.target.value))}
-                            className="bg-white bg-opacity-50 border-none placeholder-gray-500 text-gray-800"
-                        />
-                        <p className="text-gray-700">Total Price: ${selectedEvent ? selectedEvent.ticketPrice * ticketQuantity : 0}</p>
+                        <p className="text-gray-700">Price: ${selectedEvent?.price}</p>
+                        <p className="text-gray-700">Date: {selectedEvent?.date && new Date(selectedEvent.date).toLocaleDateString()}</p>
+                        <p className="text-gray-700">Time: {selectedEvent?.time}</p>
+                        <p className="text-gray-700">Location: {selectedEvent?.location}</p>
                     </div>
                     <DialogFooter>
                         <Button onClick={handleConfirmPurchase} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">Confirm Purchase</Button>

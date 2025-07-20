@@ -7,7 +7,10 @@ import { CategoryProvider } from '@/contexts/CategoryContext'
 import { EventProvider } from '@/contexts/EventContext'
 import { BookingProvider } from '@/contexts/BookingContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
+import { SocialProvider } from '@/contexts/SocialContext'
+import { NotificationProvider } from '@/contexts/NotificationContext'
 import { Toaster } from "@/components/ui/toaster";
+import PageTransition from '@/components/PageTransition';
 
 const inter = Inter({
     subsets: ["latin"],
@@ -28,8 +31,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         <EventProvider>
                             <BookingProvider>
                                 <CustomerProvider>
-                                    {children}
-                                    <Toaster />
+                                    <SocialProvider>
+                                        <NotificationProvider>
+                                            <PageTransition>
+                                                {children}
+                                            </PageTransition>
+                                            <Toaster />
+                                        </NotificationProvider>
+                                    </SocialProvider>
                                 </CustomerProvider>
                             </BookingProvider>
                         </EventProvider>

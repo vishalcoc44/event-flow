@@ -159,7 +159,17 @@ CREATE POLICY "Users can update their own bookings" ON bookings
     FOR UPDATE USING (auth.uid() = user_id);
 ```
 
-### 5. Set Up Storage
+### 5. Set Up Social Features
+
+Run the social features migration in the Supabase SQL Editor:
+
+```sql
+-- Run the contents of social-features-migration.sql
+-- This creates the follows table, adds follower count columns,
+-- sets up RLS policies, and creates real-time triggers
+```
+
+### 6. Set Up Storage
 
 1. Go to Storage in the Supabase Dashboard
 2. Create a bucket named `event-images`
@@ -182,7 +192,7 @@ ON storage.objects FOR UPDATE
 USING (auth.uid() = owner);
 ```
 
-### 6. Install Dependencies and Run
+### 7. Install Dependencies and Run
 
 ```bash
 cd frontend
@@ -207,7 +217,14 @@ npm run dev
 - View bookings
 - Cancel bookings
 
-### 4. Admin Features
+### 4. Social Features
+- Follow other users
+- Follow events and categories
+- View follower counts and social profiles
+- Real-time social updates
+- Social dashboard with comprehensive social interactions
+
+### 5. Admin Features
 - Manage users
 - Manage categories
 - View all bookings

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
 import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function CustomerProfile() {
     const { user } = useAuth()
@@ -20,14 +21,29 @@ export default function CustomerProfile() {
     const [isEditing, setIsEditing] = useState(false)
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
-        first_name: user?.first_name || '',
-        last_name: user?.last_name || '',
-        username: user?.username || '',
-        contact_number: user?.contact_number || '',
-        city: user?.city || '',
-        pincode: user?.pincode || '',
-        street_address: user?.street_address || ''
+        first_name: '',
+        last_name: '',
+        username: '',
+        contact_number: '',
+        city: '',
+        pincode: '',
+        street_address: ''
     })
+
+    // Update form data when user data becomes available
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                username: user.username || '',
+                contact_number: user.contact_number || '',
+                city: user.city || '',
+                pincode: user.pincode || '',
+                street_address: user.street_address || ''
+            })
+        }
+    }, [user])
 
     const getInitials = (firstName?: string, lastName?: string, email?: string) => {
         if (firstName && lastName) {
@@ -144,19 +160,38 @@ export default function CustomerProfile() {
             
             <main className="flex-grow container mx-auto px-4 py-8">
                 <motion.div 
-                    initial="hidden"
-                    animate="visible"
-                    variants={containerVariants}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
                 >
-                    <div className="mb-8">
+                    <motion.div 
+                        className="mb-8"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
                         <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
                         <p className="text-gray-600">Manage your account information and preferences</p>
-                    </div>
+                    </motion.div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <motion.div 
+                        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
                         {/* Profile Overview */}
-                        <motion.div variants={itemVariants} className="lg:col-span-1">
-                            <Card className="border border-gray-200 shadow-sm">
+                        <motion.div 
+                            className="lg:col-span-1"
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                        >
+                            <HoverShadowEffect className="border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                <Card className="border-0 shadow-none">
                                 <CardHeader className="text-center pb-4">
                                     <div className="flex justify-center mb-4">
                                         <Avatar className="h-24 w-24 bg-[#6CDAEC] text-white">
@@ -183,12 +218,20 @@ export default function CustomerProfile() {
                                         </div>
                                     </div>
                                 </CardContent>
-                            </Card>
+                                </Card>
+                            </HoverShadowEffect>
                         </motion.div>
 
                         {/* Profile Details */}
-                        <motion.div variants={itemVariants} className="lg:col-span-2">
-                            <Card className="border border-gray-200 shadow-sm">
+                        <motion.div 
+                            className="lg:col-span-2"
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                        >
+                            <HoverShadowEffect className="border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                <Card className="border-0 shadow-none">
                                 <CardHeader className="flex flex-row items-center justify-between">
                                     <CardTitle className="text-xl font-semibold text-gray-900">Personal Information</CardTitle>
                                     <div className="flex gap-2">
@@ -319,9 +362,10 @@ export default function CustomerProfile() {
                                         </div>
                                     </div>
                                 </CardContent>
-                            </Card>
+                                </Card>
+                            </HoverShadowEffect>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 </motion.div>
             </main>
             

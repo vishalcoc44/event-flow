@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useAuth } from '@/contexts/AuthContext'
+import { HoverShadowEffect } from './ui/hover-shadow-effect'
 
 interface AuthModalProps {
     type: 'login' | 'register'
@@ -92,11 +93,11 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
                         {error && (
                             <p className="text-red-500 text-sm">{error}</p>
                         )}
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <HoverShadowEffect className="w-full cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
                             <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                                 {type === 'login' ? 'Login' : 'Register'}
                             </Button>
-                        </motion.div>
+                        </HoverShadowEffect>
                     </motion.form>
                 </DialogContent>
             </Dialog>

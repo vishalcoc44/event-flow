@@ -14,6 +14,7 @@ import { useBookings } from '@/contexts/BookingContext'
 import { useEvents } from '@/contexts/EventContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, User, DollarSign, CheckCircle } from 'lucide-react'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 type DashboardStats = {
     totalBookings: number
@@ -213,6 +214,14 @@ export default function CustomerDashboard() {
                                 Profile
                             </Button>
                         </Link>
+                        <Link href="/social">
+                            <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Social
+                            </Button>
+                        </Link>
                         <Link href="/events">
                             <Button size="sm">
                                 <Calendar className="h-4 w-4 mr-2" />
@@ -225,82 +234,213 @@ export default function CustomerDashboard() {
                 {/* Stats Cards */}
                 <motion.div 
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                    initial="hidden"
-                    animate="visible"
-                    variants={containerVariants}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                    <motion.div variants={itemVariants}>
-                        <Card className="p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-sm font-medium text-gray-500">Total Bookings</h2>
-                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                                    <Calendar className="h-5 w-5 text-[#6CDAEC]" />
-                                </div>
-                        </div>
-                        <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-gray-900">
-                                    {bookingsLoading ? '...' : dashboardStats.totalBookings}
-                                </span>
-                                <span className="text-xs text-gray-500 mt-1">Total bookings made</span>
-                        </div>
-                    </Card>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                            <div className="flex items-center justify-between mb-2">
+                                <h2 className="text-sm font-medium text-gray-500">Total Bookings</h2>
+                                <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                        <Calendar className="h-5 w-5 text-[#6CDAEC]" />
+                                    </div>
+                            </div>
+                            <div className="flex flex-col">
+                                    <span className="text-3xl font-bold text-gray-900">
+                                        {bookingsLoading ? '...' : dashboardStats.totalBookings}
+                                    </span>
+                                    <span className="text-xs text-gray-500 mt-1">Total bookings made</span>
+                            </div>
+                            </Card>
+                        </HoverShadowEffect>
                     </motion.div>
                     
-                    <motion.div variants={itemVariants}>
-                        <Card className="p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-sm font-medium text-gray-500">Upcoming Events</h2>
-                                <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                                    <Clock className="h-5 w-5 text-green-600" />
-                                </div>
-                        </div>
-                        <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-gray-900">
-                                    {bookingsLoading ? '...' : dashboardStats.upcomingEvents}
-                                </span>
-                                <span className="text-xs text-gray-500 mt-1">Events in the next month</span>
-                        </div>
-                    </Card>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                            <div className="flex items-center justify-between mb-2">
+                                <h2 className="text-sm font-medium text-gray-500">Upcoming Events</h2>
+                                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                                        <Clock className="h-5 w-5 text-green-600" />
+                                    </div>
+                            </div>
+                            <div className="flex flex-col">
+                                    <span className="text-3xl font-bold text-gray-900">
+                                        {bookingsLoading ? '...' : dashboardStats.upcomingEvents}
+                                    </span>
+                                    <span className="text-xs text-gray-500 mt-1">Events in the next month</span>
+                            </div>
+                            </Card>
+                        </HoverShadowEffect>
                     </motion.div>
                     
-                    <motion.div variants={itemVariants}>
-                        <Card className="p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-gray-500">Total Spent</h2>
-                                <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                                    <DollarSign className="h-5 w-5 text-purple-600" />
-                                </div>
-                        </div>
-                        <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-gray-900">
-                                    ${bookingsLoading ? '...' : dashboardStats.totalSpent.toFixed(2)}
-                                </span>
-                                <span className="text-xs text-gray-500 mt-1">Total amount spent on events</span>
-                        </div>
-                    </Card>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                    >
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                            <div className="flex items-center justify-between mb-2">
+                                    <h2 className="text-sm font-medium text-gray-500">Total Spent</h2>
+                                    <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                                        <DollarSign className="h-5 w-5 text-purple-600" />
+                                    </div>
+                            </div>
+                            <div className="flex flex-col">
+                                    <span className="text-3xl font-bold text-gray-900">
+                                        ${bookingsLoading ? '...' : dashboardStats.totalSpent.toFixed(2)}
+                                    </span>
+                                    <span className="text-xs text-gray-500 mt-1">Total amount spent on events</span>
+                            </div>
+                            </Card>
+                        </HoverShadowEffect>
                     </motion.div>
                     
-                    <motion.div variants={itemVariants}>
-                        <Card className="p-6 border border-gray-200 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-sm font-medium text-gray-500">Attended Events</h2>
-                                <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                            <div className="flex items-center justify-between mb-2">
+                                <h2 className="text-sm font-medium text-gray-500">Attended Events</h2>
+                                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                                        <CheckCircle className="h-5 w-5 text-green-600" />
+                                    </div>
+                            </div>
+                            <div className="flex flex-col">
+                                    <span className="text-3xl font-bold text-gray-900">
+                                        {bookingsLoading ? '...' : dashboardStats.attendedEvents}
+                                    </span>
+                                    <span className="text-xs text-gray-500 mt-1">Events you've attended</span>
+                            </div>
+                            </Card>
+                        </HoverShadowEffect>
+                    </motion.div>
+                </motion.div>
+                
+                {/* Social Features Section */}
+                <motion.div 
+                    className="mb-12"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                >
+                    <motion.div 
+                        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
+                        initial={{ opacity: 0, x: -30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4 md:mb-0">Social Features</h2>
+                        <Link href="/social">
+                            <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Explore Social
+                            </Button>
+                        </Link>
+                    </motion.div>
+                    
+                    <motion.div 
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
                                 </div>
-                        </div>
-                        <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-gray-900">
-                                    {bookingsLoading ? '...' : dashboardStats.attendedEvents}
-                                </span>
-                                <span className="text-xs text-gray-500 mt-1">Events you've attended</span>
-                        </div>
-                    </Card>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Users</h3>
+                                <p className="text-gray-600 text-sm mb-4">Connect with other event enthusiasts and organizers</p>
+                                <Link href="/social">
+                                    <Button variant="outline" size="sm" className="w-full">
+                                        Connect
+                                    </Button>
+                                </Link>
+                            </Card>
+                        </HoverShadowEffect>
+                        
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <Calendar className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Events</h3>
+                                <p className="text-gray-600 text-sm mb-4">Stay updated on your favorite events and get notifications</p>
+                                <Link href="/social">
+                                    <Button variant="outline" size="sm" className="w-full">
+                                        Follow Events
+                                    </Button>
+                                </Link>
+                            </Card>
+                        </HoverShadowEffect>
+                        
+                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="p-6 border-0 shadow-none">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Categories</h3>
+                                <p className="text-gray-600 text-sm mb-4">Discover events in your favorite categories</p>
+                                <Link href="/social">
+                                    <Button variant="outline" size="sm" className="w-full">
+                                        Explore Categories
+                                    </Button>
+                                </Link>
+                            </Card>
+                        </HoverShadowEffect>
                     </motion.div>
                 </motion.div>
                 
                 {/* Your Recent Bookings */}
-                <div className="mb-12">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <motion.div 
+                    className="mb-12"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                >
+                    <motion.div 
+                        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
+                        initial={{ opacity: 0, x: -30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
                         <h2 className="text-xl font-semibold text-gray-900 mb-4 md:mb-0">Your Recent Bookings</h2>
                         <div className="w-full md:w-auto flex items-center">
                             <div className="relative flex-grow md:w-64">
@@ -318,7 +458,7 @@ export default function CustomerDashboard() {
                                 />
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                     
                     {bookingsLoading ? (
                         <div className="flex justify-center items-center h-64">
@@ -348,13 +488,25 @@ export default function CustomerDashboard() {
                     ) : (
                         <motion.div 
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                            initial="hidden"
-                            animate="visible"
-                            variants={containerVariants}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            {filteredBookings.slice(0, 6).map((bookingGroup) => (
-                                <motion.div key={bookingGroup.eventId} variants={itemVariants}>
-                                    <Card className="overflow-hidden border border-gray-200 shadow-sm">
+                            {filteredBookings.slice(0, 6).map((bookingGroup, index) => (
+                                <motion.div 
+                                    key={bookingGroup.eventId} 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    whileHover={{ 
+                                        scale: 1.02,
+                                        transition: { duration: 0.2 }
+                                    }}
+                                >
+                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                        <Card className="overflow-hidden border-0 shadow-none">
                                 <div className="relative h-48">
                                     <img 
                                                 src={bookingGroup.event?.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
@@ -411,32 +563,56 @@ export default function CustomerDashboard() {
                                         </Link>
                                     </div>
                                 </div>
-                            </Card>
+                                </Card>
+                            </HoverShadowEffect>
                                 </motion.div>
                             ))}
                         </motion.div>
                     )}
-                </div>
+                </motion.div>
                 
                 {/* Recommended For You */}
                 {recommendedEvents.length > 0 && (
-                <div>
-                    <div className="flex justify-between items-center mb-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                >
+                    <motion.div 
+                        className="flex justify-between items-center mb-6"
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
                         <h2 className="text-xl font-semibold text-gray-900">Recommended For You</h2>
                             <Link href="/events" className="text-[#6CDAEC] hover:underline text-sm font-medium">
                             Discover More
                         </Link>
-                    </div>
+                    </motion.div>
                     
                         <motion.div 
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                            initial="hidden"
-                            animate="visible"
-                            variants={containerVariants}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            {recommendedEvents.slice(0, 3).map((event) => (
-                                <motion.div key={event.id} variants={itemVariants}>
-                                    <Card className="overflow-hidden border border-gray-200 shadow-sm">
+                            {recommendedEvents.slice(0, 3).map((event, index) => (
+                                <motion.div 
+                                    key={event.id} 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    whileHover={{ 
+                                        scale: 1.02,
+                                        transition: { duration: 0.2 }
+                                    }}
+                                >
+                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                        <Card className="overflow-hidden border-0 shadow-none">
                                 <div className="relative h-48">
                                     <img 
                                                 src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
@@ -477,11 +653,12 @@ export default function CustomerDashboard() {
                                                 </div>
                                             </div>
                                 </div>
-                            </Card>
+                                </Card>
+                            </HoverShadowEffect>
                                 </motion.div>
                         ))}
                         </motion.div>
-                    </div>
+                    </motion.div>
                 )}
             </main>
             

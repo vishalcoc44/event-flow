@@ -11,6 +11,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/use-toast'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function AllBookings() {
     const { bookings, loading, error, cancelBooking } = useBookings()
@@ -127,7 +128,8 @@ export default function AllBookings() {
                         <AnimatePresence>
                             {bookings.map((booking) => (
                                 <motion.div key={booking.id} variants={bookingVariants} layout>
-                                    <Card className="overflow-hidden border border-gray-200 shadow-sm">
+                                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Card className="overflow-hidden border border-gray-200 shadow-sm">
                                         <CardHeader 
                                             className="bg-white border-b cursor-pointer"
                                             onClick={() => toggleBooking(booking.id)}
@@ -210,14 +212,16 @@ export default function AllBookings() {
                                                     <CardFooter className="border-t bg-gray-50 py-3">
                                                         <div className="flex justify-end w-full">
                                                             {booking.status !== 'CANCELLED' && (
-                                                                <Button 
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    onClick={() => handleCancelBooking(booking.id)}
-                                                                    disabled={cancellingId === booking.id}
-                                                                >
-                                                                    {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
-                                                                </Button>
+                                                                <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                                                    <Button 
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        onClick={() => handleCancelBooking(booking.id)}
+                                                                        disabled={cancellingId === booking.id}
+                                                                    >
+                                                                        {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                                                                    </Button>
+                                                                </HoverShadowEffect>
                                                             )}
                                                         </div>
                                                     </CardFooter>
@@ -225,6 +229,7 @@ export default function AllBookings() {
                                             )}
                                         </AnimatePresence>
                                     </Card>
+                                    </HoverShadowEffect>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

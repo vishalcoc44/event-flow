@@ -14,6 +14,7 @@ import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function AddEvent() {
     const router = useRouter()
@@ -73,8 +74,9 @@ export default function AddEvent() {
                 <div className="max-w-3xl mx-auto">
                     <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Event</h1>
                     
-                    <Card className="shadow-sm border border-gray-200">
-                        <CardContent className="pt-6">
+                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                        <Card className="shadow-sm border border-gray-200">
+                            <CardContent className="pt-6">
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="title">Event Title</Label>
@@ -192,24 +194,29 @@ export default function AddEvent() {
                                 </div>
                                 
                                 <div className="pt-4 flex justify-end space-x-4">
-                                    <Button 
-                                        type="button" 
-                                        variant="outline"
-                                        onClick={() => router.push('/admin/events')}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button 
-                                        type="submit" 
-                                        className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Creating...' : 'Create Event'}
-                                    </Button>
+                                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Button 
+                                            type="button" 
+                                            variant="outline"
+                                            onClick={() => router.push('/admin/events')}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </HoverShadowEffect>
+                                    <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Button 
+                                            type="submit" 
+                                            className="bg-[#6CDAEC] hover:bg-[#5BCFE3] text-white"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Creating...' : 'Create Event'}
+                                        </Button>
+                                    </HoverShadowEffect>
                                 </div>
                             </form>
                         </CardContent>
                     </Card>
+                    </HoverShadowEffect>
                 </div>
             </main>
             

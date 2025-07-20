@@ -9,6 +9,9 @@ import { Card } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/contexts/EventContext'
 import { eventsAPI, bookingsAPI, categoriesAPI, authAPI } from '@/lib/api'
+import { motion } from 'motion/react'
+import { Dashboard3DCard, Activity3DCard, TableRow3DCard } from '@/components/ui/dashboard-3d-card'
+import { CardHoverShadow, HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 // Define types for dashboard data
 type ActivityItem = {
@@ -151,89 +154,116 @@ export default function AdminDashboard() {
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             <main className="flex-grow container mx-auto px-4 py-8">
-                <div className="mb-8">
+                <motion.div 
+                    className="mb-8"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
                     <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                     <p className="text-gray-600">Overview of your event management system</p>
-                </div>
+                </motion.div>
                 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <Card className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-sm font-medium text-gray-500">Total Events</h2>
-                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                <motion.div 
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <Dashboard3DCard
+                            title="Total Events"
+                            value={loading ? '...' : dashboardStats.totalEvents}
+                            description="Total events in the system"
+                            icon={
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                                 </svg>
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {loading ? '...' : dashboardStats.totalEvents}
-                            </span>
-                            <span className="text-sm text-gray-500 mt-1">Total events in the system</span>
-                        </div>
-                    </Card>
+                            }
+                        />
+                    </motion.div>
                     
-                    <Card className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-sm font-medium text-gray-500">Total Bookings</h2>
-                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                        <Dashboard3DCard
+                            title="Total Bookings"
+                            value={loading ? '...' : dashboardStats.totalBookings}
+                            description="Total bookings made"
+                            icon={
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                                     <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                                 </svg>
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {loading ? '...' : dashboardStats.totalBookings}
-                            </span>
-                            <span className="text-sm text-gray-500 mt-1">Total bookings made</span>
-                        </div>
-                    </Card>
+                            }
+                        />
+                    </motion.div>
                     
-                    <Card className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-sm font-medium text-gray-500">Revenue Generated</h2>
-                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                    >
+                        <Dashboard3DCard
+                            title="Revenue Generated"
+                            value={loading ? '...' : `$${dashboardStats.revenue}`}
+                            description="Total revenue from bookings"
+                            icon={
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
                                 </svg>
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {loading ? '...' : `$${dashboardStats.revenue}`}
-                            </span>
-                            <span className="text-sm text-gray-500 mt-1">Total revenue from bookings</span>
-                        </div>
-                    </Card>
+                            }
+                        />
+                    </motion.div>
                     
-                    <Card className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-sm font-medium text-gray-500">New Users</h2>
-                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                        <Dashboard3DCard
+                            title="New Users"
+                            value={loading ? '...' : dashboardStats.newUsers}
+                            description="New user registrations"
+                            icon={
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                 </svg>
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl font-bold text-gray-900">
-                                {loading ? '...' : dashboardStats.newUsers}
-                            </span>
-                            <span className="text-sm text-gray-500 mt-1">New user registrations</span>
-                        </div>
-                    </Card>
-                </div>
+                            }
+                        />
+                    </motion.div>
+                </motion.div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <motion.div 
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                >
                     {/* Recent Activity */}
-                    <div>
+                    <motion.div
+                        initial={{ opacity: 0, x: -30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
                         <h2 className="text-xl font-semibold mb-4 text-gray-900">Recent Activity</h2>
-                        <Card className="overflow-hidden">
+                        <HoverShadowEffect className="overflow-hidden bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="overflow-hidden border-0 shadow-none">
                             {loading ? (
                                 <div className="p-4 text-center">Loading activity data...</div>
                             ) : dashboardStats.recentActivity.length === 0 ? (
@@ -241,7 +271,18 @@ export default function AdminDashboard() {
                             ) : (
                             <div className="divide-y divide-gray-200">
                                 {dashboardStats.recentActivity.map((activity, index) => (
-                                    <div key={index} className="p-4 flex items-start">
+                                    <motion.div 
+                                        key={index} 
+                                        className="p-4 flex items-start hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                                        whileHover={{ 
+                                            x: 5,
+                                            transition: { duration: 0.2 }
+                                        }}
+                                    >
                                         <div className="mr-4">
                                             {activity.type === 'event' && (
                                                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -284,15 +325,21 @@ export default function AdminDashboard() {
                                             <p className="text-sm text-gray-800">{activity.title}</p>
                                             <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                             )}
-                        </Card>
-                    </div>
+                            </Card>
+                        </HoverShadowEffect>
+                    </motion.div>
                     
                     {/* Recent Event Bookings */}
-                    <div>
+                    <motion.div
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                    >
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-semibold text-gray-900">Recent Event Bookings</h2>
                             <Link href="/admin/bookings">
@@ -301,7 +348,8 @@ export default function AdminDashboard() {
                             </Button>
                             </Link>
                         </div>
-                        <Card className="overflow-hidden">
+                        <HoverShadowEffect className="overflow-hidden bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <Card className="overflow-hidden border-0 shadow-none">
                             {loading ? (
                                 <div className="p-4 text-center">Loading booking data...</div>
                             ) : dashboardStats.recentBookings.length === 0 ? (
@@ -329,8 +377,19 @@ export default function AdminDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {dashboardStats.recentBookings.map((booking) => (
-                                            <tr key={booking.id}>
+                                        {dashboardStats.recentBookings.map((booking, index) => (
+                                            <motion.tr 
+                                                key={booking.id}
+                                                className="hover:bg-gray-50 transition-colors duration-200"
+                                                initial={{ opacity: 0, y: 20 }}
+                                                whileInView={{ opacity: 1, y: 0 }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                                                whileHover={{ 
+                                                    scale: 1.01,
+                                                    transition: { duration: 0.2 }
+                                                }}
+                                            >
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                         {booking.id.substring(0, 8)}
                                                 </td>
@@ -352,15 +411,16 @@ export default function AdminDashboard() {
                                                         {booking.status}
                                                     </span>
                                                 </td>
-                                            </tr>
+                                            </motion.tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                             )}
-                        </Card>
-                    </div>
-                </div>
+                            </Card>
+                        </HoverShadowEffect>
+                    </motion.div>
+                </motion.div>
             </main>
             
             <Footer />

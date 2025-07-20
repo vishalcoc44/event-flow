@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/AuthContext'
 import { EvervaultCard } from '@/components/ui/evervault-card'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function Register() {
     const router = useRouter()
@@ -319,13 +320,15 @@ export default function Register() {
                                         </label>
                                     </div>
                                     
-                                    <Button 
-                                        type="submit" 
-                                        className="w-full"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Registering...' : 'Register'}
-                                    </Button>
+                                    <HoverShadowEffect className="w-full cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                        <Button 
+                                            type="submit" 
+                                            className="w-full"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Registering...' : 'Register'}
+                                        </Button>
+                                    </HoverShadowEffect>
                                     
                                     <div className="text-center">
                                         <p className="text-sm text-gray-600">

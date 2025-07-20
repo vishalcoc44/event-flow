@@ -13,6 +13,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
 import { Mail, Phone, MapPin, Calendar, Clock } from 'lucide-react'
+import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 
 export default function ViewCustomers() {
     const { customers, loading, error } = useCustomers()
@@ -99,7 +100,8 @@ export default function ViewCustomers() {
                     >
                         {customers.map((customer) => (
                             <motion.div key={customer.id} variants={itemVariants}>
-                                <Card className="overflow-hidden border border-gray-200 shadow-sm">
+                                <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
+                                    <Card className="overflow-hidden border border-gray-200 shadow-sm">
                                     <CardHeader className="bg-white border-b">
                                         <div className="flex items-center gap-4">
                                             <Avatar className="h-12 w-12 bg-[#6CDAEC] text-white">
@@ -201,6 +203,7 @@ export default function ViewCustomers() {
                                         )}
                                     </CardContent>
                                 </Card>
+                                </HoverShadowEffect>
                             </motion.div>
                         ))}
                     </motion.div>
