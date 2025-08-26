@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Users, Calendar, Tag, Heart, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabase';
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -72,14 +73,19 @@ export default function SocialPage() {
     if (!user) return;
     
     try {
-      const [follows, followers, users] = await Promise.all([
+      // Fetch users directly from Supabase
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, email, username, first_name, last_name, role, follower_count, created_at')
+        .order('created_at', { ascending: false });
+
+      const [follows, followers] = await Promise.all([
         getUserFollows(),
-        getUserFollowers(user.id),
-        fetch('/api/users').then(res => res.json()).catch(() => [])
+        getUserFollowers(user.id)
       ]);
       setUserFollowsData(follows);
       setUserFollowersData(followers);
-      setAllUsers(users);
+      setAllUsers(users || []);
     } catch (error) {
       console.error('Error loading social data:', error);
     }

@@ -18,38 +18,8 @@ export default function CashfreeButton({ amount, currency, customer, onSuccess }
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/cashfree-create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amount / 100, currency, customer }), // Convert back to dollars
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to create order");
-      
-      // @ts-ignore
-      if (!window.Cashfree) {
-        setError("Cashfree SDK not loaded");
-        setLoading(false);
-        return;
-      }
-      
-      // @ts-ignore
-      const cashfree = window.Cashfree({ 
-        mode: process.env.NODE_ENV === "production" ? "production" : "sandbox" 
-      });
-      
-      cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: "_modal",
-        onSuccess: (data: any) => {
-          console.log('Payment successful:', data);
-          onSuccess?.();
-        },
-        onFailure: (data: any) => {
-          console.error('Payment failed:', data);
-          setError('Payment failed');
-        }
-      });
+      // TODO: Replace with Supabase Edge Function for payment processing
+      setError("Payment processing is temporarily disabled while migrating to static hosting");
     } catch (err: any) {
       setError(err.message || "Payment error");
     } finally {
