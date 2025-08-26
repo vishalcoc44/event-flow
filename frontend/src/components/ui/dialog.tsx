@@ -121,4 +121,5 @@ export {
     DialogFooter,
     DialogTitle,
     DialogDescription,
+    DialogTrigger,
 }

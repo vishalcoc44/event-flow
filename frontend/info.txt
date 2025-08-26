@@ -1,0 +1,1773 @@
+1. Database Tables 📊
+Here's a breakdown of our database tables, complete with their columns and any special rules (constraints). Think of these as the blueprints for where all our event data lives!
+
+public.admin_requests
+Purpose: Manages requests from users who want to become administrators.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the request. Auto-generated.
+
+user_id (UUID, Unique, Not Null): The user making the request. Links to auth.users.
+
+email (character varying, Not Null): Requester's email.
+
+first_name (character varying): Requester's first name.
+
+last_name (character varying): Requester's last name.
+
+contact_number (character varying): Requester's contact number.
+
+reason (text, Not Null): Why the user wants admin access.
+
+organization (character varying): User's organization.
+
+experience_level (character varying): User's experience level (BEGINNER, INTERMEDIATE, EXPERIENCED, EXPERT).
+
+intended_use (text): How the user intends to use admin privileges.
+
+status (character varying, Default 'PENDING'): Current status (PENDING, APPROVED, REJECTED, CANCELLED).
+
+reviewed_by (UUID): ID of the admin who reviewed the request. Links to auth.users.
+
+reviewed_at (timestamp with time zone): When the request was reviewed.
+
+review_notes (text): Notes from the reviewer.
+
+created_at (timestamp with time zone, Default now()): When the request was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the request was updated.
+
+organization_id (UUID): The organization the request pertains to (if any). Links to public.organizations.
+
+requested_role (character varying, Default 'ADMIN'): The role requested (ADMIN, OWNER).
+
+public.bookings
+Purpose: Stores information about event bookings.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the booking. Auto-generated.
+
+event_id (UUID): The event being booked. Links to public.events.
+
+user_id (UUID): The user who made the booking. Links to public.users.
+
+booking_date (timestamp with time zone, Default CURRENT_TIMESTAMP): When the booking was made.
+
+status (character varying, Default 'PENDING'): Status of the booking.
+
+created_at (timestamp with time zone, Default CURRENT_TIMESTAMP): When the booking record was created.
+
+public.categories
+Purpose: Defines categories for events (e.g., "Concert," "Workshop").
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the category. Auto-generated.
+
+name (character varying, Not Null): Name of the category.
+
+description (text): Description of the category.
+
+created_at (timestamp with time zone, Default CURRENT_TIMESTAMP): When the category was created.
+
+follower_count (integer, Default 0): Number of users following this category.
+
+public.event_spaces
+Purpose: Manages physical or virtual spaces where events can be held within an organization.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the event space. Auto-generated.
+
+name (character varying, Not Null): Name of the event space.
+
+description (text): Description of the event space.
+
+slug (character varying, Not Null, Unique per organization): A URL-friendly identifier for the space (e.g., 'main-hall'). Must be lowercase alphanumeric with hyphens.
+
+organization_id (UUID, Not Null): The organization this space belongs to. Links to public.organizations.
+
+created_by (UUID, Not Null): The user who created this space. Links to auth.users.
+
+is_public (boolean, Default true): Is the event space publicly visible?
+
+allow_public_events (boolean, Default true): Can public events be held here?
+
+require_approval_for_events (boolean, Default false): Do events in this space need approval?
+
+created_at (timestamp with time zone, Default now()): When the space was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the space was updated.
+
+public.events
+Purpose: Stores details about individual events.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the event. Auto-generated.
+
+title (character varying, Not Null): Title of the event.
+
+description (text): Full description of the event.
+
+date (date, Not Null): Date of the event.
+
+time (time without time zone, Not Null): Time of the event.
+
+location (character varying): Physical or virtual location of the event.
+
+price (numeric): Price of admission (if any).
+
+image_url (text): URL for the event's promotional image.
+
+category_id (UUID): The category the event belongs to. Links to public.categories.
+
+created_by (UUID): The user who created the event. Links to public.users.
+
+created_at (timestamp with time zone, Default CURRENT_TIMESTAMP): When the event was created.
+
+follower_count (integer, Default 0): Number of users following this event.
+
+organization_id (UUID): The organization hosting the event. Links to public.organizations.
+
+event_space_id (UUID): The specific event space (if any) used. Links to public.event_spaces.
+
+is_public (boolean, Default true): Is the event publicly visible?
+
+requires_approval (boolean, Default false): Does this event need approval?
+
+is_approved (boolean, Default true): Has the event been approved?
+
+public.follows
+Purpose: Tracks which users are following other users, events, or categories.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the follow relationship. Auto-generated.
+
+follower_id (UUID, Not Null): The user who is following. Links to public.users.
+
+target_id (UUID, Not Null): The ID of the item being followed (user, event, or category).
+
+target_type (character varying, Not Null): What type of item is being followed (USER, EVENT, CATEGORY).
+
+created_at (timestamp with time zone, Default CURRENT_TIMESTAMP): When the follow began.
+
+public.migration_log
+Purpose: Logs database migrations (for development/deployment tracking).
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the log entry. Auto-generated.
+
+migration_name (character varying, Not Null): Name of the migration.
+
+applied_at (timestamp with time zone, Default now()): When the migration was applied.
+
+status (character varying, Default 'SUCCESS'): Status of the migration (SUCCESS, FAILED, ROLLBACK).
+
+details (jsonb): Additional details about the migration.
+
+public.notification_preferences
+Purpose: Stores user preferences for different types of notifications.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+user_id (UUID, Not Null, Unique): The user whose preferences these are. Links to auth.users.
+
+email_notifications (boolean, Default true): Receive notifications via email.
+
+push_notifications (boolean, Default true): Receive push notifications.
+
+event_reminders (boolean, Default true): Receive reminders for events.
+
+booking_reminders (boolean, Default true): Receive reminders for bookings.
+
+follow_updates (boolean, Default true): Receive updates for followed items.
+
+category_updates (boolean, Default true): Receive updates for followed categories.
+
+reminder_hours (integer, Default 24): How many hours before an event to send a reminder.
+
+created_at (timestamp with time zone, Default now()): When preferences were created.
+
+updated_at (timestamp with time zone, Default now()): Last time preferences were updated.
+
+public.notification_templates
+Purpose: Defines templates for various notification types.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+type (character varying, Not Null, Unique): The type of notification (e.g., EVENT_REMINDER).
+
+title_template (text, Not Null): Template for the notification title.
+
+message_template (text, Not Null): Template for the notification message.
+
+is_active (boolean, Default true): Is this template currently active?
+
+created_at (timestamp with time zone, Default now()): When the template was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the template was updated.
+
+public.notifications
+Purpose: Stores individual notifications to be sent to users.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the notification. Auto-generated.
+
+user_id (UUID, Not Null): The recipient user. Links to auth.users.
+
+title (character varying, Not Null): The notification title.
+
+message (text, Not Null): The notification message.
+
+type (character varying, Not Null): Type of notification (e.g., EVENT_CREATED, BOOKING_CONFIRMED).
+
+data (jsonb, Default '{}'): Additional JSON data related to the notification.
+
+is_read (boolean, Default false): Has the user read this notification?
+
+is_sent (boolean, Default false): Has this notification been sent?
+
+scheduled_at (timestamp with time zone): When the notification is scheduled to be sent.
+
+sent_at (timestamp with time zone): When the notification was actually sent.
+
+created_at (timestamp with time zone, Default now()): When the notification record was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the notification was updated.
+
+public.organization_settings
+Purpose: Stores custom settings for organizations.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+organization_id (UUID, Not Null): The organization these settings belong to. Links to public.organizations.
+
+setting_key (character varying, Not Null): The key for the setting (e.g., 'theme_color').
+
+setting_value (text): The value of the setting.
+
+setting_type (character varying, Default 'STRING'): The data type of the setting value (STRING, NUMBER, BOOLEAN, JSON).
+
+description (text): Description of the setting.
+
+created_at (timestamp with time zone, Default now()): When the setting was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the setting was updated.
+
+public.organizations
+Purpose: Manages information about organizations that host events.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the organization. Auto-generated.
+
+name (character varying, Not Null): Name of the organization.
+
+slug (character varying, Not Null, Unique): A URL-friendly identifier for the organization. Must be lowercase alphanumeric with hyphens.
+
+description (text): Description of the organization.
+
+logo_url (text): URL for the organization's logo.
+
+website_url (text): Organization's website.
+
+contact_email (character varying): Contact email for the organization.
+
+contact_phone (character varying): Contact phone for the organization.
+
+address (text): Physical address.
+
+city (character varying): City of the organization.
+
+state (character varying): State of the organization.
+
+country (character varying): Country of the organization.
+
+postal_code (character varying): Postal code.
+
+subscription_plan (character varying, Default 'FREE'): Current subscription plan (FREE, BASIC, PRO, ENTERPRISE).
+
+subscription_status (character varying, Default 'ACTIVE'): Status of the subscription (ACTIVE, SUSPENDED, CANCELLED, EXPIRED).
+
+subscription_start_date (timestamp with time zone): When the subscription started.
+
+subscription_end_date (timestamp with time zone): When the subscription ends.
+
+max_events (integer, Default 10): Maximum number of events allowed by the subscription plan.
+
+max_users (integer, Default 5): Maximum number of users allowed by the subscription plan.
+
+max_storage_mb (integer, Default 100): Maximum storage (in MB) allowed.
+
+current_events_count (integer, Default 0): Current number of events.
+
+current_users_count (integer, Default 0): Current number of users.
+
+current_storage_mb (integer, Default 0): Current storage used (in MB).
+
+is_public (boolean, Default true): Is the organization publicly discoverable?
+
+allow_public_events (boolean, Default true): Can this organization host public events?
+
+require_approval_for_events (boolean, Default false): Do events created by this organization require approval?
+
+allow_user_registration (boolean, Default true): Can users register directly with this organization?
+
+created_by (UUID): The user who created the organization. Links to auth.users.
+
+created_at (timestamp with time zone, Default now()): When the organization was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the organization was updated.
+
+public.review_helpful_votes
+Purpose: Tracks whether users found a review helpful or not.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+review_id (UUID, Not Null): The review being voted on. Links to public.reviews.
+
+user_id (UUID, Not Null): The user who cast the vote. Links to auth.users.
+
+is_helpful (boolean, Not Null): True if helpful, false if not.
+
+created_at (timestamp with time zone, Default now()): When the vote was cast.
+
+public.review_reports
+Purpose: Records reports against reviews (e.g., for inappropriate content).
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the report. Auto-generated.
+
+review_id (UUID, Not Null): The review being reported. Links to public.reviews.
+
+reporter_id (UUID, Not Null): The user who reported the review. Links to auth.users.
+
+reason (character varying, Not Null): Reason for the report (INAPPROPRIATE, SPAM, FAKE, OFFENSIVE, OTHER).
+
+description (text): Detailed description of the report.
+
+status (character varying, Default 'PENDING'): Status of the report (PENDING, REVIEWED, RESOLVED, DISMISSED).
+
+created_at (timestamp with time zone, Default now()): When the report was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the report was updated.
+
+public.reviews
+Purpose: Stores user reviews for events.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the review. Auto-generated.
+
+event_id (UUID, Not Null): The event being reviewed. Links to public.events.
+
+user_id (UUID, Not Null): The user who wrote the review. Links to auth.users.
+
+rating (integer, Not Null): Rating from 1 to 5.
+
+title (character varying): Title of the review.
+
+comment (text): Full review text.
+
+is_verified (boolean, Default false): Is the review verified (e.g., user attended the event)?
+
+is_helpful (integer, Default 0): Count of "helpful" votes for the review.
+
+is_reported (boolean, Default false): Has the review been reported?
+
+created_at (timestamp with time zone, Default now()): When the review was created.
+
+updated_at (timestamp with time zone, Default now()): Last time the review was updated.
+
+public.subscription_plans
+Purpose: Defines available subscription plans for organizations.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+name (character varying, Not Null, Unique): Internal name of the plan (e.g., 'FREE').
+
+display_name (character varying, Not Null): User-friendly name (e.g., 'Basic Plan').
+
+description (text): Description of the plan.
+
+price_monthly (numeric): Monthly price.
+
+price_yearly (numeric): Yearly price.
+
+max_events (integer, Not Null): Max events allowed by this plan.
+
+max_users (integer, Not Null): Max users allowed by this plan.
+
+max_storage_mb (integer, Not Null): Max storage allowed (MB).
+
+features (jsonb): JSON object listing features.
+
+is_active (boolean, Default true): Is the plan currently active?
+
+created_at (timestamp with time zone, Default now()): When the plan was defined.
+
+public.user_profiles
+Purpose: Stores extended user profile information.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID. Auto-generated.
+
+user_id (UUID): The user this profile belongs to. Links to public.users.
+
+profile_image_url (text): URL for the user's profile image.
+
+bio (text): User's short biography.
+
+preferences (jsonb): JSON object for user-specific preferences.
+
+updated_at (timestamp with time zone, Default CURRENT_TIMESTAMP): Last time the profile was updated.
+
+public.users
+Purpose: Stores core user information. This table is likely synced with an auth.users table for authentication.
+
+Columns:
+
+id (UUID, Primary Key): Unique ID for the user. Auto-generated (or copied from auth.users).
+
+email (character varying, Not Null, Unique): User's email address.
+
+username (character varying): User's chosen username.
+
+first_name (character varying): User's first name.
+
+last_name (character varying): User's last name.
+
+contact_number (character varying): User's contact number.
+
+street_address (text): User's street address.
+
+city (character varying): User's city.
+
+pincode (character varying): User's postal code.
+
+role (character varying, Default 'USER'): Global role (USER, ADMIN).
+
+created_at (timestamp with time zone, Default CURRENT_TIMESTAMP): When the user record was created.
+
+follower_count (integer, Default 0): Number of followers the user has.
+
+organization_id (UUID): The organization the user belongs to. Links to public.organizations.
+
+role_in_org (character varying, Default 'USER'): Role within their organization (OWNER, ADMIN, USER).
+
+is_org_admin (boolean, Default false): True if the user is an owner or admin in their organization.
+
+joined_at (timestamp with time zone, Default now()): When the user joined their organization.
+
+2. Functions 🛠️
+These are predefined blocks of SQL code that perform specific tasks. They're like mini-programs within the database!
+
+public.add_review
+Description: Adds a new review for an event.
+
+Input: p_event_id, p_user_id, p_rating (1-5), p_title (optional), p_comment (optional), p_is_verified (optional).
+
+Output: The UUID of the newly created review.
+
+Logic:
+
+Checks if the user has already reviewed this event (prevents duplicates).
+
+Validates that the p_rating is between 1 and 5.
+
+Inserts the review into the reviews table.
+
+If any checks fail, it throws an error.
+
+public.add_user_to_organization
+Description: Adds a user to an organization, assigning them a specific role.
+
+Input: p_user_id, p_organization_id, p_added_by (the user performing this action), p_role_in_org (optional, default 'USER').
+
+Output: TRUE if successful.
+
+Logic:
+
+Verifies that p_added_by is an owner or admin of the organization.
+
+Checks if the organization has reached its maximum user limit based on its subscription plan.
+
+Updates the users table to link the user to the organization and set their role.
+
+Increments the current_users_count in the organizations table.
+
+Throws an error if permissions or limits are not met.
+
+public.approve_admin_request
+Description: Approves a global admin request, granting the user 'ADMIN' role.
+
+Input: p_request_id, p_reviewer_id (the admin approving), p_review_notes (optional).
+
+Output: TRUE if successful.
+
+Logic:
+
+Ensures p_reviewer_id has the 'ADMIN' global role.
+
+Retrieves the pending admin request.
+
+Updates the admin_requests table to 'APPROVED' status.
+
+Updates the users table to set the role of the requesting user to 'ADMIN'.
+
+Updates the auth.users metadata for the user.
+
+Sends an approval notification to the user.
+
+Throws an error if the reviewer isn't an admin or the request isn't pending.
+
+public.approve_organization_admin_request
+Description: Approves an organization-specific admin request.
+
+Input: p_request_id, p_reviewer_id (the organization owner approving), p_review_notes (optional).
+
+Output: TRUE if successful.
+
+Logic:
+
+Retrieves the pending organization admin request.
+
+Ensures p_reviewer_id is the 'OWNER' of the organization the request is for.
+
+Updates the admin_requests table to 'APPROVED'.
+
+Calls add_user_to_organization to add the user to the organization with the requested role (ADMIN or OWNER).
+
+Sends an approval notification to the user.
+
+Throws an error if the reviewer isn't the owner or the request isn't pending.
+
+public.cancel_admin_request
+Description: Cancels a pending admin request made by a user.
+
+Input: p_user_id.
+
+Output: TRUE if successful.
+
+Logic:
+
+Updates the admin_requests table, setting the status to 'CANCELLED' for the given user's pending request.
+
+Throws an exception if no pending request is found for the user.
+
+public.clean_old_notifications
+Description: Deletes old, read notifications to keep the database tidy.
+
+Input: days_to_keep (integer, default 30).
+
+Output: The number of notifications deleted.
+
+Logic:
+
+Deletes notifications that are older than days_to_keep and have been is_read = TRUE.
+
+public.create_admin_request
+Description: Creates a new request for global admin access.
+
+Input: p_user_id, p_email, p_reason, plus optional first_name, last_name, contact_number, organization, experience_level, intended_use.
+
+Output: The UUID of the newly created request.
+
+Logic:
+
+Checks if the user already has any active, approved, or rejected admin requests.
+
+Checks if the user is already a global admin.
+
+Inserts the new request into admin_requests.
+
+Sends a confirmation notification to the requesting user.
+
+Sends a "new request" notification to all existing global admins.
+
+Throws an error if the user already has a conflicting request or is already an admin.
+
+public.create_event_reminders
+Description: Identifies upcoming events with confirmed bookings and creates reminder notifications for attendees.
+
+Input: None (called periodically).
+
+Output: The count of reminders created.
+
+Logic:
+
+Finds confirmed bookings for events happening within the next 24 hours (and not already reminded).
+
+For each such booking, it creates an EVENT_REMINDER notification using a template.
+
+public.create_notification
+Description: A low-level function to directly create a notification.
+
+Input: p_user_id, p_title, p_message, p_type, p_data (optional JSONB), p_scheduled_at (optional).
+
+Output: The UUID of the new notification.
+
+Logic:
+
+Inserts the provided notification details into the notifications table.
+
+public.create_notification_from_template
+Description: Creates a notification using a predefined template and dynamic data.
+
+Input: p_user_id, p_type (template type), p_data (optional JSONB for placeholders), p_scheduled_at (optional).
+
+Output: The UUID of the created notification.
+
+Logic:
+
+Fetches the active notification template based on p_type.
+
+Replaces placeholders in the template's title and message with values from p_data.
+
+Calls create_notification to actually insert the notification.
+
+Throws an error if the template type isn't found or is inactive.
+
+public.create_organization
+Description: Creates a new organization and sets the creating user as its owner.
+
+Input: p_name, p_slug, p_created_by, p_description (optional), p_subscription_plan (optional, default 'FREE').
+
+Output: The UUID of the new organization.
+
+Logic:
+
+Checks if the p_slug is already in use (ensures unique URLs).
+
+Inserts the new organization into the organizations table.
+
+Creates a default 'General' event_space for the new organization.
+
+Updates the users table to assign p_created_by as the 'OWNER' of this new organization.
+
+Increments the current_users_count for the organization.
+
+Throws an error if the slug exists.
+
+public.create_organization_admin_request
+Description: Creates a new request for admin/owner access within a specific organization.
+
+Input: p_user_id, p_organization_id, p_email, p_reason, p_requested_role (optional, default 'ADMIN'), plus optional first_name, last_name, contact_number.
+
+Output: The UUID of the new request.
+
+Logic:
+
+Checks if the user already has a conflicting request for this specific organization.
+
+Checks if the user is already an admin/owner within this organization.
+
+Gets the ID of the organization's owner.
+
+Inserts the new request into admin_requests.
+
+Sends a notification about the new request to the organization's owner.
+
+Throws an error if a conflicting request exists or the user already has the role.
+
+public.create_organization_event
+Description: Creates a new event for a specific organization.
+
+Input: p_title, p_description, p_category_id, p_location, p_price, p_date, p_time, p_image_url, p_organization_id, p_created_by.
+
+Output: The UUID of the new event.
+
+Logic:
+
+Verifies that p_created_by is an 'OWNER' or 'ADMIN' of the p_organization_id.
+
+Inserts the event details into the events table.
+
+Throws an error if the user lacks the necessary organization permissions.
+
+public.delete_review
+Description: Deletes a specific review.
+
+Input: p_review_id, p_user_id (the user attempting to delete).
+
+Output: TRUE if the review was found and deleted by its owner, FALSE otherwise.
+
+Logic:
+
+Deletes the review only if the p_user_id matches the user_id of the review.
+
+public.get_event_reviews
+Description: Retrieves reviews for a specific event, with sorting and pagination.
+
+Input: p_event_id, p_limit (default 10), p_offset (default 0), p_sort_by (default 'created_at'), p_sort_order (default 'DESC').
+
+Output: A table of reviews including username, rating, title, comment, is_verified, helpful_votes_count, and user_helpful_vote.
+
+Logic:
+
+Selects reviews for the given p_event_id.
+
+Joins with auth.users to get the reviewer's username.
+
+Calculates the helpful_votes_count by counting review_helpful_votes where is_helpful is true.
+
+Checks if the current authenticated user (auth.uid()) has voted the review helpful.
+
+Orders results based on p_sort_by (rating, helpfulness, verified status, or created_at) and p_sort_order.
+
+Applies LIMIT and OFFSET for pagination.
+
+public.get_notification_summary
+Description: Provides a summary of notifications for a specific user.
+
+Input: p_user_id.
+
+Output: A table containing user_id, total_notifications, unread_count, reminder_count, booking_count, and latest_notification.
+
+Logic:
+
+Counts total, unread, reminder, and booking notifications for the user.
+
+Finds the MAX(created_at) for the latest notification.
+
+public.get_organization_events
+Description: Retrieves events hosted by a specific organization.
+
+Input: p_organization_id, p_user_id (optional, for access control).
+
+Output: A table of events including title, description, date, time, location, price, image_url, category_name, event_space_name, is_public, is_approved, created_by, creator_name, total_bookings, and average_rating.
+
+Logic:
+
+If p_user_id is provided, it checks if that user is a member of the organization (throws error if not).
+
+Selects events for the given p_organization_id.
+
+Joins with categories, event_spaces, users, bookings, and reviews to get additional details.
+
+Aggregates total_bookings and average_rating.
+
+Orders events by date and creation time.
+
+public.get_pending_admin_requests
+Description: Retrieves all pending global admin requests.
+
+Input: None.
+
+Output: A table of pending admin requests.
+
+Logic:
+
+Crucially, it first checks if the calling user (auth.uid()) has the 'ADMIN' global role. If not, it throws an error.
+
+Selects requests from admin_requests where status is 'PENDING'.
+
+Joins with users to get the requester's username.
+
+public.get_unread_notification_count
+Description: Returns the count of unread notifications for a given user.
+
+Input: p_user_id.
+
+Output: An integer representing the count.
+
+Logic:
+
+Counts notifications for p_user_id where is_read = FALSE.
+
+public.get_user_admin_request_status
+Description: Retrieves the most recent admin request status for a specific user.
+
+Input: p_user_id.
+
+Output: A table containing details of the user's latest admin request.
+
+Logic:
+
+Selects the latest admin request for p_user_id (ordered by created_at DESC, LIMIT 1).
+
+public.get_user_profile
+Description: Retrieves the profile information for the currently authenticated user.
+
+Input: None (uses auth.uid()).
+
+Output: A single row from the users table representing the user's profile.
+
+Logic:
+
+Selects all columns from the users table where the id matches the ID of the currently authenticated user (auth.uid()).
+
+public.handle_new_user
+Description: This function is intended to be used as a trigger. It automatically creates or updates a user record in public.users when a new user is created in auth.users (or when an existing user's metadata in auth.users changes).
+
+Input: NEW (a special record containing the new row data from the triggering table, auth.users in this case).
+
+Output: NEW (returns the modified new row to allow the original INSERT/UPDATE to complete).
+
+Logic:
+
+Inserts or updates a row in public.users using data from the NEW row of auth.users.
+
+It intelligently pulls details like username, first_name, last_name, contact_number, city, pincode, street_address, and role from the raw_user_meta_data JSONB field of the auth.users table, providing default values if not present.
+
+It uses ON CONFLICT (id) DO UPDATE to handle cases where a user might already exist (e.g., if their auth.users record is updated).
+
+public.mark_all_notifications_read
+Description: Marks all unread notifications for a user as read.
+
+Input: p_user_id.
+
+Output: The number of notifications marked as read.
+
+Logic:
+
+Updates is_read to TRUE for all unread notifications belonging to p_user_id.
+
+public.mark_notification_read
+Description: Marks a specific notification as read.
+
+Input: p_notification_id.
+
+Output: TRUE if the notification was found and marked read, FALSE otherwise.
+
+Logic:
+
+Updates is_read to TRUE for the given p_notification_id.
+
+public.notify_event_followers
+Description: Notifies users who follow a category when a new event is created in that category.
+
+Input: p_event_id.
+
+Output: The count of notifications sent.
+
+Logic:
+
+Retrieves details of the event (including its category).
+
+Finds all users who follow that event's category and have category_updates enabled in their notification preferences.
+
+For each such follower, creates a CATEGORY_UPDATE notification using a template.
+
+public.process_scheduled_notifications
+Description: A daily cleanup function that processes scheduled notifications and deletes old ones.
+
+Input: None.
+
+Output: The count of processed notifications.
+
+Logic:
+
+Calls create_event_reminders() to generate new event reminders.
+
+Marks any notifications whose scheduled_at time has passed as is_sent = TRUE.
+
+public.reject_admin_request
+Description: Rejects a global admin request.
+
+Input: p_request_id, p_reviewer_id (the admin rejecting), p_review_notes.
+
+Output: TRUE if successful.
+
+Logic:
+
+Ensures p_reviewer_id has the 'ADMIN' global role.
+
+Retrieves the pending admin request.
+
+Updates the admin_requests table to 'REJECTED' status with reviewer details.
+
+Sends a rejection notification to the user.
+
+Throws an error if the reviewer isn't an admin or the request isn't pending.
+
+public.remove_user_from_organization
+Description: Removes a user from an organization.
+
+Input: p_user_id (user to remove), p_organization_id, p_removed_by (user performing the removal).
+
+Output: TRUE if successful.
+
+Logic:
+
+Checks that p_removed_by is the 'OWNER' of the organization.
+
+Retrieves the user_role of p_user_id within the organization.
+
+Prevents removal of the organization 'OWNER'.
+
+Updates the users table to NULL out the organization_id and role_in_org for p_user_id.
+
+Decrements the current_users_count in the organizations table.
+
+Throws an error if permissions are insufficient or the user isn't in the organization.
+
+public.report_review
+Description: Allows a user to report a review for moderation.
+
+Input: p_review_id, p_reporter_id, p_reason, p_description (optional).
+
+Output: The UUID of the newly created report.
+
+Logic:
+
+Checks if the p_reporter_id has already reported this specific review (prevents duplicate reports).
+
+Inserts the report into review_reports.
+
+If a review receives 3 or more reports, its is_reported flag in the reviews table is set to TRUE.
+
+public.send_admin_request_notification
+Description: A helper function to send notifications related to admin requests.
+
+Input: p_user_id (recipient), p_template_type, p_additional_data (optional JSONB).
+
+Output: The UUID of the sent notification.
+
+Logic:
+
+Simply calls create_notification_from_template with the provided arguments.
+
+public.trigger_booking_notifications
+Description: This function is designed to be triggered after a new booking is inserted.
+
+Input: NEW (the newly inserted row in bookings).
+
+Output: NEW.
+
+Logic:
+
+Retrieves the title of the event associated with the new booking.
+
+Creates a BOOKING_CONFIRMED notification for the user who made the booking, using a template.
+
+public.trigger_event_notifications
+Description: This function is designed to be triggered after a new event is inserted.
+
+Input: NEW (the newly inserted row in events).
+
+Output: NEW.
+
+Logic:
+
+Calls notify_event_followers for the newly created event's ID, which handles sending notifications to category followers.
+
+public.trigger_follow_notifications
+Description: This function is designed to be triggered after a new follow relationship is inserted.
+
+Input: NEW (the newly inserted row in follows).
+
+Output: NEW.
+
+Logic:
+
+Determines the target_type (USER, EVENT, CATEGORY) and retrieves the corresponding target_name (username, event title, category name).
+
+Gets the follower_username.
+
+Creates a FOLLOW_UPDATE notification for the target_id (the entity being followed), informing them that someone started following them.
+
+public.update_admin_requests_updated_at
+Description: This function is designed to be a BEFORE UPDATE trigger for admin_requests.
+
+Input: NEW (the row data being updated).
+
+Output: NEW.
+
+Logic:
+
+Automatically sets the updated_at column of the admin_requests table to the current timestamp (NOW()) before any update operation is saved.
+
+public.update_event_rating
+Description: This function is designed to be a trigger that ensures a view related to event ratings stays current.
+
+Input: NEW or OLD (depending on the trigger operation).
+
+Output: NEW or OLD.
+
+Logic:
+
+This function doesn't perform direct updates itself. Its primary role as a trigger is to cause a materialized view (likely event_rating_summary, though not explicitly defined here as a view) to automatically refresh or indicate that it needs refreshing, thus reflecting changes in reviews. It essentially tells the system, "Hey, something changed, recalculate those averages!"
+
+public.update_event_space_timestamps
+Description: This function is designed to be a BEFORE UPDATE trigger for event_spaces.
+
+Input: NEW (the row data being updated).
+
+Output: NEW.
+
+Logic:
+
+Automatically sets the updated_at column of the event_spaces table to the current timestamp (NOW()) before any update operation is saved.
+
+public.update_follower_count
+Description: This function is designed to be a trigger that updates the follower_count in users, events, or categories tables when follows records are inserted or deleted.
+
+Input: NEW (for INSERT) or OLD (for DELETE) row from follows.
+
+Output: NEW or OLD.
+
+Logic:
+
+On INSERT: Increments the follower_count for the relevant target_id (user, event, or category).
+
+On DELETE: Decrements the follower_count for the relevant target_id, ensuring the count never drops below zero.
+
+public.update_member_role_in_organization
+Description: Updates a user's role within an organization.
+
+Input: p_user_id (user to update), p_organization_id, p_new_role (OWNER, ADMIN, USER), p_updated_by (user performing the update).
+
+Output: TRUE if successful.
+
+Logic:
+
+Checks if p_updated_by has permission (must be 'OWNER' or 'ADMIN' of the organization).
+
+Retrieves the current role of p_user_id.
+
+Enforces rules: only 'OWNERS' can promote to or demote from 'OWNER'.
+
+Updates the users table with the p_new_role and sets is_org_admin accordingly.
+
+Throws errors if permissions are insufficient or the user is not a member.
+
+public.update_organization_event_count
+Description: This function is designed to be a trigger that keeps the current_events_count in the organizations table updated.
+
+Input: NEW (for INSERT) or OLD (for DELETE) row from events.
+
+Output: NEW or OLD.
+
+Logic:
+
+On INSERT: Increments the current_events_count for the organization_id of the new event.
+
+On DELETE: Decrements the current_events_count for the organization_id of the deleted event.
+
+public.update_organization_timestamps
+Description: This function is designed to be a BEFORE UPDATE trigger for organizations.
+
+Input: NEW (the row data being updated).
+
+Output: NEW.
+
+Logic:
+
+Automatically sets the updated_at column of the organizations table to the current timestamp (NOW()) before any update operation is saved.
+
+public.update_review
+Description: Updates an existing event review.
+
+Input: p_review_id, p_user_id (the user attempting to update), p_rating (optional), p_title (optional), p_comment (optional).
+
+Output: TRUE if the review was found and updated by its owner, FALSE otherwise.
+
+Logic:
+
+Checks if p_user_id is the owner of p_review_id.
+
+Updates the specified fields (rating, title, comment) and sets updated_at.
+
+Uses COALESCE to only update fields where a new value is provided.
+
+public.vote_review_helpful
+Description: Allows a user to mark a review as helpful or unhelpful.
+
+Input: p_review_id, p_user_id, p_is_helpful (boolean).
+
+Output: TRUE if successful.
+
+Logic:
+
+Inserts or updates a record in review_helpful_votes for the given user_id and review_id, setting is_helpful.
+
+Uses ON CONFLICT to handle cases where a user changes their vote.
+
+Updates the is_helpful count (total helpful votes) directly in the reviews table.
+
+3. Triggers 💥
+Triggers are special database objects that automatically run a specified function whenever a certain event (like INSERT, UPDATE, or DELETE) occurs on a table. They're like little automated assistants!
+
+admin_requests_updated_at_trigger
+Table: public.admin_requests
+
+Event: BEFORE UPDATE
+
+Function: public.update_admin_requests_updated_at()
+
+What it does: Before any update to an admin_requests record, this trigger automatically sets the updated_at timestamp to the current time. This keeps track of when a request was last modified.
+
+booking_notifications_trigger
+Table: public.bookings
+
+Event: AFTER INSERT
+
+Function: public.trigger_booking_notifications()
+
+What it does: After a new booking is successfully added, this trigger automatically creates and sends a booking confirmation notification to the user who made the booking. Smooth, right?
+
+event_space_timestamps_trigger
+Table: public.event_spaces
+
+Event: BEFORE UPDATE
+
+Function: public.update_event_space_timestamps()
+
+What it does: Just like admin_requests, this trigger updates the updated_at timestamp for an event_spaces record whenever it's modified.
+
+event_notifications_trigger
+Table: public.events
+
+Event: AFTER INSERT
+
+Function: public.trigger_event_notifications()
+
+What it does: When a new event is created, this trigger springs into action to notify users who follow the category of that event. It's how our system keeps everyone in the loop!
+
+organization_event_count_trigger
+Table: public.events
+
+Event: AFTER INSERT OR DELETE
+
+Function: public.update_organization_event_count()
+
+What it does: This one keeps tabs on an organization's events. When an event is added or removed, it automatically updates the current_events_count in the organizations table. No manual counting needed!
+
+follow_notifications_trigger
+Table: public.follows
+
+Event: AFTER INSERT
+
+Function: public.trigger_follow_notifications()
+
+What it does: Whenever someone starts following a user, event, or category, this trigger sends a notification to the person or entity being followed. It's like a digital "You've Got Mail!" for new followers.
+
+trigger_update_follower_count
+Table: public.follows
+
+Event: AFTER INSERT OR DELETE
+
+Function: public.update_follower_count()
+
+What it does: This trigger is the accountant for followers. When a follows record is created or deleted, it precisely updates the follower_count for the corresponding user, event, or category.
+
+organization_timestamps_trigger
+Table: public.organizations
+
+Event: BEFORE UPDATE
+
+Function: public.update_organization_timestamps()
+
+What it does: Similar to other timestamp triggers, this one ensures the updated_at field of an organizations record is automatically set to the current time before any updates are committed.
+
+review_rating_trigger
+Table: public.reviews
+
+Event: AFTER INSERT OR DELETE OR UPDATE
+
+Function: public.update_event_rating()
+
+What it does: This trigger doesn't directly change data in the reviews table. Instead, it signals that the average rating for an event (likely stored in a separate view for performance) might need to be recalculated or refreshed because a review was added, removed, or changed.
+
+4. Indexes ⚡
+Indexes are like the super-fast search guides for our database. They help the database find data quickly without scanning every single row, making queries much faster!
+
+admin_requests
+admin_requests_pkey: Primary key index on id (unique, ensures fast lookups by ID).
+
+admin_requests_user_id_key: Unique index on user_id (ensures each user has only one admin request).
+
+idx_admin_requests_created_at: Speeds up queries sorting or filtering by creation time.
+
+idx_admin_requests_organization_id: Helps find requests related to a specific organization quickly.
+
+idx_admin_requests_requested_role: Improves searches based on the requested role.
+
+idx_admin_requests_reviewed_by: Speeds up lookups for requests reviewed by a specific admin.
+
+idx_admin_requests_status: Crucial for quickly finding requests by their status (e.g., all 'PENDING' requests).
+
+idx_admin_requests_user_id: Aids in fetching requests by user ID.
+
+bookings
+bookings_pkey: Primary key index on id.
+
+categories
+categories_pkey: Primary key index on id.
+
+event_spaces
+event_spaces_organization_id_slug_key: Unique index on organization_id and slug (ensures unique slug names within each organization).
+
+event_spaces_pkey: Primary key index on id.
+
+idx_event_spaces_created_by: Speeds up queries for spaces created by a particular user.
+
+idx_event_spaces_organization_id: Helps find event spaces belonging to an organization.
+
+idx_event_spaces_slug: Useful for searching or filtering by event space slug.
+
+events
+events_pkey: Primary key index on id.
+
+idx_events_event_space_id: Improves performance when querying events by their associated event space.
+
+idx_events_is_approved: Helps filter events based on their approval status.
+
+idx_events_is_public: Speeds up searches for public events.
+
+idx_events_organization_id: Essential for fetching events by organization.
+
+follows
+follows_follower_id_target_id_target_type_key: Unique index on follower_id, target_id, and target_type (prevents a user from following the same thing multiple times).
+
+follows_pkey: Primary key index on id.
+
+idx_follows_follower_id: Optimizes queries to find what a specific user is following.
+
+idx_follows_target_id: Speeds up searches for who is following a specific target.
+
+idx_follows_target_type: Helps filter follows by the type of target.
+
+migration_log
+migration_log_pkey: Primary key index on id.
+
+notification_preferences
+notification_preferences_pkey: Primary key index on id.
+
+notification_preferences_user_id_key: Unique index on user_id (ensures one preference record per user).
+
+notification_templates
+notification_templates_pkey: Primary key index on id.
+
+notification_templates_type_key: Unique index on type (ensures distinct template types).
+
+notifications
+idx_notifications_created_at: Speeds up ordering and filtering by creation time.
+
+idx_notifications_is_read: Helps quickly find read or unread notifications.
+
+idx_notifications_scheduled_at: Essential for processing notifications scheduled for a specific time.
+
+idx_notifications_type: Improves filtering by notification type.
+
+idx_notifications_user_id: Optimizes fetching notifications for a specific user.
+
+notifications_pkey: Primary key index on id.
+
+organization_settings
+organization_settings_organization_id_setting_key_key: Unique index on organization_id and setting_key (ensures unique settings for each organization).
+
+organization_settings_pkey: Primary key index on id.
+
+organizations
+idx_organizations_created_at: Speeds up ordering and filtering by creation time.
+
+idx_organizations_slug: Improves performance when looking up organizations by their slug.
+
+idx_organizations_subscription_status: Helps filter organizations by their subscription status.
+
+organizations_pkey: Primary key index on id.
+
+organizations_slug_key: Unique index on slug (enforces unique slugs across all organizations).
+
+review_helpful_votes
+idx_review_helpful_votes_review_id: Speeds up finding votes for a specific review.
+
+idx_review_helpful_votes_user_id: Helps find votes cast by a specific user.
+
+review_helpful_votes_pkey: Primary key index on id.
+
+review_helpful_votes_review_id_user_id_key: Unique index on review_id and user_id (prevents a user from voting on the same review multiple times).
+
+review_reports
+idx_review_reports_review_id: Speeds up finding reports for a specific review.
+
+idx_review_reports_status: Helps filter reports by their status.
+
+review_reports_pkey: Primary key index on id.
+
+reviews
+idx_reviews_created_at: Speeds up ordering and filtering by creation time.
+
+idx_reviews_event_id: Crucial for fetching reviews for a particular event.
+
+idx_reviews_rating: Improves performance when filtering or sorting by rating.
+
+idx_reviews_user_id: Helps find reviews written by a specific user.
+
+idx_reviews_verified: Speeds up filtering for verified reviews.
+
+reviews_event_id_user_id_key: Unique index on event_id and user_id (ensures a user can only write one review per event).
+
+reviews_pkey: Primary key index on id.
+
+subscription_plans
+subscription_plans_name_key: Unique index on name (ensures unique plan names).
+
+subscription_plans_pkey: Primary key index on id.
+
+user_profiles
+user_profiles_pkey: Primary key index on id.
+
+users
+idx_users_is_org_admin: Helps quickly find organization admins.
+
+idx_users_organization_id: Optimizes finding users belonging to a specific organization.
+
+idx_users_role_in_org: Speeds up filtering users by their role within an organization.
+
+users_email_key: Unique index on email (ensures no duplicate email addresses).
+
+users_pkey: Primary key index on id.
+
+5. Row Level Security (RLS) Policies 🛡️
+RLS policies are like bouncers for your database rows. They determine who can see, insert, update, or delete which rows of data, based on their identity (auth.uid()) or other conditions. This adds a crucial layer of security!
+
+public.admin_requests
+Policy Name: Organization owners can update admin requests
+
+Action: UPDATE
+
+Who can do it: Users who are 'OWNER' of the organization that the request belongs to.
+
+Why: Organizations should be able to manage admin requests made within their own sphere.
+
+Policy Name: Organization owners can view admin requests
+
+Action: SELECT
+
+Who can do it: Users who are 'OWNER' of the organization that the request belongs to.
+
+Why: Owners need to see pending admin requests for their organization.
+
+Policy Name: Users can create their own admin requests
+
+Action: INSERT
+
+Who can do it: Any authenticated user, but they can only create requests for themselves.
+
+Why: Self-service for requesting admin roles.
+
+Policy Name: Users can update their own admin requests
+
+Action: UPDATE
+
+Who can do it: A user can only update their own admin request.
+
+Why: Allows users to modify their request details before approval, but not someone else's.
+
+Policy Name: Users can view their own admin requests
+
+Action: SELECT
+
+Who can do it: A user can only see their own admin requests.
+
+Why: Users should be able to track the status of their requests.
+
+public.bookings
+Policy Name: Event creators can view bookings for their events
+
+Action: SELECT
+
+Who can do it: A user can view bookings only if they are the created_by user for the event_id associated with the booking.
+
+Why: Event organizers need to see who's booked for their events.
+
+Policy Name: Users can create their own bookings
+
+Action: INSERT
+
+Who can do it: Any authenticated user can create a booking, but it must be for their own user ID.
+
+Why: Allows users to reserve spots for themselves.
+
+Policy Name: Users can update their own bookings
+
+Action: UPDATE
+
+Who can do it: A user can only update their own bookings.
+
+Why: Allows users to manage their existing reservations.
+
+Policy Name: Users can view their own bookings
+
+Action: SELECT
+
+Who can do it: A user can only see their own bookings.
+
+Why: Provides users with a history of their event registrations.
+
+public.categories
+Policy Name: Categories are viewable by everyone
+
+Action: SELECT
+
+Who can do it: Everyone (true).
+
+Why: Categories are public information and help users discover events.
+
+Policy Name: Only admins can modify categories
+
+Action: ALL (INSERT, UPDATE, DELETE)
+
+Who can do it: Only users with the global role of 'ADMIN'.
+
+Why: Maintains data integrity by centralizing control over category creation/modification.
+
+public.event_spaces
+Policy Name: Organization admins can create event spaces
+
+Action: INSERT
+
+Who can do it: Users who are 'OWNER' or 'ADMIN' within the organization the event space belongs to.
+
+Why: Delegates event space management within organizations to their designated administrators.
+
+Policy Name: Organization admins can delete event spaces
+
+Action: DELETE
+
+Who can do it: Users who are 'OWNER' or 'ADMIN' within the organization the event space belongs to.
+
+Why: Only authorized organization personnel should be able to remove event spaces.
+
+Policy Name: Organization admins can update event spaces
+
+Action: UPDATE
+
+Who can do it: Users who are 'OWNER' or 'ADMIN' within the organization the event space belongs to.
+
+Why: Ensures only authorized personnel can modify event space details.
+
+Policy Name: Users can view their organization's event spaces
+
+Action: SELECT
+
+Who can do it: Users who belong to the same organization as the event space.
+
+Why: Organization members should see all event spaces available to their organization.
+
+public.events
+Policy Name: Admins can modify all events
+
+Action: ALL (INSERT, UPDATE, DELETE)
+
+Who can do it: Only users with the global role of 'ADMIN'.
+
+Why: Global admins have overarching control for system management.
+
+Policy Name: Event creators can delete their events
+
+Action: DELETE
+
+Who can do it: The user who created_by the event, and that event belongs to their organization.
+
+Why: Allows event creators to manage their own events, assuming they are part of the relevant organization.
+
+Policy Name: Event creators can modify their events
+
+Action: UPDATE
+
+Who can do it: The user who created_by the event, and that event belongs to their organization.
+
+Why: Empowers event creators to edit their own event details.
+
+Policy Name: Organization admins can modify events
+
+Action: ALL (INSERT, UPDATE, DELETE)
+
+Who can do it: Users who are 'OWNER' or 'ADMIN' of the organization that hosts the event.
+
+Why: Organization admins can manage all events within their organization.
+
+Policy Name: Organization members can create events
+
+Action: INSERT
+
+Who can do it: Users who are members of an organization can create events for that organization.
+
+Why: Facilitates event creation by authorized organizational users.
+
+Policy Name: Organization members can view organization events
+
+Action: SELECT
+
+Who can do it: Users who belong to the same organization as the event.
+
+Why: Members of an organization can view all events associated with it, regardless of public status.
+
+Policy Name: Users can view events from their organization
+
+Action: SELECT
+
+Who can do it: Users can view events if the organization_id matches their own organization_id, OR if the event is_public is true.
+
+Why: Allows users to see both public events and private events within their own organization.
+
+public.follows
+Policy Name: Users can create their own follows
+
+Action: INSERT
+
+Who can do it: Any authenticated user, but they can only create follows where they are the follower_id.
+
+Why: Allows users to follow entities themselves.
+
+Policy Name: Users can delete their own follows
+
+Action: DELETE
+
+Who can do it: A user can only delete their own follow relationships.
+
+Why: Users should be able to unfollow things.
+
+Policy Name: Users can view category follows
+
+Action: SELECT
+
+Who can do it: Anyone can view follows of type CATEGORY, provided the target_id is a valid category.
+
+Why: Category followers are often public information or aggregated for display.
+
+Policy Name: Users can view event follows
+
+Action: SELECT
+
+Who can do it: Anyone can view follows of type EVENT, provided the target_id is a valid event.
+
+Why: Event followers are often public.
+
+Policy Name: Users can view their own follows
+
+Action: SELECT
+
+Who can do it: A user can only see the follow relationships where they are the follower_id.
+
+Why: Provides users with a list of what they are following.
+
+Policy Name: Users can view who follows them
+
+Action: SELECT
+
+Who can do it: Users can see follow records where target_type is 'USER' and the target_id is their own auth.uid().
+
+Why: Allows users to see who is following their profile.
+
+public.notification_preferences
+Policy Name: Users can insert their own notification preferences
+
+Action: INSERT
+
+Who can do it: A user can create notification preferences only for their own user_id.
+
+Why: Self-service for setting up preferences.
+
+Policy Name: Users can update their own notification preferences
+
+Action: UPDATE
+
+Who can do it: A user can only update their own notification preferences.
+
+Why: Users should control their notification settings.
+
+Policy Name: Users can view their own notification preferences
+
+Action: SELECT
+
+Who can do it: A user can only view their own notification preferences.
+
+Why: Users need to see their current notification settings.
+
+public.notifications
+Policy Name: System can insert notifications
+
+Action: INSERT
+
+Who can do it: true (meaning, the database system, through functions and triggers, can insert notifications).
+
+Why: Notifications are often generated automatically by the backend or triggers, not directly by individual users.
+
+Policy Name: Users can update their own notifications
+
+Action: UPDATE
+
+Who can do it: A user can only update their own notifications (e.g., mark as read).
+
+Why: Users can manage the state of their received notifications.
+
+Policy Name: Users can view their own notifications
+
+Action: SELECT
+
+Who can do it: A user can only view their own notifications.
+
+Why: Ensures privacy of personal notifications.
+
+public.organizations
+Policy Name: Organization owners can delete their organization
+
+Action: DELETE
+
+Who can do it: The user who created_by the organization.
+
+Why: Only the creator (owner) should be able to delete their organization.
+
+Policy Name: Organization owners can update their organization
+
+Action: UPDATE
+
+Who can do it: The user who created_by the organization.
+
+Why: Only the creator (owner) should be able to update core organization details.
+
+Policy Name: Users can view their own organization
+
+Action: SELECT
+
+Who can do it: Users can view an organization if its id matches their own organization_id.
+
+Why: Allows members to see details of the organization they belong to.
+
+public.review_helpful_votes
+Policy Name: Users can create their own helpful votes
+
+Action: INSERT
+
+Who can do it: A user can only create a vote where they are the user_id.
+
+Why: Self-service for voting on review helpfulness.
+
+Policy Name: Users can update their own helpful votes
+
+Action: UPDATE
+
+Who can do it: A user can only update their own helpful votes.
+
+Why: Allows users to change their mind about a vote.
+
+Policy Name: Users can view all helpful votes
+
+Action: SELECT
+
+Who can do it: Everyone (true).
+
+Why: Helpful vote counts are public and contribute to review sorting/display.
+
+public.review_reports
+Policy Name: Users can create reports
+
+Action: INSERT
+
+Who can do it: A user can only create a report where they are the reporter_id.
+
+Why: Allows users to report problematic reviews.
+
+Policy Name: Users can view their own reports
+
+Action: SELECT
+
+Who can do it: A user can only view their own review reports.
+
+Why: Users should be able to track the status of their submitted reports.
+
+public.reviews
+Policy Name: Users can create their own reviews
+
+Action: INSERT
+
+Who can do it: A user can only create a review where they are the user_id.
+
+Why: Self-service for writing reviews.
+
+Policy Name: Users can delete their own reviews
+
+Action: DELETE
+
+Who can do it: A user can only delete their own reviews.
+
+Why: Users should control their own content.
+
+Policy Name: Users can update their own reviews
+
+Action: UPDATE
+
+Who can do it: A user can only update their own reviews.
+
+Why: Users should be able to edit their own content.
+
+Policy Name: Users can view all reviews
+
+Action: SELECT
+
+Who can do it: Everyone (true).
+
+Why: Reviews are generally public to help other users.
+
+public.user_profiles
+Policy Name: Admin can view all profiles
+
+Action: SELECT
+
+Who can do it: Only users with the global role of 'ADMIN'.
+
+Why: Global admins need to manage and oversee all user profiles.
+
+Policy Name: Users can update their own profile
+
+Action: UPDATE
+
+Who can do it: A user can only update their own profile (user_id matches auth.uid()).
+
+Why: Users should control their personal profile information.
+
+Policy Name: Users can view their own profile
+
+Action: SELECT
+
+Who can do it: A user can only view their own profile (user_id matches auth.uid()).
+
+Why: Ensures privacy of personal profile data.
+
+public.users
+Policy Name: Enable insert for authenticated users only
+
+Action: INSERT
+
+Who can do it: An authenticated user can insert a record into the users table, but only if its id matches their own auth.uid(). This policy works in conjunction with the handle_new_user trigger.
+
+Why: Ensures that the users table accurately reflects the auth.users table for new registrations.
+
+Policy Name: Enable read access for all users
+
+Action: SELECT
+
+Who can do it: Everyone (true).
+
+Why: Basic user information (like username for reviews or follower lists) is often publicly accessible.
+
+Policy Name: Enable update for users based on id
+
+Action: UPDATE
+
+Who can do it: A user can only update their own user record (id matches auth.uid()).
+
+Why: Users should be able to update their own contact info, address, etc.

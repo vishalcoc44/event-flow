@@ -38,7 +38,8 @@ export default function AdminRequests() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     useEffect(() => {
-        if (user?.role !== 'ADMIN') {
+        // Check if user is admin (either system admin or organization admin)
+        if (!user || (user.role !== 'ADMIN' && !user.is_org_admin)) {
             window.location.href = '/login'
             return
         }

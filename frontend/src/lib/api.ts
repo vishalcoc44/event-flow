@@ -78,6 +78,189 @@ export const authAPI = {
   }
 };
 
+// Organization API
+export const organizationAPI = {
+  // Get organization by user ID
+  getOrganizationByUser: async (userId: string) => {
+    try {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('organization_id')
+        .eq('id', userId)
+        .single();
+
+      if (userError) throw userError;
+      if (!userData?.organization_id) return null;
+
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', userData.organization_id)
+        .single();
+
+      if (orgError) throw orgError;
+      return orgData;
+    } catch (error) {
+      console.error('Get organization error:', error);
+      throw error;
+    }
+  },
+
+  // Get organization stats
+  getOrganizationStats: async (organizationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('organization_dashboard_stats')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get organization stats error:', error);
+      throw error;
+    }
+  },
+
+  // Get organization event spaces
+  getEventSpaces: async (organizationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('event_spaces')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get event spaces error:', error);
+      throw error;
+    }
+  },
+
+  // Get organization members
+  getMembers: async (organizationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('joined_at', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get members error:', error);
+      throw error;
+    }
+  },
+
+  // Create event space
+  createEventSpace: async (spaceData: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('event_spaces')
+        .insert([{
+          ...spaceData,
+          created_by: user.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Create event space error:', error);
+      throw error;
+    }
+  },
+
+  // Update organization
+  updateOrganization: async (organizationId: string, updateData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .update(updateData)
+        .eq('id', organizationId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Update organization error:', error);
+      throw error;
+    }
+  },
+
+  // Invite member to organization
+  inviteMember: async (organizationId: string, email: string, role: 'ADMIN' | 'USER') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase.rpc('add_user_to_organization', {
+        p_user_id: null, // This would need to be handled differently for invitations
+        p_organization_id: organizationId,
+        p_added_by: user.id,
+        p_role_in_org: role
+      });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Invite member error:', error);
+      throw error;
+    }
+  },
+
+  // Remove member from organization
+  removeMember: async (organizationId: string, userId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase.rpc('remove_user_from_organization', {
+        p_user_id: userId,
+        p_organization_id: organizationId,
+        p_removed_by: user.id
+      });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Remove member error:', error);
+      throw error;
+    }
+  },
+
+  // Update member role
+  updateMemberRole: async (userId: string, role: 'OWNER' | 'ADMIN' | 'USER') => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update({
+          role_in_org: role,
+          is_org_admin: role === 'OWNER' || role === 'ADMIN'
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Update member role error:', error);
+      throw error;
+    }
+  }
+};
+
 // Events API
 export const eventsAPI = {
   getAllEvents: async () => {
@@ -117,6 +300,15 @@ export const eventsAPI = {
       
       if (!user) throw new Error('User not authenticated');
       
+      // Get user's organization if they have one
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('organization_id, role_in_org')
+        .eq('id', user.id)
+        .single();
+        
+      if (userError) throw userError;
+      
       // Handle image upload if provided
       let imageUrl = null;
       if (eventData.image) {
@@ -141,19 +333,47 @@ export const eventsAPI = {
       // Remove image property to avoid issues with the insert
       const { image, ...eventDataWithoutImage } = eventData;
       
-      // Create event
-      const { data, error } = await supabase
-        .from('events')
-        .insert([{
-          ...eventDataWithoutImage,
-          image_url: imageUrl,
-          created_by: user.id
-        }])
-        .select()
-        .single();
+      // If user is part of an organization and is admin/owner, use organization event creation
+      if (userData?.organization_id && (userData.role_in_org === 'ADMIN' || userData.role_in_org === 'OWNER')) {
+        const { data, error } = await supabase.rpc('create_organization_event', {
+          p_title: eventDataWithoutImage.title,
+          p_description: eventDataWithoutImage.description,
+          p_category_id: eventDataWithoutImage.category_id,
+          p_location: eventDataWithoutImage.location,
+          p_price: eventDataWithoutImage.price,
+          p_date: eventDataWithoutImage.date,
+          p_time: eventDataWithoutImage.time,
+          p_image_url: imageUrl,
+          p_organization_id: userData.organization_id,
+          p_created_by: user.id
+        });
         
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        
+        // Return the full event data
+        const { data: createdEvent, error: fetchError } = await supabase
+          .from('events')
+          .select('*, categories(*), created_by:users(*)')
+          .eq('id', data)
+          .single();
+          
+        if (fetchError) throw fetchError;
+        return createdEvent;
+      } else {
+        // Create individual event (non-organization)
+        const { data, error } = await supabase
+          .from('events')
+          .insert([{
+            ...eventDataWithoutImage,
+            image_url: imageUrl,
+            created_by: user.id
+          }])
+          .select()
+          .single();
+          
+        if (error) throw error;
+        return data;
+      }
     } catch (error) {
       console.error('Create event error:', error);
       throw error;
@@ -219,6 +439,23 @@ export const eventsAPI = {
       throw error;
     }
   },
+
+  // Get organization events
+  getOrganizationEvents: async (organizationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*, categories(*), created_by:users(*)')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get organization events error:', error);
+      throw error;
+    }
+  }
 };
 
 // Bookings API

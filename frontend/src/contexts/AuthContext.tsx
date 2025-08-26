@@ -17,6 +17,11 @@ type User = {
     pincode?: string
     street_address?: string
     created_at?: string
+    // Organization-related fields
+    organization_id?: string
+    role_in_org?: 'OWNER' | 'ADMIN' | 'USER'
+    is_org_admin?: boolean
+    joined_at?: string
 }
 
 type AuthContextType = {
@@ -50,6 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                console.log('Auth state change:', event, !!session, window?.location?.pathname);
+                
                 if (session && session.user) {
                     // Get user data including custom metadata
                     const userData = {
@@ -65,7 +72,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         street_address: session.user.user_metadata.street_address,
                         created_at: session.user.created_at
                     };
+                    
+                    // Load organization data for the user
+                    try {
+                        const { data: userOrgData, error: orgError } = await supabase
+                            .from('users')
+                            .select('organization_id, role_in_org, is_org_admin, joined_at')
+                            .eq('id', session.user.id)
+                            .single();
+                        
+                        if (!orgError && userOrgData) {
+                            Object.assign(userData, {
+                                organization_id: userOrgData.organization_id,
+                                role_in_org: userOrgData.role_in_org,
+                                is_org_admin: userOrgData.is_org_admin,
+                                joined_at: userOrgData.joined_at
+                            });
+                        }
+                    } catch (orgError) {
+                        console.error('Error loading organization data:', orgError);
+                    }
+                    
                     setUser(userData);
+                    
+                    // Check if we should redirect after sign in
+                    // Don't redirect during password reset flows or if already on auth pages
+                    if (typeof window !== 'undefined' && event === 'SIGNED_IN') {
+                        const pathname = window.location.pathname;
+                        const search = window.location.search;
+                        
+                        // Skip redirect if on auth pages or password reset flow
+                        const isAuthPage = pathname === '/reset-password' || pathname === '/forgot-password' || pathname === '/login' || pathname === '/register';
+                        const isPasswordReset = search.includes('type=recovery') || search.includes('access_token');
+                        
+                        if (isAuthPage || isPasswordReset) {
+                            console.log('Skipping redirect - auth page or password reset flow');
+                            setIsLoading(false);
+                            return;
+                        }
+                        
+                        // Normal login redirect
+                        const role = userData.role;
+                        if (role === 'ADMIN') {
+                            router.push('/admin/dashboard');
+                        } else {
+                            router.push('/customer/dashboard');
+                        }
+                    }
                 } else {
                     setUser(null);
                 }
@@ -91,6 +144,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     street_address: session.user.user_metadata.street_address,
                     created_at: session.user.created_at
                 };
+                
+                // Load organization data for the user
+                try {
+                    const { data: userOrgData, error: orgError } = await supabase
+                        .from('users')
+                        .select('organization_id, role_in_org, is_org_admin, joined_at')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (!orgError && userOrgData) {
+                        Object.assign(userData, {
+                            organization_id: userOrgData.organization_id,
+                            role_in_org: userOrgData.role_in_org,
+                            is_org_admin: userOrgData.is_org_admin,
+                            joined_at: userOrgData.joined_at
+                        });
+                    }
+                } catch (orgError) {
+                    console.error('Error loading organization data:', orgError);
+                }
+                
                 setUser(userData);
             }
             setIsLoading(false);
@@ -98,9 +172,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         initializeAuth();
         
-        // Cleanup subscription
+        // Safety timeout to prevent indefinite loading
+        const loadingTimeout = setTimeout(() => {
+            console.warn('Auth loading timeout reached, resetting loading state');
+            setIsLoading(false);
+        }, 10000); // 10 seconds timeout
+        
+        // Cleanup subscription and timeout
         return () => {
             subscription.unsubscribe();
+            clearTimeout(loadingTimeout);
         };
     }, []);
 
@@ -125,7 +206,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Get user role from metadata
             const role = data.user.user_metadata.role as 'ADMIN' | 'USER' || 'USER';
             
-            // Redirect based on role
+            // Load organization data for the user
+            try {
+                const { data: userOrgData, error: orgError } = await supabase
+                    .from('users')
+                    .select('organization_id, role_in_org, is_org_admin, joined_at')
+                    .eq('id', data.user.id)
+                    .single();
+                
+                if (!orgError && userOrgData) {
+                    // Update user data with organization info
+                    const userData = {
+                        id: data.user.id,
+                        email: data.user.email || '',
+                        role: role,
+                        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
+                        first_name: data.user.user_metadata.first_name,
+                        last_name: data.user.user_metadata.last_name,
+                        contact_number: data.user.user_metadata.contact_number,
+                        city: data.user.user_metadata.city,
+                        pincode: data.user.user_metadata.pincode,
+                        street_address: data.user.user_metadata.street_address,
+                        created_at: data.user.created_at,
+                        organization_id: userOrgData.organization_id,
+                        role_in_org: userOrgData.role_in_org,
+                        is_org_admin: userOrgData.is_org_admin,
+                        joined_at: userOrgData.joined_at
+                    };
+                    setUser(userData);
+                }
+            } catch (orgError) {
+                console.error('Error loading organization data:', orgError);
+            }
+            
+            // Set loading to false before redirect
+            setIsLoading(false);
+            
+            // Don't auto-redirect if user is on password reset page
+            if (typeof window !== 'undefined' && window.location.pathname === '/reset-password') {
+                return true;
+            }
+            
+            // Redirect based on role and organization
             if (role === 'ADMIN') {
                 router.push('/admin/dashboard');
             } else {
@@ -135,9 +257,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return true;
         } catch (error) {
             console.error('Login error:', error);
-            return false;
-        } finally {
             setIsLoading(false);
+            return false;
         }
     };
 
