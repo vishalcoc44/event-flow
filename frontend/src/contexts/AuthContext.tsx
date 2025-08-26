@@ -105,6 +105,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const isAuthPage = pathname === '/reset-password' || pathname === '/forgot-password' || pathname === '/login' || pathname === '/register';
                         const isPasswordReset = search.includes('type=recovery') || search.includes('access_token');
                         
+                        console.log('Auth redirect check:', {
+                            pathname,
+                            search,
+                            isAuthPage,
+                            isPasswordReset,
+                            shouldSkip: isAuthPage || isPasswordReset
+                        });
+                        
                         if (isAuthPage || isPasswordReset) {
                             console.log('Skipping redirect - auth page or password reset flow');
                             setIsLoading(false);
