@@ -6,14 +6,8 @@ const nextConfig: import('next').NextConfig = {
         unoptimized: true,
     },
     reactStrictMode: true,
-    async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'http://localhost:8080/:path*', // Proxy to Backend
-            },
-        ]
-    },
+    // Note: rewrites don't work with static export
+    // API calls should go directly to your backend or Supabase functions
 }
 
 module.exports = nextConfig
