@@ -5,6 +5,9 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  # Skip secrets scanning for public Supabase keys and cache directories
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  SECRETS_SCAN_OMIT_PATHS = ".next/cache/**,.next/static/**"
 
 # Essential for Next.js dynamic routing
 [[redirects]]
