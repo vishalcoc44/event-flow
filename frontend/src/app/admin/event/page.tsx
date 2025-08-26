@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { Suspense, useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 import { eventsAPI } from '@/lib/api'
 
-export default function EventForm() {
+function EventFormComponent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const eventId = searchParams.get('id')
@@ -315,6 +315,21 @@ export default function EventForm() {
             
             <Footer />
         </div>
+    )
+}
+
+export default function EventForm() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-8 h-8 border-4 border-t-[#6CDAEC] rounded-full animate-spin mx-auto mb-4"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        }>
+            <EventFormComponent />
+        </Suspense>
     )
 }
 
