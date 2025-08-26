@@ -29,9 +29,11 @@ function ResetPasswordForm() {
     const handlePasswordReset = async () => {
       console.log('Reset page params:', { accessToken, refreshToken, type })
       console.log('All URL params:', Object.fromEntries(searchParams?.entries() || []))
+      console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
       
       // Check if this is a password reset flow
       if (type === 'recovery' && accessToken && refreshToken) {
+        console.log('Processing password reset with recovery type and tokens')
         try {
           // Set the session using the tokens from the URL
           const { data, error } = await supabase.auth.setSession({
@@ -46,6 +48,7 @@ function ResetPasswordForm() {
             return
           }
           
+          console.log('Session set successfully:', data)
           setSessionSet(true)
         } catch (err) {
           console.error('Session error:', err)
@@ -53,6 +56,7 @@ function ResetPasswordForm() {
           router.push('/login')
         }
       } else if (accessToken) {
+        console.log('Processing password reset with access token only')
         // Fallback: if we only have access_token, try to set session with it
         try {
           const { data, error } = await supabase.auth.setSession({
@@ -67,6 +71,7 @@ function ResetPasswordForm() {
             return
           }
           
+          console.log('Session set successfully with access token:', data)
           setSessionSet(true)
         } catch (err) {
           console.error('Session error:', err)
@@ -74,15 +79,22 @@ function ResetPasswordForm() {
           router.push('/login')
         }
       } else {
-        // No valid reset tokens, redirect to login
-        toast({ title: 'Invalid link', description: 'This password reset link is invalid or expired.' })
-        router.push('/login')
+        // No valid reset tokens, show debug info and redirect
+        console.log('No valid reset tokens found. Available params:', Object.fromEntries(searchParams?.entries() || []))
+        console.log('Expected: type=recovery, access_token=<token>, refresh_token=<token>')
+        toast({ title: 'Invalid link', description: 'This password reset link is invalid or expired. Please request a new one.' })
+        
+        // Wait a bit to let user see the error, then redirect
+        setTimeout(() => {
+          router.push('/login')
+        }, 3000)
       }
     }
 
     if (accessToken || refreshToken || type) {
       handlePasswordReset()
     } else {
+      console.log('No reset parameters found, redirecting to login')
       router.push('/login')
     }
   }, [accessToken, refreshToken, type, router, toast])
