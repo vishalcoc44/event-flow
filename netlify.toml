@@ -9,7 +9,23 @@
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
   SECRETS_SCAN_OMIT_PATHS = ".next/cache/**,.next/static/**"
 
-# Essential for Next.js dynamic routing
+# Handle authentication callbacks and preserve query parameters
+[[redirects]]
+  from = "/reset-password*"
+  to = "/reset-password/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login*"
+  to = "/login/index.html"  
+  status = 200
+
+[[redirects]]
+  from = "/auth/callback*"
+  to = "/login/index.html"
+  status = 200
+
+# Catch-all for other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
