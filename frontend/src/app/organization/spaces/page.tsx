@@ -241,12 +241,19 @@ export default function OrganizationSpaces() {
     
     setIsDeleting(true);
     try {
-      // Use our new API function instead of direct Supabase call
-      const { deleteEventSpace } = await import('../../../../api-event-space-delete-simplified');
-      const result = await deleteEventSpace(selectedSpace.id);
+      // Call the Supabase Edge Function directly
+      const { data, error } = await supabase.functions.invoke('delete-event-space', {
+        body: { 
+          spaceId: selectedSpace.id 
+        }
+      });
 
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete event space');
+      if (error) {
+        throw new Error(error.message || 'Failed to delete event space');
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Failed to delete event space');
       }
       
       setSpaces(prev => prev.filter(space => space.id !== selectedSpace.id));

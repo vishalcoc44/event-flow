@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { HoverShadowEffect } from "@/components/ui/hover-shadow-effect";
 import { useRouter } from "next/navigation";
 import { GradientButton } from "@/components/ui/gradient-button";
+import { supabase } from "@/lib/supabase";
 
 const plans = [
   {
@@ -83,26 +84,49 @@ export default function CreateOrganizationPage() {
     setError(null);
     
     try {
-      // Call the organization creation API
-      const response = await fetch('/api/organization', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: form.name,
-          slug: form.slug,
-          description: form.description,
-          subscription_plan: form.plan
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create organization');
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error('You must be logged in to create an organization');
       }
 
+      // Validate required fields
+      if (!form.name || !form.slug) {
+        throw new Error('Name and slug are required');
+      }
+
+      // Create organization using the database function
+      const { data, error } = await supabase.rpc('create_organization', {
+        p_name: form.name,
+        p_slug: form.slug,
+        p_created_by: user.id,
+        p_description: form.description || '',
+        p_subscription_plan: form.plan || 'FREE'
+      });
+
+      if (error) {
+        console.error('Error creating organization:', error);
+        throw new Error(error.message);
+      }
+
+      // Update user to be part of this organization
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          organization_id: data,
+          role_in_org: 'OWNER',
+          is_org_admin: true,
+          joined_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Error updating user organization:', updateError);
+        throw new Error('Organization created but user update failed');
+      }
+
+      // Success - redirect to organization dashboard
       setSuccess(true);
       
       // Redirect to organization dashboard after successful creation
