@@ -276,6 +276,8 @@ function ResetPasswordForm() {
                 <p>Needs Supabase Setup: {needsSupabaseSetup ? 'Yes' : 'No'}</p>
                 <p>Session Set: {sessionSet ? 'Yes' : 'No'}</p>
                 <p>Retry Count: {retryCount}/3</p>
+                <p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Not set'}</p>
+                <p>Supabase Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Not set'}</p>
                 {error && <p className="text-red-600">Error: {error}</p>}
                 {needsSupabaseSetup && (
                   <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
@@ -312,24 +314,104 @@ function ResetPasswordForm() {
                 )}
 
                 {error && error.includes('timeout') && (
-                  <button
-                    onClick={async () => {
-                      setDebugMessage('Testing Supabase connection...')
-                      try {
-                        const { data, error } = await supabase.auth.getSession()
-                        if (error) {
-                          setDebugMessage(`Connection test failed: ${error.message}`)
-                        } else {
-                          setDebugMessage('Supabase connection successful - try retrying the password reset')
+                  <>
+                    <button
+                      onClick={async () => {
+                        setDebugMessage('🔍 Running comprehensive Supabase diagnostics...')
+                        console.log('=== SUPABASE DIAGNOSTICS ===')
+
+                        // Test 1: Check environment variables
+                        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+                        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+                        console.log('Environment variables:', {
+                          NEXT_PUBLIC_SUPABASE_URL: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'NOT SET',
+                          NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseKey ? `${supabaseKey.substring(0, 10)}... (${supabaseKey.length} chars)` : 'NOT SET'
+                        })
+
+                        // Test 2: Basic connectivity test
+                        if (supabaseUrl && supabaseKey) {
+                          try {
+                            const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+                              method: 'GET',
+                              headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`
+                              } as HeadersInit
+                            })
+                            console.log('Basic connectivity test:', {
+                              status: response.status,
+                              ok: response.ok,
+                              statusText: response.statusText
+                            })
+                          } catch (fetchError: any) {
+                            console.log('Basic connectivity test failed:', fetchError.message)
+                          }
                         }
-                      } catch (err: any) {
-                        setDebugMessage(`Connection test error: ${err.message}`)
-                      }
-                    }}
-                    className="block w-full px-4 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors"
-                  >
-                    🧪 Test Supabase Connection
-                  </button>
+
+                        // Test 3: Supabase client test
+                        try {
+                          const startTime = Date.now()
+                          const result = await Promise.race([
+                            supabase.auth.getSession(),
+                            new Promise((_, reject) =>
+                              setTimeout(() => reject(new Error('Connection timeout')), 5000)
+                            )
+                          ]) as { data: any; error: any }
+                          const endTime = Date.now()
+                          console.log('Supabase client test:', {
+                            success: !result.error,
+                            error: result.error?.message,
+                            responseTime: `${endTime - startTime}ms`,
+                            data: result.data ? 'Present' : 'None'
+                          })
+
+                          if (result.error) {
+                            setDebugMessage(`❌ Connection failed (${endTime - startTime}ms): ${result.error.message}`)
+                          } else {
+                            setDebugMessage(`✅ Connection successful (${endTime - startTime}ms) - try password reset again`)
+                          }
+                        } catch (err: any) {
+                          console.log('Supabase client test error:', err.message)
+                          setDebugMessage(`❌ Client error: ${err.message}`)
+                        }
+                      }}
+                      className="block w-full px-4 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors"
+                    >
+                      🔍 Run Full Diagnostics
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+                        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+                        const message = `
+🔧 SUPABASE CONFIGURATION CHECK:
+
+✅ Environment Variables:
+   NEXT_PUBLIC_SUPABASE_URL: ${url ? 'Set' : 'NOT SET'}
+   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${key ? 'Set' : 'NOT SET'}
+
+🔗 Supabase Project URL: ${url || 'Not configured'}
+
+📋 REQUIRED SUPABASE SETTINGS:
+1. Site URL: https://eventflownow.netlify.app
+2. Redirect URLs:
+   - https://eventflownow.netlify.app/reset-password
+   - https://eventflownow.netlify.app/login
+   - https://eventflownow.netlify.app/auth/callback
+
+🔍 NEXT STEPS:
+${!url || !key ? '❌ Fix environment variables first' : '✅ Check Supabase Dashboard settings'}
+                        `.trim()
+                        console.log(message)
+                        navigator.clipboard.writeText(message)
+                        setDebugMessage('Configuration info copied to clipboard - check console!')
+                      }}
+                      className="block w-full px-4 py-2 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors"
+                    >
+                      📋 Copy Config Checklist
+                    </button>
+                  </>
                 )}
 
                 <button
