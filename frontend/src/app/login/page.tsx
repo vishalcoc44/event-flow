@@ -29,14 +29,23 @@ export default function Login() {
     useEffect(() => {
         setLoading(false)
         setError(null)
-        
+
+        console.log('🔍 Login page state:', {
+            user: !!user,
+            authLoading,
+            userRole: user?.role
+        })
+
         // If user is already logged in, redirect them
         if (user && !authLoading) {
+            console.log('🔄 Redirecting authenticated user to dashboard...')
             if (user.role === 'ADMIN') {
                 router.push('/admin/dashboard')
             } else {
                 router.push('/customer/dashboard')
             }
+        } else if (!authLoading) {
+            console.log('✅ Auth initialization complete - showing login form')
         }
     }, [user, authLoading, router])
     
@@ -70,10 +79,31 @@ export default function Login() {
         }
     }
     
+    // Show loading screen during auth initialization
+    if (authLoading) {
+        console.log('⏳ Showing loading screen - auth initializing...')
+        return (
+            <div className="min-h-screen flex flex-col bg-white">
+                <Header />
+                <main className="flex-grow flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-16 h-16 border-4 border-t-[#6CDAEC] rounded-full animate-spin mx-auto mb-4"></div>
+                        <h1 className="text-xl font-semibold text-gray-700 mb-2">Initializing...</h1>
+                        <p className="text-gray-500 text-sm">Checking authentication status</p>
+                        <div className="mt-4 text-xs text-gray-400">
+                            <p>This should only take a few seconds</p>
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen flex flex-col bg-white">
             <Header />
-            
+
             <main className="flex-grow py-12">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row rounded-lg overflow-hidden shadow-lg max-w-4xl mx-auto">

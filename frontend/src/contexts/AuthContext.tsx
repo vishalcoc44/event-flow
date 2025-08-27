@@ -146,55 +146,95 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Initial session check
         const initializeAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session && session.user) {
-                const userData = {
-                    id: session.user.id,
-                    email: session.user.email || '',
-                    role: (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
-                    username: session.user.user_metadata.username || session.user.email?.split('@')[0] || '',
-                    first_name: session.user.user_metadata.first_name,
-                    last_name: session.user.user_metadata.last_name,
-                    contact_number: session.user.user_metadata.contact_number,
-                    city: session.user.user_metadata.city,
-                    pincode: session.user.user_metadata.pincode,
-                    street_address: session.user.user_metadata.street_address,
-                    created_at: session.user.created_at
-                };
-                
-                // Load organization data for the user
-                try {
-                    const { data: userOrgData, error: orgError } = await supabase
-                        .from('users')
-                        .select('organization_id, role_in_org, is_org_admin, joined_at')
-                        .eq('id', session.user.id)
-                        .single();
-                    
-                    if (!orgError && userOrgData) {
-                        Object.assign(userData, {
-                            organization_id: userOrgData.organization_id,
-                            role_in_org: userOrgData.role_in_org,
-                            is_org_admin: userOrgData.is_org_admin,
-                            joined_at: userOrgData.joined_at
-                        });
-                    }
-                } catch (orgError) {
-                    console.error('Error loading organization data:', orgError);
+            try {
+                console.log('🔄 Initializing auth - checking session...');
+
+                // Add timeout to prevent hanging
+                const sessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Session check timeout')), 8000)
+                );
+
+                const { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+
+                if (sessionError) {
+                    console.error('Session check error:', sessionError);
+                    setIsLoading(false);
+                    return;
                 }
-                
-                setUser(userData);
+
+                if (session && session.user) {
+                    console.log('✅ Session found, loading user data...');
+                    const userData = {
+                        id: session.user.id,
+                        email: session.user.email || '',
+                        role: (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
+                        username: session.user.user_metadata.username || session.user.email?.split('@')[0] || '',
+                        first_name: session.user.user_metadata.first_name,
+                        last_name: session.user.user_metadata.last_name,
+                        contact_number: session.user.user_metadata.contact_number,
+                        city: session.user.user_metadata.city,
+                        pincode: session.user.user_metadata.pincode,
+                        street_address: session.user.user_metadata.street_address,
+                        created_at: session.user.created_at
+                    };
+
+                    // Load organization data for the user (non-blocking with timeout)
+                    try {
+                        console.log('🔄 Loading organization data...');
+
+                        // Add timeout to organization data loading
+                        const orgDataPromise = supabase
+                            .from('users')
+                            .select('organization_id, role_in_org, is_org_admin, joined_at')
+                            .eq('id', session.user.id)
+                            .single();
+
+                        const orgTimeoutPromise = new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('Organization data timeout')), 3000)
+                        );
+
+                        const { data: userOrgData, error: orgError } = await Promise.race([orgDataPromise, orgTimeoutPromise]) as any;
+
+                        if (!orgError && userOrgData) {
+                            console.log('✅ Organization data loaded');
+                            Object.assign(userData, {
+                                organization_id: userOrgData.organization_id,
+                                role_in_org: userOrgData.role_in_org,
+                                is_org_admin: userOrgData.is_org_admin,
+                                joined_at: userOrgData.joined_at
+                            });
+                        } else {
+                            console.log('⚠️ No organization data found or error:', orgError?.message);
+                        }
+                    } catch (orgError) {
+                        console.error('Error loading organization data:', orgError);
+                        // Continue without organization data - don't fail the whole auth process
+                    }
+
+                    console.log('✅ User data loaded successfully');
+                    setUser(userData);
+                } else {
+                    console.log('ℹ️ No active session found');
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                setUser(null);
+            } finally {
+                // Always set loading to false, even if there are errors
+                console.log('🔚 Auth initialization complete');
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
         
         initializeAuth();
         
-        // Safety timeout to prevent indefinite loading
+        // Safety timeout to prevent indefinite loading (reduced since we have individual timeouts)
         const loadingTimeout = setTimeout(() => {
             console.warn('Auth loading timeout reached, resetting loading state');
             setIsLoading(false);
-        }, 10000); // 10 seconds timeout
+        }, 15000); // 15 seconds timeout
         
         // Cleanup subscription and timeout
         return () => {
