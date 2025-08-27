@@ -19,221 +19,76 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sessionSet, setSessionSet] = useState(false)
-  const [isPasswordResetMode, setIsPasswordResetMode] = useState(false)
   const [debugMessage, setDebugMessage] = useState<string>('Initializing...')
 
   // Supabase sends access_token and refresh_token as query params for password reset
-  // Also check URL hash in case email client moved params there
-  let accessToken = searchParams?.get('access_token') || ''
-  let refreshToken = searchParams?.get('refresh_token') || ''
-  let type = searchParams?.get('type') || ''
-  let mode = searchParams?.get('mode') || ''
-
-  // Fallback: Check URL hash if query params are empty (some email clients do this)
-  if ((!accessToken || !refreshToken) && typeof window !== 'undefined') {
-    const hash = window.location.hash.substring(1) // Remove the '#'
-    if (hash) {
-      console.log('Checking URL hash for params:', hash)
-      const hashParams = new URLSearchParams(hash)
-      accessToken = accessToken || hashParams.get('access_token') || ''
-      refreshToken = refreshToken || hashParams.get('refresh_token') || ''
-      type = type || hashParams.get('type') || ''
-    }
-  }
+  const accessToken = searchParams?.get('access_token') || ''
+  const refreshToken = searchParams?.get('refresh_token') || ''
+  const type = searchParams?.get('type') || ''
+  const mode = searchParams?.get('mode') || ''
 
   const handlePasswordReset = async () => {
-      console.log('=== PASSWORD RESET DEBUG ===')
-      console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type })
-      console.log('All URL params:', Object.fromEntries(searchParams?.entries() || []))
-      console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
-      console.log('User agent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'undefined')
+    console.log('=== PASSWORD RESET DEBUG ===')
+    console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type, mode })
+    console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
 
-      setDebugMessage('Starting password reset process...')
+    setDebugMessage('Starting password reset process...')
 
-      // Check if this is a password reset flow
-      const isPasswordResetFlow = (type === 'recovery' && accessToken && refreshToken) ||
-                                  (mode === 'reset' && (accessToken || type === 'recovery'))
+    // Check if this is a password reset flow
+    if ((type === 'recovery' && accessToken && refreshToken) || (mode === 'reset' && accessToken)) {
+      console.log('✅ Processing password reset flow')
+      setDebugMessage('Detected password reset flow, setting up session...')
 
-      console.log('Password reset flow check:', {
-        isPasswordResetFlow,
-        type,
-        mode,
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!refreshToken
-      })
-
-      if (isPasswordResetFlow) {
-        console.log('✅ Processing password reset flow:', { type, mode, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken })
-        setDebugMessage('Detected password reset flow, setting up session...')
-        setIsPasswordResetMode(true)
-
-        try {
-          // Store password reset mode in sessionStorage BEFORE setting session
-          // This ensures AuthContext can detect it immediately
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('passwordResetMode', 'true')
-            sessionStorage.setItem('passwordResetTimestamp', Date.now().toString())
-            console.log('🔧 Password reset mode set in sessionStorage')
-            setDebugMessage('SessionStorage configured, calling Supabase...')
-          }
-
-          // Set the session using the tokens from the URL
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          })
-
-          if (error) {
-            console.error('❌ Error setting session:', error)
-            setDebugMessage(`Session error: ${error.message}`)
-            // Clear the password reset mode if session setup fails
-            if (typeof window !== 'undefined') {
-              sessionStorage.removeItem('passwordResetMode')
-              sessionStorage.removeItem('passwordResetTimestamp')
-            }
-            setError(`Session error: ${error.message}`)
-            toast({
-              title: 'Invalid link',
-              description: 'This password reset link is invalid or expired. Please request a new one.',
-              variant: 'destructive'
-            })
-            setTimeout(() => router.push('/login'), 3000)
-            return
-          }
-
-          console.log('✅ Session set successfully:', data)
-          console.log('🔄 Setting sessionSet to true...')
-          setDebugMessage('Session setup complete, showing password form...')
-          setSessionSet(true)
-          console.log('✅ sessionSet should now be true')
-        } catch (err: any) {
-          console.error('❌ Session error:', err)
-          setDebugMessage(`Session setup failed: ${err?.message || 'Unknown error'}`)
-          setError(`Session setup failed: ${err?.message || 'Unknown error'}`)
-          toast({
-            title: 'Invalid link',
-            description: 'This password reset link is invalid or expired. Please request a new one.',
-            variant: 'destructive'
-          })
-          setTimeout(() => router.push('/login'), 3000)
+      try {
+        // Store password reset mode in sessionStorage BEFORE setting session
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('passwordResetMode', 'true')
+          sessionStorage.setItem('passwordResetTimestamp', Date.now().toString())
+          console.log('🔧 Password reset mode set in sessionStorage')
+          setDebugMessage('SessionStorage configured, calling Supabase...')
         }
-      } else if (accessToken || (mode === 'reset' && type === 'recovery')) {
-        console.log('⚠️  Processing password reset with access token or recovery type')
-        setDebugMessage('Processing partial token reset...')
-        setIsPasswordResetMode(true)
 
-        // Fallback: if we only have access_token, try to set session with it
-        try {
-          // Store password reset mode in sessionStorage BEFORE setting session
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('passwordResetMode', 'true')
-            sessionStorage.setItem('passwordResetTimestamp', Date.now().toString())
-            console.log('🔧 Password reset mode set in sessionStorage (access token only)')
-          }
-
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || ''
-          })
-
-          if (error) {
-            console.error('❌ Error setting session with access token only:', error)
-            // Clear the password reset mode if session setup fails
-            if (typeof window !== 'undefined') {
-              sessionStorage.removeItem('passwordResetMode')
-              sessionStorage.removeItem('passwordResetTimestamp')
-            }
-            setError(`Session error: ${error.message}`)
-            toast({
-              title: 'Invalid link',
-              description: 'This password reset link is invalid or expired. Please request a new one.',
-              variant: 'destructive'
-            })
-            setTimeout(() => router.push('/login'), 3000)
-            return
-          }
-
-          console.log('✅ Session set successfully with access token:', data)
-          setSessionSet(true)
-        } catch (err: any) {
-          console.error('❌ Session error with access token:', err)
-          setError(`Session setup failed: ${err?.message || 'Unknown error'}`)
-          toast({
-            title: 'Invalid link',
-            description: 'This password reset link is invalid or expired. Please request a new one.',
-            variant: 'destructive'
-          })
-          setTimeout(() => router.push('/login'), 3000)
-        }
-      } else {
-        // No valid reset tokens, show detailed debug info
-        console.log('❌ No valid reset tokens found')
-        console.log('Available params:', Object.fromEntries(searchParams?.entries() || []))
-        console.log('Expected: type=recovery, access_token=<token>, refresh_token=<token>')
-
-        const debugInfo = Object.fromEntries(searchParams?.entries() || [])
-        setDebugMessage(`No valid reset tokens found. Available: ${Object.keys(debugInfo).join(', ')}`)
-        setError(`Missing required parameters. Found: ${Object.keys(debugInfo).join(', ')}`)
-
-        toast({
-          title: 'Invalid reset link',
-          description: 'This password reset link is missing required information. Please request a new password reset.',
-          variant: 'destructive'
+        // Set the session using the tokens from the URL
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || ''
         })
 
-        // Wait a bit to let user see the error, then redirect
-        setTimeout(() => {
-          router.push('/login')
-        }, 5000)
-      }
-    }
+        if (error) {
+          console.error('❌ Error setting session:', error)
+          setDebugMessage(`Session error: ${error.message}`)
+          setError(`Session error: ${error.message}`)
+          toast({
+            title: 'Invalid link',
+            description: 'This password reset link is invalid or expired.',
+            variant: 'destructive'
+          })
+          return
+        }
 
-    // Only proceed if we have some parameters that suggest this is a reset attempt
-    const hasResetParams = accessToken || refreshToken || type || mode === 'reset'
-    if (hasResetParams) {
-      // Add a small delay to ensure the component is fully mounted
-      setTimeout(() => {
-        handlePasswordReset()
-      }, 100)
+        console.log('✅ Session set successfully')
+        setDebugMessage('Session setup complete, showing password form...')
+        setSessionSet(true)
+      } catch (err: any) {
+        console.error('❌ Session error:', err)
+        setDebugMessage(`Session setup failed: ${err?.message || 'Unknown error'}`)
+        setError(`Session setup failed: ${err?.message || 'Unknown error'}`)
+      }
     } else {
-      console.log('ℹ️  No reset parameters found, redirecting to login')
-      setDebugMessage('No reset parameters found, redirecting...')
-      setTimeout(() => router.push('/login'), 1000)
+      console.log('❌ No valid reset tokens found')
+      setDebugMessage('No valid reset tokens found')
+      setError('Missing required parameters for password reset')
     }
   }
 
   useEffect(() => {
-    // Cleanup function to clear password reset mode if user navigates away
-    const cleanupPasswordResetMode = () => {
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('passwordResetMode')
-        sessionStorage.removeItem('passwordResetTimestamp')
-      }
-    }
-
-    // Add cleanup on page unload
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', cleanupPasswordResetMode)
-    }
-
     // Only proceed if we have some parameters that suggest this is a reset attempt
-    const hasResetParams = accessToken || refreshToken || type || mode === 'reset'
-    if (hasResetParams) {
-      // Add a small delay to ensure the component is fully mounted
+    if (accessToken || refreshToken || type || mode === 'reset') {
       setTimeout(() => {
         handlePasswordReset()
       }, 100)
     } else {
-      console.log('ℹ️  No reset parameters found, redirecting to login')
-      setDebugMessage('No reset parameters found, redirecting...')
-      setTimeout(() => router.push('/login'), 1000)
-    }
-
-    // Cleanup
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('beforeunload', cleanupPasswordResetMode)
-      }
+      setDebugMessage('No reset parameters found')
     }
   }, [accessToken, refreshToken, type, mode, router, toast])
 
@@ -253,19 +108,15 @@ function ResetPasswordForm() {
     setLoading(true)
 
     try {
-      // Now that we have the session set, we can use the Supabase client to update the password
-      const { data, error } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         password: password
       })
 
       if (error) {
         setError(error.message || 'Failed to update password.')
-        toast({ title: 'Reset failed', description: error.message || 'Failed to update password.', variant: 'destructive' })
-        setLoading(false)
         return
       }
 
-      // Success — password updated
       toast({ title: 'Password updated', description: 'You can now sign in with your new password.' })
 
       // Clear password reset mode flag
@@ -274,15 +125,11 @@ function ResetPasswordForm() {
         sessionStorage.removeItem('passwordResetTimestamp')
       }
 
-      // Sign out the user so they can login with new password
+      // Sign out and redirect to login
       await supabase.auth.signOut()
-
-      // Redirect to login
       router.push('/login')
     } catch (err: any) {
-      console.error('Reset error:', err)
       setError(err?.message || 'Failed to reset password.')
-      toast({ title: 'Error', description: err?.message || 'Failed to reset password.', variant: 'destructive' })
     } finally {
       setLoading(false)
     }
@@ -299,7 +146,6 @@ function ResetPasswordForm() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-gray-600 mb-4">Setting up password reset...</p>
 
-              {/* Debug information */}
               <div className="text-left text-xs bg-gray-50 p-3 rounded">
                 <p><strong>Status:</strong> {debugMessage}</p>
                 <p><strong>Debug Info:</strong></p>
@@ -311,24 +157,12 @@ function ResetPasswordForm() {
                 {error && <p className="text-red-600">Error: {error}</p>}
               </div>
 
-              <div className="mt-4 space-y-2">
-                <button
-                  onClick={() => {
-                    console.log('🔄 Manual retry triggered')
-                    setDebugMessage('Retrying session setup...')
-                    handlePasswordReset()
-                  }}
-                  className="block w-full text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                >
-                  Retry Session Setup
-                </button>
-                <button
-                  onClick={() => router.push('/login')}
-                  className="block w-full text-sm text-primary hover:underline"
-                >
-                  Return to Login
-                </button>
-              </div>
+              <button
+                onClick={() => router.push('/login')}
+                className="mt-4 text-sm text-primary hover:underline"
+              >
+                Return to Login
+              </button>
             </div>
           </div>
         </main>
@@ -351,15 +185,29 @@ function ResetPasswordForm() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
-                <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="New password" required />
+                <Input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type="password"
+                  placeholder="New password"
+                  required
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
-                <Input value={confirm} onChange={(e) => setConfirm(e.target.value)} type="password" placeholder="Confirm password" required />
+                <Input
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  type="password"
+                  placeholder="Confirm password"
+                  required
+                />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Saving...' : 'Save password'}</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Saving...' : 'Save password'}
+              </Button>
             </form>
           </div>
         </div>
