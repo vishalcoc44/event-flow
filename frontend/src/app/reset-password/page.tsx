@@ -20,6 +20,7 @@ function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null)
   const [sessionSet, setSessionSet] = useState(false)
   const [debugMessage, setDebugMessage] = useState<string>('Initializing...')
+  const [retryCount, setRetryCount] = useState(0)
 
   // Supabase sends access_token and refresh_token as query params for password reset
   // Also check for fragment parameters (sometimes Supabase uses hash)
@@ -65,13 +66,20 @@ function ResetPasswordForm() {
     hasValidTokens
   })
 
-  const handlePasswordReset = async () => {
+  const handlePasswordReset = async (isRetry = false) => {
     console.log('=== PASSWORD RESET DEBUG ===')
     console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type, mode })
     console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
     console.log('Has valid tokens:', hasValidTokens)
 
-    setDebugMessage('Starting password reset process...')
+    if (isRetry) {
+      setRetryCount(prev => prev + 1)
+      setError(null)
+      setDebugMessage(`Retrying password reset... (attempt ${retryCount + 1})`)
+      console.log(`🔄 Retry attempt ${retryCount + 1}`)
+    } else {
+      setDebugMessage('Starting password reset process...')
+    }
 
     // Check if this is a password reset flow
     if (hasValidTokens) {
@@ -87,11 +95,20 @@ function ResetPasswordForm() {
           setDebugMessage('SessionStorage configured, calling Supabase...')
         }
 
-        // Set the session using the tokens from the URL
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || ''
-        })
+        // Set the session using the tokens from the URL with timeout
+        const setSessionWithTimeout = async () => {
+          return Promise.race([
+            supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || ''
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Session setup timeout - tokens may be expired')), 10000)
+            )
+          ])
+        }
+
+        const { data, error }: any = await setSessionWithTimeout()
 
         if (error) {
           console.error('❌ Error setting session:', error)
@@ -99,13 +116,14 @@ function ResetPasswordForm() {
           setError(`Session error: ${error.message}`)
           toast({
             title: 'Invalid link',
-            description: 'This password reset link is invalid or expired.',
+            description: 'This password reset link is invalid or expired. Please request a new password reset.',
             variant: 'destructive'
           })
           return
         }
 
         console.log('✅ Session set successfully')
+        console.log('Session data:', data)
         setDebugMessage('Session setup complete, showing password form...')
         setSessionSet(true)
       } catch (err: any) {
@@ -236,12 +254,28 @@ function ResetPasswordForm() {
                 )}
               </div>
 
-              <button
-                onClick={() => router.push('/login')}
-                className="mt-4 text-sm text-primary hover:underline"
-              >
-                Return to Login
-              </button>
+              <div className="mt-4 space-y-2">
+                {error && retryCount < 3 && (
+                  <button
+                    onClick={() => handlePasswordReset(true)}
+                    className="block w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                  >
+                    🔄 Retry Password Reset (Attempt {retryCount + 1}/3)
+                  </button>
+                )}
+                <button
+                  onClick={() => router.push('/login')}
+                  className="block w-full px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+                >
+                  Return to Login
+                </button>
+                <button
+                  onClick={() => router.push('/forgot-password')}
+                  className="block w-full px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                >
+                  Request New Reset Link
+                </button>
+              </div>
             </div>
           </div>
         </main>
