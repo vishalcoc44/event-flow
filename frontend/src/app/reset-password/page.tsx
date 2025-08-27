@@ -217,7 +217,7 @@ function ResetPasswordForm() {
                     <strong>Supabase Configuration Required:</strong>
                     <ul className="mt-1 list-disc list-inside text-xs">
                       <li>Go to Supabase Dashboard → Authentication → Email Templates</li>
-                      <li>Enable password reset email template (should use {{ "{{ .ConfirmationURL }}" }})</li>
+                      <li>Enable password reset email template (should use &#123;&#123; .ConfirmationURL &#125;&#125;)</li>
                       <li>Configure SMTP settings or enable Supabase email service</li>
                       <li>Verify Site URL matches your deployment domain</li>
                       <li>The template should automatically include access_token, refresh_token, and type=recovery</li>

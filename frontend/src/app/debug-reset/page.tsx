@@ -60,7 +60,7 @@ function DebugResetContent() {
             <li><strong>"Has Valid Tokens: No":</strong> Check Supabase email templates and SMTP settings</li>
             <li><strong>Email not received:</strong> Check spam folder and Supabase email configuration</li>
             <li><strong>Environment variables:</strong> Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set</li>
-            <li><strong>Template Issue:</strong> Verify your email template uses {{ "{{ .ConfirmationURL }}" }} not just a plain link</li>
+            <li><strong>Template Issue:</strong> Verify your email template uses &#123;&#123; .ConfirmationURL &#125;&#125; not just a plain link</li>
           </ul>
         </div>
 
