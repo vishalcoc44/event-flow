@@ -9,205 +9,19 @@ import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { supabase } from '@/lib/supabase'
 
-function ResetPasswordForm() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { toast } = useToast()
-
+// Simplified password reset component that bypasses session setup
+function SimplifiedPasswordReset({ accessToken, refreshToken, type }: {
+  accessToken: string
+  refreshToken: string
+  type: string
+}) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sessionSet, setSessionSet] = useState(false)
-  const [debugMessage, setDebugMessage] = useState<string>('Initializing...')
-  const [retryCount, setRetryCount] = useState(0)
-
-  // Supabase sends access_token and refresh_token as query params for password reset
-  // Also check for fragment parameters (sometimes Supabase uses hash)
-  let hashParams = new URLSearchParams()
-  let url = ''
-
-  if (typeof window !== 'undefined') {
-    url = window.location.href
-    const urlObj = new URL(url)
-    hashParams = urlObj.hash ? new URLSearchParams(urlObj.hash.substring(1)) : new URLSearchParams()
-  }
-
-  let accessToken = searchParams?.get('access_token') || hashParams.get('access_token') || ''
-  let refreshToken = searchParams?.get('refresh_token') || hashParams.get('refresh_token') || ''
-  let type = searchParams?.get('type') || hashParams.get('type') || ''
-  const mode = searchParams?.get('mode') || ''
-
-  // Only log in browser environment
-  if (typeof window !== 'undefined') {
-    console.log('=== RESET PAGE PARAMS DEBUG ===')
-    console.log('Full URL:', url)
-    console.log('Query params:', Object.fromEntries(searchParams?.entries() || []))
-    console.log('Hash params:', Object.fromEntries(hashParams.entries()))
-    console.log('Access Token length:', accessToken?.length || 0)
-    console.log('Refresh Token length:', refreshToken?.length || 0)
-    console.log('Type:', type)
-    console.log('Mode:', mode)
-  }
-
-      // Check if we have the minimum required parameters
-  const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
-
-  // Check if access token is expired by decoding JWT
-  const checkTokenExpiration = (token: string) => {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const exp = payload.exp * 1000 // Convert to milliseconds
-      const now = Date.now()
-      const isExpired = now > exp
-      console.log('🔍 Token expiration check:', {
-        exp: new Date(exp).toISOString(),
-        now: new Date(now).toISOString(),
-        isExpired,
-        timeUntilExpiry: isExpired ? 'EXPIRED' : `${Math.round((exp - now) / 1000 / 60)} minutes`
-      })
-      return isExpired
-    } catch (e) {
-      console.log('⚠️ Could not decode token for expiration check')
-      return false
-    }
-  }
-
-  const isTokenExpired = accessToken ? checkTokenExpiration(accessToken) : false
-
-  // If no valid tokens but we have a mode=reset, show Supabase configuration message
-  const needsSupabaseSetup = mode === 'reset' && !hasValidTokens
-
-  console.log('Token validation:', {
-    hasAccessToken: !!accessToken,
-    accessTokenLength: accessToken?.length || 0,
-    hasRefreshToken: !!refreshToken,
-    refreshTokenLength: refreshToken?.length || 0,
-    hasType: !!type,
-    correctType: type === 'recovery',
-    hasValidTokens
-  })
-
-  const handlePasswordReset = async (isRetry = false) => {
-    console.log('=== PASSWORD RESET DEBUG ===')
-    console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type, mode })
-    console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
-    console.log('Has valid tokens:', hasValidTokens)
-
-    if (isRetry) {
-      setRetryCount(prev => prev + 1)
-      setError(null)
-      setDebugMessage(`Retrying password reset... (attempt ${retryCount + 1})`)
-      console.log(`🔄 Retry attempt ${retryCount + 1}`)
-    } else {
-      setDebugMessage('Starting password reset process...')
-    }
-
-    // Check if this is a password reset flow
-    if (hasValidTokens) {
-      console.log('✅ Processing password reset flow - valid tokens found')
-      setDebugMessage('Valid tokens detected, setting up session...')
-
-      try {
-        // Store password reset mode in sessionStorage BEFORE setting session
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('passwordResetMode', 'true')
-          sessionStorage.setItem('passwordResetTimestamp', Date.now().toString())
-          console.log('🔧 Password reset mode set in sessionStorage')
-          setDebugMessage('SessionStorage configured, calling Supabase...')
-        }
-
-        // Set the session using the tokens from the URL with timeout
-        const setSessionWithTimeout = async () => {
-          console.log('🔄 Attempting to set session with Supabase...')
-          console.log('Access token preview:', accessToken?.substring(0, 50) + '...')
-          console.log('Refresh token:', refreshToken)
-
-          return Promise.race([
-            supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken || ''
-            }),
-            new Promise((_, reject) =>
-              setTimeout(() => {
-                console.log('⏰ Session setup timed out after 15 seconds')
-                reject(new Error('Session setup timeout - this could be due to network issues, expired tokens, or Supabase service delays'))
-              }, 15000)
-            )
-          ])
-        }
-
-        const { data, error }: any = await setSessionWithTimeout()
-
-        if (error) {
-          console.error('❌ Error setting session:', error)
-
-          // Provide specific error messages based on the situation
-          let errorTitle = 'Session Setup Failed'
-          let errorDescription = error.message
-          let debugMessage = `Session error: ${error.message}`
-
-          if (error.message.includes('timeout')) {
-            errorTitle = 'Connection Timeout'
-            errorDescription = 'Supabase is not responding. This could be due to network issues or service delays.'
-            debugMessage = 'Session setup timed out - check network connection and try again'
-          } else if (isTokenExpired) {
-            errorTitle = 'Reset Link Expired'
-            errorDescription = 'This password reset link has expired. Please request a new one.'
-            debugMessage = 'Access token has expired - request a new password reset link'
-          }
-
-          setDebugMessage(debugMessage)
-          setError(`${errorTitle}: ${errorDescription}`)
-          toast({
-            title: errorTitle,
-            description: errorDescription,
-            variant: 'destructive'
-          })
-          return
-        }
-
-        console.log('✅ Session set successfully')
-        console.log('Session data:', data)
-        setDebugMessage('Session setup complete, showing password form...')
-        setSessionSet(true)
-      } catch (err: any) {
-        console.error('❌ Session error:', err)
-        setDebugMessage(`Session setup failed: ${err?.message || 'Unknown error'}`)
-        setError(`Session setup failed: ${err?.message || 'Unknown error'}`)
-      }
-    } else {
-      console.log('❌ No valid reset tokens found')
-      console.log('Missing requirements:', {
-        hasAccessToken: !!accessToken,
-        accessTokenLength: accessToken?.length || 0,
-        hasType: !!type,
-        correctType: type === 'recovery'
-      })
-      setDebugMessage('No valid reset tokens found - check email link')
-      setError('Missing required parameters for password reset. Please request a new password reset link.')
-    }
-  }
-
-  useEffect(() => {
-    // Only proceed if we have valid tokens or at least some reset parameters
-    if (hasValidTokens || accessToken || refreshToken || type || mode === 'reset') {
-      console.log('🔄 Starting password reset process...')
-
-      if (needsSupabaseSetup) {
-        console.log('⚠️ Supabase setup needed')
-        setDebugMessage('Supabase configuration needed - check email templates and SMTP settings')
-        setError('Password reset emails are not properly configured. Please check your Supabase Auth settings.')
-      } else {
-        setTimeout(() => {
-          handlePasswordReset()
-        }, 100)
-      }
-    } else {
-      console.log('ℹ️ No reset parameters found')
-      setDebugMessage('No reset parameters found - please request a new password reset link')
-    }
-  }, [hasValidTokens, accessToken, refreshToken, type, mode])
+  const [success, setSuccess] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -225,208 +39,82 @@ function ResetPasswordForm() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
+      // Try direct password update with the access token
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          password: password
+        })
       })
 
-      if (error) {
-        setError(error.message || 'Failed to update password.')
-        return
+      if (response.ok) {
+        setSuccess(true)
+        toast({
+          title: 'Password updated successfully!',
+          description: 'You can now sign in with your new password.',
+        })
+
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error_description || 'Failed to update password')
       }
-
-      toast({ title: 'Password updated', description: 'You can now sign in with your new password.' })
-
-      // Clear password reset mode flag
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('passwordResetMode')
-        sessionStorage.removeItem('passwordResetTimestamp')
-      }
-
-      // Sign out and redirect to login
-      await supabase.auth.signOut()
-      router.push('/login')
     } catch (err: any) {
-      setError(err?.message || 'Failed to reset password.')
+      console.error('Password update error:', err)
+      setError(err.message || 'Failed to update password. Please try again.')
+
+      // If direct method fails, try with Supabase client
+      try {
+        console.log('Trying Supabase client method...')
+        const { error: supabaseError } = await supabase.auth.updateUser({
+          password: password
+        })
+
+        if (supabaseError) {
+          throw supabaseError
+        }
+
+        setSuccess(true)
+        toast({
+          title: 'Password updated successfully!',
+          description: 'You can now sign in with your new password.',
+        })
+
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } catch (supabaseErr: any) {
+        console.error('Supabase method also failed:', supabaseErr)
+        setError(`Both methods failed: ${supabaseErr.message}`)
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  // Don't render the form until session is properly set
-  if (!sessionSet) {
+  if (success) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Header />
         <main className="flex-grow py-12">
           <div className="container mx-auto px-4">
-            <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600 mb-4">Setting up password reset...</p>
-
-              <div className="text-left text-xs bg-gray-50 p-3 rounded">
-                <p><strong>Status:</strong> {debugMessage}</p>
-                <p><strong>Debug Info:</strong></p>
-                <p>Full URL: <code className="bg-gray-200 px-1 rounded text-xs">{url || 'Loading...'}</code></p>
-                <p>Type: {type || 'Not set'}</p>
-                <p>Mode: {mode || 'Not set'}</p>
-                <p>Access Token: {accessToken ? `${accessToken.substring(0, 20)}... (${accessToken.length} chars)` : 'Missing'}</p>
-                <p>Refresh Token: {refreshToken ? `${refreshToken.substring(0, 20)}... (${refreshToken.length} chars)` : 'Missing'}</p>
-                <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
-                <p>Token Expired: {isTokenExpired ? 'Yes' : 'No'}</p>
-                <p>Needs Supabase Setup: {needsSupabaseSetup ? 'Yes' : 'No'}</p>
-                <p>Session Set: {sessionSet ? 'Yes' : 'No'}</p>
-                <p>Retry Count: {retryCount}/3</p>
-                <p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Not set'}</p>
-                <p>Supabase Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Not set'}</p>
-                {error && <p className="text-red-600">Error: {error}</p>}
-                {needsSupabaseSetup && (
-                  <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
-                    <strong>Supabase Configuration Required:</strong>
-                    <ul className="mt-1 list-disc list-inside text-xs">
-                      <li>Go to Supabase Dashboard → Authentication → Email Templates</li>
-                      <li>Enable password reset email template (should use &#123;&#123; .ConfirmationURL &#125;&#125;)</li>
-                      <li>Configure SMTP settings or enable Supabase email service</li>
-                      <li>Verify Site URL matches your deployment domain</li>
-                      <li>The template should automatically include access_token, refresh_token, and type=recovery</li>
-                    </ul>
-                  </div>
-                )}
-                {!hasValidTokens && !needsSupabaseSetup && (
-                  <div className="mt-2 p-2 bg-red-100 text-red-800 rounded">
-                    <strong>Invalid Reset Link:</strong>
-                    <ul className="mt-1 list-disc list-inside text-xs">
-                      <li>The reset link is missing required authentication tokens</li>
-                      <li>Try requesting a new password reset</li>
-                      <li>Check that your Supabase email template is working correctly</li>
-                    </ul>
-                  </div>
-                )}
+            <div className="max-w-md mx-auto bg-green-50 p-8 rounded-lg shadow text-center border border-green-200">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-
-              <div className="mt-4 space-y-2">
-                {error && retryCount < 3 && (
-                  <button
-                    onClick={() => handlePasswordReset(true)}
-                    className="block w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                  >
-                    🔄 Retry Password Reset (Attempt {retryCount + 1}/3)
-                  </button>
-                )}
-
-                {error && error.includes('timeout') && (
-                  <>
-                    <button
-                      onClick={async () => {
-                        setDebugMessage('🔍 Running comprehensive Supabase diagnostics...')
-                        console.log('=== SUPABASE DIAGNOSTICS ===')
-
-                        // Test 1: Check environment variables
-                        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-                        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-                        console.log('Environment variables:', {
-                          NEXT_PUBLIC_SUPABASE_URL: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'NOT SET',
-                          NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseKey ? `${supabaseKey.substring(0, 10)}... (${supabaseKey.length} chars)` : 'NOT SET'
-                        })
-
-                        // Test 2: Basic connectivity test
-                        if (supabaseUrl && supabaseKey) {
-                          try {
-                            const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-                              method: 'GET',
-                              headers: {
-                                'apikey': supabaseKey,
-                                'Authorization': `Bearer ${supabaseKey}`
-                              } as HeadersInit
-                            })
-                            console.log('Basic connectivity test:', {
-                              status: response.status,
-                              ok: response.ok,
-                              statusText: response.statusText
-                            })
-                          } catch (fetchError: any) {
-                            console.log('Basic connectivity test failed:', fetchError.message)
-                          }
-                        }
-
-                        // Test 3: Supabase client test
-                        try {
-                          const startTime = Date.now()
-                          const result = await Promise.race([
-                            supabase.auth.getSession(),
-                            new Promise((_, reject) =>
-                              setTimeout(() => reject(new Error('Connection timeout')), 5000)
-                            )
-                          ]) as { data: any; error: any }
-                          const endTime = Date.now()
-                          console.log('Supabase client test:', {
-                            success: !result.error,
-                            error: result.error?.message,
-                            responseTime: `${endTime - startTime}ms`,
-                            data: result.data ? 'Present' : 'None'
-                          })
-
-                          if (result.error) {
-                            setDebugMessage(`❌ Connection failed (${endTime - startTime}ms): ${result.error.message}`)
-                          } else {
-                            setDebugMessage(`✅ Connection successful (${endTime - startTime}ms) - try password reset again`)
-                          }
-                        } catch (err: any) {
-                          console.log('Supabase client test error:', err.message)
-                          setDebugMessage(`❌ Client error: ${err.message}`)
-                        }
-                      }}
-                      className="block w-full px-4 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors"
-                    >
-                      🔍 Run Full Diagnostics
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-                        const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-                        const message = `
-🔧 SUPABASE CONFIGURATION CHECK:
-
-✅ Environment Variables:
-   NEXT_PUBLIC_SUPABASE_URL: ${url ? 'Set' : 'NOT SET'}
-   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${key ? 'Set' : 'NOT SET'}
-
-🔗 Supabase Project URL: ${url || 'Not configured'}
-
-📋 REQUIRED SUPABASE SETTINGS:
-1. Site URL: https://eventflownow.netlify.app
-2. Redirect URLs:
-   - https://eventflownow.netlify.app/reset-password
-   - https://eventflownow.netlify.app/login
-   - https://eventflownow.netlify.app/auth/callback
-
-🔍 NEXT STEPS:
-${!url || !key ? '❌ Fix environment variables first' : '✅ Check Supabase Dashboard settings'}
-                        `.trim()
-                        console.log(message)
-                        navigator.clipboard.writeText(message)
-                        setDebugMessage('Configuration info copied to clipboard - check console!')
-                      }}
-                      className="block w-full px-4 py-2 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors"
-                    >
-                      📋 Copy Config Checklist
-                    </button>
-                  </>
-                )}
-
-                <button
-                  onClick={() => router.push('/login')}
-                  className="block w-full px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-                >
-                  Return to Login
-                </button>
-                <button
-                  onClick={() => router.push('/forgot-password')}
-                  className="block w-full px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
-                >
-                  Request New Reset Link
-                </button>
-              </div>
+              <h1 className="text-2xl font-semibold text-green-800 mb-2">Password Updated!</h1>
+              <p className="text-green-700 mb-4">Your password has been successfully updated.</p>
+              <p className="text-sm text-green-600">Redirecting to login page...</p>
             </div>
           </div>
         </main>
@@ -470,9 +158,111 @@ ${!url || !key ? '❌ Fix environment variables first' : '✅ Check Supabase Das
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Saving...' : 'Save password'}
+                {loading ? 'Updating...' : 'Update password'}
               </Button>
             </form>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => router.push('/login')}
+                className="text-sm text-gray-600 hover:underline"
+              >
+                Back to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+function ResetPasswordForm() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const { toast } = useToast()
+
+  // Extract tokens from URL
+  let hashParams = new URLSearchParams()
+  if (typeof window !== 'undefined') {
+    const urlObj = new URL(window.location.href)
+    hashParams = urlObj.hash ? new URLSearchParams(urlObj.hash.substring(1)) : new URLSearchParams()
+  }
+
+  const accessToken = searchParams?.get('access_token') || hashParams.get('access_token') || ''
+  const refreshToken = searchParams?.get('refresh_token') || hashParams.get('refresh_token') || ''
+  const type = searchParams?.get('type') || hashParams.get('type') || ''
+  const mode = searchParams?.get('mode') || ''
+
+  // Check if we have valid tokens
+  const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
+
+  console.log('=== PASSWORD RESET DEBUG ===')
+  console.log('Full URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
+  console.log('Access Token length:', accessToken?.length || 0)
+  console.log('Refresh Token length:', refreshToken?.length || 0)
+  console.log('Type:', type)
+  console.log('Mode:', mode)
+  console.log('Has Valid Tokens:', hasValidTokens)
+
+  // If we have valid tokens, show the simplified password reset form
+  if (hasValidTokens) {
+    return (
+      <SimplifiedPasswordReset
+        accessToken={accessToken}
+        refreshToken={refreshToken}
+        type={type}
+      />
+    )
+  }
+
+  // If no valid tokens, show error message with instructions
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+      <main className="flex-grow py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-semibold text-red-800 mb-2">Invalid Reset Link</h1>
+            <p className="text-red-700 mb-4">This password reset link is invalid or missing required authentication tokens.</p>
+
+            <div className="text-left text-xs bg-red-50 p-3 rounded mb-4">
+              <p><strong>Debug Info:</strong></p>
+              <p>Access Token: {accessToken ? `${accessToken.substring(0, 20)}... (${accessToken.length} chars)` : 'Missing'}</p>
+              <p>Refresh Token: {refreshToken ? `${refreshToken.substring(0, 20)}... (${refreshToken.length} chars)` : 'Missing'}</p>
+              <p>Type: {type || 'Not set'}</p>
+              <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push('/forgot-password')}
+                className="block w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Request New Password Reset
+              </button>
+              <button
+                onClick={() => router.push('/login')}
+                className="block w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              >
+                Back to Login
+              </button>
+            </div>
+
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-left">
+              <p className="text-sm text-yellow-800 font-medium mb-2">🔧 Having issues with password reset?</p>
+              <ul className="text-xs text-yellow-700 space-y-1">
+                <li>• Check that your Supabase Site URL is set to: <code className="bg-yellow-100 px-1 rounded">https://eventflownow.netlify.app</code></li>
+                <li>• Verify redirect URLs include the reset-password path</li>
+                <li>• Ensure email templates use <code className="bg-yellow-100 px-1 rounded">&#123;&#123; .ConfirmationURL &#125;&#125;</code></li>
+              </ul>
+            </div>
           </div>
         </div>
       </main>
