@@ -23,23 +23,31 @@ function ResetPasswordForm() {
 
   // Supabase sends access_token and refresh_token as query params for password reset
   // Also check for fragment parameters (sometimes Supabase uses hash)
-  const url = typeof window !== 'undefined' ? window.location.href : ''
-  const urlObj = typeof window !== 'undefined' ? new URL(url) : null
-  const hashParams = urlObj?.hash ? new URLSearchParams(urlObj.hash.substring(1)) : new URLSearchParams()
+  let hashParams = new URLSearchParams()
+  let url = ''
+
+  if (typeof window !== 'undefined') {
+    url = window.location.href
+    const urlObj = new URL(url)
+    hashParams = urlObj.hash ? new URLSearchParams(urlObj.hash.substring(1)) : new URLSearchParams()
+  }
 
   let accessToken = searchParams?.get('access_token') || hashParams.get('access_token') || ''
   let refreshToken = searchParams?.get('refresh_token') || hashParams.get('refresh_token') || ''
   let type = searchParams?.get('type') || hashParams.get('type') || ''
   const mode = searchParams?.get('mode') || ''
 
-  console.log('=== RESET PAGE PARAMS DEBUG ===')
-  console.log('Full URL:', url)
-  console.log('Query params:', Object.fromEntries(searchParams?.entries() || []))
-  console.log('Hash params:', Object.fromEntries(hashParams.entries()))
-  console.log('Access Token length:', accessToken?.length || 0)
-  console.log('Refresh Token length:', refreshToken?.length || 0)
-  console.log('Type:', type)
-  console.log('Mode:', mode)
+  // Only log in browser environment
+  if (typeof window !== 'undefined') {
+    console.log('=== RESET PAGE PARAMS DEBUG ===')
+    console.log('Full URL:', url)
+    console.log('Query params:', Object.fromEntries(searchParams?.entries() || []))
+    console.log('Hash params:', Object.fromEntries(hashParams.entries()))
+    console.log('Access Token length:', accessToken?.length || 0)
+    console.log('Refresh Token length:', refreshToken?.length || 0)
+    console.log('Type:', type)
+    console.log('Mode:', mode)
+  }
 
   // Check if we have the minimum required parameters
   const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
@@ -136,7 +144,7 @@ function ResetPasswordForm() {
       console.log('ℹ️ No reset parameters found')
       setDebugMessage('No reset parameters found - please request a new password reset link')
     }
-  }, [hasValidTokens, accessToken, refreshToken, type, mode, router, toast, needsSupabaseSetup])
+  }, [hasValidTokens, accessToken, refreshToken, type, mode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -195,7 +203,7 @@ function ResetPasswordForm() {
               <div className="text-left text-xs bg-gray-50 p-3 rounded">
                 <p><strong>Status:</strong> {debugMessage}</p>
                 <p><strong>Debug Info:</strong></p>
-                <p>Full URL: <code className="bg-gray-200 px-1 rounded text-xs">{url}</code></p>
+                <p>Full URL: <code className="bg-gray-200 px-1 rounded text-xs">{url || 'Loading...'}</code></p>
                 <p>Type: {type || 'Not set'}</p>
                 <p>Mode: {mode || 'Not set'}</p>
                 <p>Access Token: {accessToken ? `${accessToken.substring(0, 20)}... (${accessToken.length} chars)` : 'Missing'}</p>

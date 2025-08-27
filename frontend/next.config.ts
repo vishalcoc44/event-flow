@@ -6,6 +6,10 @@ const nextConfig: import('next').NextConfig = {
         unoptimized: true,
     },
     reactStrictMode: true,
+    // Optimize build performance
+    experimental: {
+        optimizePackageImports: ['@radix-ui/react-icons'],
+    },
     eslint: {
         // Warning: This allows production builds to successfully complete even if
         // your project has ESLint errors.
@@ -16,12 +20,8 @@ const nextConfig: import('next').NextConfig = {
         // your project has TypeScript errors.
         ignoreBuildErrors: true,
     },
-    // Generate static pages for dynamic routes that might be accessed via direct links
-    generateBuildId: async () => {
-        return 'build-' + Date.now()
-    },
-    // Allow static export to work with dynamic routes that have search params
-    serverExternalPackages: [],
+    // Disable static optimization for pages that need client-side features
+    staticPageGenerationTimeout: 1000,
 }
 
 module.exports = nextConfig
