@@ -12,20 +12,20 @@
 # Handle authentication callbacks and preserve query parameters
 [[redirects]]
   from = "/reset-password*"
-  to = "/reset-password/index.html"
+  to = "/reset-password.html"
   status = 200
 
 [[redirects]]
   from = "/login*"
-  to = "/login/index.html"  
+  to = "/login.html"
   status = 200
 
 [[redirects]]
   from = "/auth/callback*"
-  to = "/login/index.html"
+  to = "/auth/callback.html"
   status = 200
 
-# Catch-all for other routes
+# Catch-all for other routes - redirect to index
 [[redirects]]
   from = "/*"
   to = "/index.html"
