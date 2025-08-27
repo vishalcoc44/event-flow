@@ -246,33 +246,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const login = async (email: string, password: string) => {
         try {
             setIsLoading(true);
-            
-            // Call login API
-            const { data, error } = await supabase.auth.signInWithPassword({
+            console.log('🔄 Starting login process for:', email);
+
+            // Call login API with timeout
+            const loginPromise = supabase.auth.signInWithPassword({
                 email,
                 password
             });
-            
+
+            const loginTimeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Login request timeout - Supabase not responding')), 10000)
+            );
+
+            const { data, error } = await Promise.race([loginPromise, loginTimeoutPromise]) as any;
+
+            console.log('🔍 Login response:', {
+                success: !error,
+                hasUser: !!data?.user,
+                userId: data?.user?.id,
+                error: error?.message
+            });
+
             if (error) {
                 throw error;
             }
-            
+
             if (!data.user) {
                 throw new Error('No user data received');
             }
+
+            console.log('✅ Supabase authentication successful');
             
             // Get user role from metadata
             const role = data.user.user_metadata.role as 'ADMIN' | 'USER' || 'USER';
             
-            // Load organization data for the user
+            // Load organization data for the user (with timeout)
             try {
-                const { data: userOrgData, error: orgError } = await supabase
+                console.log('🔄 Loading organization data after login...');
+
+                // Add timeout to prevent hanging
+                const orgDataPromise = supabase
                     .from('users')
                     .select('organization_id, role_in_org, is_org_admin, joined_at')
                     .eq('id', data.user.id)
                     .single();
-                
+
+                const orgTimeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Organization data timeout during login')), 5000)
+                );
+
+                const { data: userOrgData, error: orgError } = await Promise.race([orgDataPromise, orgTimeoutPromise]) as any;
+
                 if (!orgError && userOrgData) {
+                    console.log('✅ Organization data loaded after login');
                     // Update user data with organization info
                     const userData = {
                         id: data.user.id,
@@ -292,9 +318,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         joined_at: userOrgData.joined_at
                     };
                     setUser(userData);
+                } else {
+                    console.log('⚠️ No organization data found after login:', orgError?.message);
+                    // Still set user data without organization info
+                    const userData = {
+                        id: data.user.id,
+                        email: data.user.email || '',
+                        role: role,
+                        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
+                        first_name: data.user.user_metadata.first_name,
+                        last_name: data.user.user_metadata.last_name,
+                        contact_number: data.user.user_metadata.contact_number,
+                        city: data.user.user_metadata.city,
+                        pincode: data.user.user_metadata.pincode,
+                        street_address: data.user.user_metadata.street_address,
+                        created_at: data.user.created_at
+                    };
+                    setUser(userData);
                 }
             } catch (orgError) {
-                console.error('Error loading organization data:', orgError);
+                console.error('Error loading organization data during login:', orgError);
+                // Continue with login even if organization data fails
+                const userData = {
+                    id: data.user.id,
+                    email: data.user.email || '',
+                    role: role,
+                    username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
+                    first_name: data.user.user_metadata.first_name,
+                    last_name: data.user.user_metadata.last_name,
+                    contact_number: data.user.user_metadata.contact_number,
+                    city: data.user.user_metadata.city,
+                    pincode: data.user.user_metadata.pincode,
+                    street_address: data.user.user_metadata.street_address,
+                    created_at: data.user.created_at
+                };
+                setUser(userData);
             }
             
             // Set loading to false before redirect

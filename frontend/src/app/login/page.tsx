@@ -58,22 +58,50 @@ export default function Login() {
         e.preventDefault()
         setLoading(true)
         setError(null)
-        
+
         try {
-            console.log('Attempting login with:', formData.email)
+            console.log('🚀 Starting login process...')
+            console.log('📧 Email:', formData.email)
+
+            const startTime = Date.now()
             const success = await login(formData.email, formData.password)
-            
+            const endTime = Date.now()
+
+            console.log('⏱️ Login process took:', (endTime - startTime) / 1000, 'seconds')
+
             if (success) {
+                console.log('✅ Login successful - user authenticated')
                 toast({
                     title: "Login successful",
                     description: "Welcome back to EventFlow!",
                 })
+                // The AuthContext will handle the redirect
             } else {
+                console.log('❌ Login failed - invalid credentials')
                 setError('Invalid email or password. Please try again.')
             }
         } catch (err: any) {
-            console.error('Login error:', err)
-            setError(err?.message || 'Login failed. Please try again.')
+            console.error('💥 Login error:', err)
+            console.error('Error details:', {
+                message: err?.message,
+                name: err?.name,
+                stack: err?.stack
+            })
+
+            // Provide more specific error messages
+            let errorMessage = 'Login failed. Please try again.'
+
+            if (err?.message?.includes('timeout')) {
+                errorMessage = 'Connection timeout. Please check your internet connection and try again.'
+            } else if (err?.message?.includes('Invalid login credentials')) {
+                errorMessage = 'Invalid email or password. Please check your credentials.'
+            } else if (err?.message?.includes('Email not confirmed')) {
+                errorMessage = 'Please check your email and click the confirmation link before logging in.'
+            } else if (err?.message) {
+                errorMessage = err.message
+            }
+
+            setError(errorMessage)
         } finally {
             setLoading(false)
         }
@@ -213,8 +241,8 @@ export default function Login() {
                                     </div>
                                     
                                     <HoverShadowEffect className="w-full cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                        <Button 
-                                            type="submit" 
+                                        <Button
+                                            type="submit"
                                             className="w-full"
                                             disabled={loading || authLoading}
                                         >
@@ -224,7 +252,7 @@ export default function Login() {
                                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     </svg>
-                                                    Signing in...
+                                                    Authenticating...
                                                 </div>
                                             ) : authLoading ? (
                                                 <div className="flex items-center">
@@ -232,7 +260,7 @@ export default function Login() {
                                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     </svg>
-                                                    Loading...
+                                                    Checking session...
                                                 </div>
                                             ) : 'Sign In'}
                                         </Button>
