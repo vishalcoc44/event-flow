@@ -23,10 +23,15 @@ export default function ForgotPasswordPage() {
 
     try {
       // Call Supabase to send a password reset email, include redirectTo so user lands on our reset page
-      const redirectTo = `${window.location.origin}/reset-password`
+      const redirectTo = `${window.location.origin}/reset-password?mode=reset`
+      console.log('Sending password reset email to:', email)
+      console.log('Redirect URL:', redirectTo)
 
       // Supabase v2 method
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo,
+        // Add captcha token if needed (Supabase may require this in some configurations)
+      })
 
       if (error) {
         setError(error.message || 'Unable to send reset email. Please try again.')

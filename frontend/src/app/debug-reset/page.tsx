@@ -41,6 +41,27 @@ function DebugResetContent() {
           </ul>
         </div>
 
+        <div className="bg-green-100 p-4 rounded-lg">
+          <h2 className="font-semibold mb-2">Testing the Password Reset Flow:</h2>
+          <ol className="text-sm space-y-2">
+            <li><strong>1. Request Reset:</strong> Go to <code>/forgot-password</code> and enter your email</li>
+            <li><strong>2. Check Email:</strong> Look for the reset link in your Gmail inbox</li>
+            <li><strong>3. Test Link:</strong> Click the link or paste it here to analyze</li>
+            <li><strong>4. Reset Password:</strong> You should now see a form to enter a new password</li>
+            <li><strong>5. Complete:</strong> After changing password, you'll be redirected to login</li>
+          </ol>
+        </div>
+
+        <div className="bg-blue-100 p-4 rounded-lg">
+          <h2 className="font-semibold mb-2">Troubleshooting:</h2>
+          <ul className="text-sm space-y-1">
+            <li>• If redirected to dashboard: Password reset mode detection failed</li>
+            <li>• If "Invalid link": Tokens are expired or malformed</li>
+            <li>• If no parameters: Email client stripped them from URL</li>
+            <li>• Check browser console for detailed debug information</li>
+          </ul>
+        </div>
+
         <div className="mt-6">
           <a href="/reset-password" className="text-blue-600 underline mr-4">Go to Reset Password Page</a>
           <a href="/login" className="text-blue-600 underline">Go to Login Page</a>

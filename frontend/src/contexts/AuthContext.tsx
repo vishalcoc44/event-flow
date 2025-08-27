@@ -100,20 +100,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     if (typeof window !== 'undefined' && event === 'SIGNED_IN') {
                         const pathname = window.location.pathname;
                         const search = window.location.search;
-                        
+
+                        // Check for password reset mode in sessionStorage
+                        const isPasswordResetMode = sessionStorage.getItem('passwordResetMode') === 'true';
+                        const passwordResetTimestamp = sessionStorage.getItem('passwordResetTimestamp');
+                        const isRecentPasswordReset = passwordResetTimestamp &&
+                            (Date.now() - parseInt(passwordResetTimestamp)) < 300000; // 5 minutes
+
                         // Skip redirect if on auth pages or password reset flow
                         const isAuthPage = pathname === '/reset-password' || pathname === '/forgot-password' || pathname === '/login' || pathname === '/register';
-                        const isPasswordReset = search.includes('type=recovery') || search.includes('access_token');
-                        
-                        console.log('Auth redirect check:', {
+                        const isPasswordReset = search.includes('type=recovery') || search.includes('access_token') || search.includes('mode=reset');
+
+                        console.log('🔍 Auth redirect check:', {
                             pathname,
                             search,
                             isAuthPage,
                             isPasswordReset,
-                            shouldSkip: isAuthPage || isPasswordReset
+                            isPasswordResetMode,
+                            passwordResetTimestamp,
+                            isRecentPasswordReset,
+                            timeSinceReset: passwordResetTimestamp ? (Date.now() - parseInt(passwordResetTimestamp)) / 1000 + 's' : 'N/A',
+                            shouldSkip: isAuthPage || isPasswordReset || (isPasswordResetMode && isRecentPasswordReset)
                         });
-                        
-                        if (isAuthPage || isPasswordReset) {
+
+                        if (isAuthPage || isPasswordReset || (isPasswordResetMode && isRecentPasswordReset)) {
                             console.log('Skipping redirect - auth page or password reset flow');
                             setIsLoading(false);
                             return;
