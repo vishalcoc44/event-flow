@@ -50,8 +50,30 @@ function ResetPasswordForm() {
     console.log('Mode:', mode)
   }
 
-  // Check if we have the minimum required parameters
+      // Check if we have the minimum required parameters
   const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
+
+  // Check if access token is expired by decoding JWT
+  const checkTokenExpiration = (token: string) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const exp = payload.exp * 1000 // Convert to milliseconds
+      const now = Date.now()
+      const isExpired = now > exp
+      console.log('🔍 Token expiration check:', {
+        exp: new Date(exp).toISOString(),
+        now: new Date(now).toISOString(),
+        isExpired,
+        timeUntilExpiry: isExpired ? 'EXPIRED' : `${Math.round((exp - now) / 1000 / 60)} minutes`
+      })
+      return isExpired
+    } catch (e) {
+      console.log('⚠️ Could not decode token for expiration check')
+      return false
+    }
+  }
+
+  const isTokenExpired = accessToken ? checkTokenExpiration(accessToken) : false
 
   // If no valid tokens but we have a mode=reset, show Supabase configuration message
   const needsSupabaseSetup = mode === 'reset' && !hasValidTokens
@@ -97,13 +119,20 @@ function ResetPasswordForm() {
 
         // Set the session using the tokens from the URL with timeout
         const setSessionWithTimeout = async () => {
+          console.log('🔄 Attempting to set session with Supabase...')
+          console.log('Access token preview:', accessToken?.substring(0, 50) + '...')
+          console.log('Refresh token:', refreshToken)
+
           return Promise.race([
             supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken || ''
             }),
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Session setup timeout - tokens may be expired')), 10000)
+              setTimeout(() => {
+                console.log('⏰ Session setup timed out after 15 seconds')
+                reject(new Error('Session setup timeout - this could be due to network issues, expired tokens, or Supabase service delays'))
+              }, 15000)
             )
           ])
         }
@@ -112,11 +141,27 @@ function ResetPasswordForm() {
 
         if (error) {
           console.error('❌ Error setting session:', error)
-          setDebugMessage(`Session error: ${error.message}`)
-          setError(`Session error: ${error.message}`)
+
+          // Provide specific error messages based on the situation
+          let errorTitle = 'Session Setup Failed'
+          let errorDescription = error.message
+          let debugMessage = `Session error: ${error.message}`
+
+          if (error.message.includes('timeout')) {
+            errorTitle = 'Connection Timeout'
+            errorDescription = 'Supabase is not responding. This could be due to network issues or service delays.'
+            debugMessage = 'Session setup timed out - check network connection and try again'
+          } else if (isTokenExpired) {
+            errorTitle = 'Reset Link Expired'
+            errorDescription = 'This password reset link has expired. Please request a new one.'
+            debugMessage = 'Access token has expired - request a new password reset link'
+          }
+
+          setDebugMessage(debugMessage)
+          setError(`${errorTitle}: ${errorDescription}`)
           toast({
-            title: 'Invalid link',
-            description: 'This password reset link is invalid or expired. Please request a new password reset.',
+            title: errorTitle,
+            description: errorDescription,
             variant: 'destructive'
           })
           return
@@ -227,8 +272,10 @@ function ResetPasswordForm() {
                 <p>Access Token: {accessToken ? `${accessToken.substring(0, 20)}... (${accessToken.length} chars)` : 'Missing'}</p>
                 <p>Refresh Token: {refreshToken ? `${refreshToken.substring(0, 20)}... (${refreshToken.length} chars)` : 'Missing'}</p>
                 <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
+                <p>Token Expired: {isTokenExpired ? 'Yes' : 'No'}</p>
                 <p>Needs Supabase Setup: {needsSupabaseSetup ? 'Yes' : 'No'}</p>
                 <p>Session Set: {sessionSet ? 'Yes' : 'No'}</p>
+                <p>Retry Count: {retryCount}/3</p>
                 {error && <p className="text-red-600">Error: {error}</p>}
                 {needsSupabaseSetup && (
                   <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
@@ -263,6 +310,28 @@ function ResetPasswordForm() {
                     🔄 Retry Password Reset (Attempt {retryCount + 1}/3)
                   </button>
                 )}
+
+                {error && error.includes('timeout') && (
+                  <button
+                    onClick={async () => {
+                      setDebugMessage('Testing Supabase connection...')
+                      try {
+                        const { data, error } = await supabase.auth.getSession()
+                        if (error) {
+                          setDebugMessage(`Connection test failed: ${error.message}`)
+                        } else {
+                          setDebugMessage('Supabase connection successful - try retrying the password reset')
+                        }
+                      } catch (err: any) {
+                        setDebugMessage(`Connection test error: ${err.message}`)
+                      }
+                    }}
+                    className="block w-full px-4 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors"
+                  >
+                    🧪 Test Supabase Connection
+                  </button>
+                )}
+
                 <button
                   onClick={() => router.push('/login')}
                   className="block w-full px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
