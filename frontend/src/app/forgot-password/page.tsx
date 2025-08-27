@@ -46,7 +46,8 @@ export default function ForgotPasswordPage() {
         console.log('Password reset email sent successfully:', data)
         toast({
           title: 'Email sent',
-          description: 'If that email exists, a password reset link was sent. Please check your email (including spam folder).'
+          description: 'If that email exists, a password reset link was sent. Please check your email (including spam folder). Note: You may need to configure Supabase Auth email templates for the reset link to work properly.',
+          duration: 8000
         })
       }
     } catch (err: any) {
@@ -78,7 +79,13 @@ export default function ForgotPasswordPage() {
             <div className="md:w-1/2 bg-white p-8 md:p-12">
               <div className="max-w-md mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Forgot password</h1>
-                <p className="text-gray-600 mb-6">No worries — we'll send a link to reset it.</p>
+                <p className="text-gray-600 mb-4">No worries — we'll send a link to reset it.</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-6">
+                  <p className="text-sm text-blue-700">
+                    <strong>Note:</strong> Password reset emails require Supabase Auth configuration.
+                    Make sure email templates are enabled in your Supabase dashboard.
+                  </p>
+                </div>
 
                 {error && (
                   <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">{error}</div>

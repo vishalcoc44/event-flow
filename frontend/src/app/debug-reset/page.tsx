@@ -60,7 +60,23 @@ function DebugResetContent() {
             <li><strong>"Has Valid Tokens: No":</strong> Check Supabase email templates and SMTP settings</li>
             <li><strong>Email not received:</strong> Check spam folder and Supabase email configuration</li>
             <li><strong>Environment variables:</strong> Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set</li>
+            <li><strong>Template Issue:</strong> Verify your email template uses {{ "{{ .ConfirmationURL }}" }} not just a plain link</li>
           </ul>
+        </div>
+
+        <div className="bg-purple-100 p-4 rounded-lg">
+          <h2 className="font-semibold mb-2">How to Test Your Reset Link:</h2>
+          <ol className="text-sm space-y-2">
+            <li><strong>1. Copy the reset link</strong> from your email (right-click → Copy Link)</li>
+            <li><strong>2. Paste it below</strong> in the URL field</li>
+            <li><strong>3. Click "Analyze URL"</strong> to see what parameters it contains</li>
+            <li><strong>4. Check results:</strong>
+              <ul className="ml-4 mt-1 space-y-1">
+                <li>✅ Should have: access_token, refresh_token, type=recovery</li>
+                <li>❌ Missing: Indicates Supabase template/configuration issue</li>
+              </ul>
+            </li>
+          </ol>
         </div>
 
         <div className="bg-blue-100 p-4 rounded-lg">
