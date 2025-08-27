@@ -21,9 +21,7 @@ const nextConfig: import('next').NextConfig = {
         return 'build-' + Date.now()
     },
     // Allow static export to work with dynamic routes that have search params
-    experimental: {
-        serverComponentsExternalPackages: [],
-    },
+    serverExternalPackages: [],
 }
 
 module.exports = nextConfig

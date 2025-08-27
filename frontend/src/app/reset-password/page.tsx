@@ -20,6 +20,7 @@ function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null)
   const [sessionSet, setSessionSet] = useState(false)
   const [isPasswordResetMode, setIsPasswordResetMode] = useState(false)
+  const [debugMessage, setDebugMessage] = useState<string>('Initializing...')
 
   // Supabase sends access_token and refresh_token as query params for password reset
   // Also check URL hash in case email client moved params there
@@ -40,33 +41,30 @@ function ResetPasswordForm() {
     }
   }
 
-  useEffect(() => {
-    // Cleanup function to clear password reset mode if user navigates away
-    const cleanupPasswordResetMode = () => {
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('passwordResetMode')
-        sessionStorage.removeItem('passwordResetTimestamp')
-      }
-    }
-
-    // Add cleanup on page unload
-    if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', cleanupPasswordResetMode)
-    }
-
-    const handlePasswordReset = async () => {
+  const handlePasswordReset = async () => {
       console.log('=== PASSWORD RESET DEBUG ===')
       console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type })
       console.log('All URL params:', Object.fromEntries(searchParams?.entries() || []))
       console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
       console.log('User agent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'undefined')
 
+      setDebugMessage('Starting password reset process...')
+
       // Check if this is a password reset flow
       const isPasswordResetFlow = (type === 'recovery' && accessToken && refreshToken) ||
                                   (mode === 'reset' && (accessToken || type === 'recovery'))
 
+      console.log('Password reset flow check:', {
+        isPasswordResetFlow,
+        type,
+        mode,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken
+      })
+
       if (isPasswordResetFlow) {
         console.log('✅ Processing password reset flow:', { type, mode, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken })
+        setDebugMessage('Detected password reset flow, setting up session...')
         setIsPasswordResetMode(true)
 
         try {
@@ -76,6 +74,7 @@ function ResetPasswordForm() {
             sessionStorage.setItem('passwordResetMode', 'true')
             sessionStorage.setItem('passwordResetTimestamp', Date.now().toString())
             console.log('🔧 Password reset mode set in sessionStorage')
+            setDebugMessage('SessionStorage configured, calling Supabase...')
           }
 
           // Set the session using the tokens from the URL
@@ -86,6 +85,7 @@ function ResetPasswordForm() {
 
           if (error) {
             console.error('❌ Error setting session:', error)
+            setDebugMessage(`Session error: ${error.message}`)
             // Clear the password reset mode if session setup fails
             if (typeof window !== 'undefined') {
               sessionStorage.removeItem('passwordResetMode')
@@ -102,9 +102,13 @@ function ResetPasswordForm() {
           }
 
           console.log('✅ Session set successfully:', data)
+          console.log('🔄 Setting sessionSet to true...')
+          setDebugMessage('Session setup complete, showing password form...')
           setSessionSet(true)
+          console.log('✅ sessionSet should now be true')
         } catch (err: any) {
           console.error('❌ Session error:', err)
+          setDebugMessage(`Session setup failed: ${err?.message || 'Unknown error'}`)
           setError(`Session setup failed: ${err?.message || 'Unknown error'}`)
           toast({
             title: 'Invalid link',
@@ -115,6 +119,7 @@ function ResetPasswordForm() {
         }
       } else if (accessToken || (mode === 'reset' && type === 'recovery')) {
         console.log('⚠️  Processing password reset with access token or recovery type')
+        setDebugMessage('Processing partial token reset...')
         setIsPasswordResetMode(true)
 
         // Fallback: if we only have access_token, try to set session with it
@@ -167,6 +172,7 @@ function ResetPasswordForm() {
         console.log('Expected: type=recovery, access_token=<token>, refresh_token=<token>')
 
         const debugInfo = Object.fromEntries(searchParams?.entries() || [])
+        setDebugMessage(`No valid reset tokens found. Available: ${Object.keys(debugInfo).join(', ')}`)
         setError(`Missing required parameters. Found: ${Object.keys(debugInfo).join(', ')}`)
 
         toast({
@@ -185,10 +191,42 @@ function ResetPasswordForm() {
     // Only proceed if we have some parameters that suggest this is a reset attempt
     const hasResetParams = accessToken || refreshToken || type || mode === 'reset'
     if (hasResetParams) {
-      handlePasswordReset()
+      // Add a small delay to ensure the component is fully mounted
+      setTimeout(() => {
+        handlePasswordReset()
+      }, 100)
     } else {
       console.log('ℹ️  No reset parameters found, redirecting to login')
-      router.push('/login')
+      setDebugMessage('No reset parameters found, redirecting...')
+      setTimeout(() => router.push('/login'), 1000)
+    }
+  }
+
+  useEffect(() => {
+    // Cleanup function to clear password reset mode if user navigates away
+    const cleanupPasswordResetMode = () => {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('passwordResetMode')
+        sessionStorage.removeItem('passwordResetTimestamp')
+      }
+    }
+
+    // Add cleanup on page unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', cleanupPasswordResetMode)
+    }
+
+    // Only proceed if we have some parameters that suggest this is a reset attempt
+    const hasResetParams = accessToken || refreshToken || type || mode === 'reset'
+    if (hasResetParams) {
+      // Add a small delay to ensure the component is fully mounted
+      setTimeout(() => {
+        handlePasswordReset()
+      }, 100)
+    } else {
+      console.log('ℹ️  No reset parameters found, redirecting to login')
+      setDebugMessage('No reset parameters found, redirecting...')
+      setTimeout(() => router.push('/login'), 1000)
     }
 
     // Cleanup
@@ -263,19 +301,34 @@ function ResetPasswordForm() {
 
               {/* Debug information */}
               <div className="text-left text-xs bg-gray-50 p-3 rounded">
+                <p><strong>Status:</strong> {debugMessage}</p>
                 <p><strong>Debug Info:</strong></p>
                 <p>Type: {type || 'Not set'}</p>
+                <p>Mode: {mode || 'Not set'}</p>
                 <p>Access Token: {accessToken ? 'Present' : 'Missing'}</p>
                 <p>Refresh Token: {refreshToken ? 'Present' : 'Missing'}</p>
+                <p>Session Set: {sessionSet ? 'Yes' : 'No'}</p>
                 {error && <p className="text-red-600">Error: {error}</p>}
               </div>
 
-              <button
-                onClick={() => router.push('/login')}
-                className="mt-4 text-sm text-primary hover:underline"
-              >
-                Return to Login
-              </button>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => {
+                    console.log('🔄 Manual retry triggered')
+                    setDebugMessage('Retrying session setup...')
+                    handlePasswordReset()
+                  }}
+                  className="block w-full text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                >
+                  Retry Session Setup
+                </button>
+                <button
+                  onClick={() => router.push('/login')}
+                  className="block w-full text-sm text-primary hover:underline"
+                >
+                  Return to Login
+                </button>
+              </div>
             </div>
           </div>
         </main>
