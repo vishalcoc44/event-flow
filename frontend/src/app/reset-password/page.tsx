@@ -27,17 +27,28 @@ function ResetPasswordForm() {
   const type = searchParams?.get('type') || ''
   const mode = searchParams?.get('mode') || ''
 
+  console.log('=== RESET PAGE PARAMS DEBUG ===')
+  console.log('All search params:', Object.fromEntries(searchParams?.entries() || []))
+  console.log('Access Token length:', accessToken?.length || 0)
+  console.log('Refresh Token length:', refreshToken?.length || 0)
+  console.log('Type:', type)
+  console.log('Mode:', mode)
+
+  // Check if we have the minimum required parameters
+  const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
+
   const handlePasswordReset = async () => {
     console.log('=== PASSWORD RESET DEBUG ===')
     console.log('Reset page params:', { accessToken: accessToken ? 'Present' : 'Missing', refreshToken: refreshToken ? 'Present' : 'Missing', type, mode })
     console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
+    console.log('Has valid tokens:', hasValidTokens)
 
     setDebugMessage('Starting password reset process...')
 
     // Check if this is a password reset flow
-    if ((type === 'recovery' && accessToken && refreshToken) || (mode === 'reset' && accessToken)) {
-      console.log('✅ Processing password reset flow')
-      setDebugMessage('Detected password reset flow, setting up session...')
+    if (hasValidTokens) {
+      console.log('✅ Processing password reset flow - valid tokens found')
+      setDebugMessage('Valid tokens detected, setting up session...')
 
       try {
         // Store password reset mode in sessionStorage BEFORE setting session
@@ -76,21 +87,29 @@ function ResetPasswordForm() {
       }
     } else {
       console.log('❌ No valid reset tokens found')
-      setDebugMessage('No valid reset tokens found')
-      setError('Missing required parameters for password reset')
+      console.log('Missing requirements:', {
+        hasAccessToken: !!accessToken,
+        accessTokenLength: accessToken?.length || 0,
+        hasType: !!type,
+        correctType: type === 'recovery'
+      })
+      setDebugMessage('No valid reset tokens found - check email link')
+      setError('Missing required parameters for password reset. Please request a new password reset link.')
     }
   }
 
   useEffect(() => {
-    // Only proceed if we have some parameters that suggest this is a reset attempt
-    if (accessToken || refreshToken || type || mode === 'reset') {
+    // Only proceed if we have valid tokens or at least some reset parameters
+    if (hasValidTokens || accessToken || refreshToken || type || mode === 'reset') {
+      console.log('🔄 Starting password reset process...')
       setTimeout(() => {
         handlePasswordReset()
       }, 100)
     } else {
-      setDebugMessage('No reset parameters found')
+      console.log('ℹ️ No reset parameters found')
+      setDebugMessage('No reset parameters found - please request a new password reset link')
     }
-  }, [accessToken, refreshToken, type, mode, router, toast])
+  }, [hasValidTokens, accessToken, refreshToken, type, mode, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -153,6 +172,7 @@ function ResetPasswordForm() {
                 <p>Mode: {mode || 'Not set'}</p>
                 <p>Access Token: {accessToken ? 'Present' : 'Missing'}</p>
                 <p>Refresh Token: {refreshToken ? 'Present' : 'Missing'}</p>
+                <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
                 <p>Session Set: {sessionSet ? 'Yes' : 'No'}</p>
                 {error && <p className="text-red-600">Error: {error}</p>}
               </div>

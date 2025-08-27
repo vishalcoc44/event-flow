@@ -45,11 +45,22 @@ function DebugResetContent() {
           <h2 className="font-semibold mb-2">Testing the Password Reset Flow:</h2>
           <ol className="text-sm space-y-2">
             <li><strong>1. Request Reset:</strong> Go to <code>/forgot-password</code> and enter your email</li>
-            <li><strong>2. Check Email:</strong> Look for the reset link in your Gmail inbox</li>
-            <li><strong>3. Test Link:</strong> Click the link or paste it here to analyze</li>
-            <li><strong>4. Reset Password:</strong> You should now see a form to enter a new password</li>
-            <li><strong>5. Complete:</strong> After changing password, you'll be redirected to login</li>
+            <li><strong>2. Check Console:</strong> Open browser dev tools (F12) to see debug logs</li>
+            <li><strong>3. Check Email:</strong> Look for the reset link in your Gmail inbox (including spam)</li>
+            <li><strong>4. Test Link:</strong> Click the link or paste it here to analyze</li>
+            <li><strong>5. Debug Info:</strong> Check the "Has Valid Tokens" status - should be "Yes"</li>
+            <li><strong>6. Reset Password:</strong> If tokens are valid, you'll see the password form</li>
           </ol>
+        </div>
+
+        <div className="bg-red-100 p-4 rounded-lg">
+          <h2 className="font-semibold mb-2">Common Issues & Solutions:</h2>
+          <ul className="text-sm space-y-2">
+            <li><strong>"No valid reset tokens found":</strong> Supabase isn't sending tokens in the email</li>
+            <li><strong>"Has Valid Tokens: No":</strong> Check Supabase email templates and SMTP settings</li>
+            <li><strong>Email not received:</strong> Check spam folder and Supabase email configuration</li>
+            <li><strong>Environment variables:</strong> Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set</li>
+          </ul>
         </div>
 
         <div className="bg-blue-100 p-4 rounded-lg">
