@@ -297,26 +297,25 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
     }
   };
 
-  // Invite member to organization
-  const inviteMember = async (email: string, role: 'ADMIN' | 'USER') => {
+  // Invite member to organization (now using secure invitation system)
+  const inviteMember = async (email: string, role: 'ADMIN' | 'USER', message?: string) => {
     if (!organization) throw new Error('No organization selected');
 
     try {
-      // This would typically involve creating an invitation record
-      // For now, we'll use the add_user_to_organization function
-      const { error } = await supabase.rpc('add_user_to_organization', {
-        p_user_id: null, // This would need to be handled differently for invitations
+      // Send invitation instead of directly adding user
+      const { error } = await supabase.rpc('send_organization_invitation', {
         p_organization_id: organization.id,
-        p_added_by: organization.created_by,
-        p_role_in_org: role
+        p_email: email,
+        p_role: role,
+        p_message: message || `You've been invited to join ${organization.name}`
       });
 
       if (error) throw error;
 
-      // Refresh members list
-      await loadMembers();
+      // Note: We don't refresh members list here since invited users aren't members yet
+      // They become members only after accepting the invitation
     } catch (err) {
-      console.error('Error inviting member:', err);
+      console.error('Error sending invitation:', err);
       throw err;
     }
   };

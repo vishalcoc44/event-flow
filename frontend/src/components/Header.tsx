@@ -344,6 +344,14 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
+                                    href="/invitations" 
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/invitations') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                    Invitations
+                                </Link>
+                            </HoverShadowEffect>
+                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
+                                <Link 
                                     href="/customer/admin-request-status" 
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/admin-request-status') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
@@ -517,6 +525,12 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/profile') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Profile
+                                </Link>
+                                <Link 
+                                    href="/invitations" 
+                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/invitations') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
+                                >
+                                    Invitations
                                 </Link>
                             </>
                         )}

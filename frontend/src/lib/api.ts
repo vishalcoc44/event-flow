@@ -337,7 +337,7 @@ export const organizationAPI = {
           ...spaceData,
           created_by: user.id
         }])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
 
       if (error) throw error;
@@ -355,7 +355,7 @@ export const organizationAPI = {
         .from('organizations')
         .update(updateData)
         .eq('id', organizationId)
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
 
       if (error) throw error;
@@ -366,17 +366,17 @@ export const organizationAPI = {
     }
   },
 
-  // Invite member to organization
-  inviteMember: async (organizationId: string, email: string, role: 'ADMIN' | 'USER') => {
+  // Invite member to organization (now using secure invitation system)
+  inviteMember: async (organizationId: string, email: string, role: 'ADMIN' | 'USER', message?: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { error } = await supabase.rpc('add_user_to_organization', {
-        p_user_id: null, // This would need to be handled differently for invitations
+      const { error } = await supabase.rpc('send_organization_invitation', {
         p_organization_id: organizationId,
-        p_added_by: user.id,
-        p_role_in_org: role
+        p_email: email,
+        p_role: role,
+        p_message: message
       });
 
       if (error) throw error;
@@ -417,7 +417,7 @@ export const organizationAPI = {
           is_org_admin: role === 'OWNER' || role === 'ADMIN'
         })
         .eq('id', userId)
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
 
       if (error) throw error;
@@ -453,7 +453,7 @@ export const eventsAPI = {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*, categories(*), created_by:users(*)');
+        .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)');
         
       if (error) throw error;
       return data;
@@ -467,7 +467,7 @@ export const eventsAPI = {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*, categories(*), created_by:users(*)')
+        .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)')
         .eq('id', id)
         .single();
         
@@ -600,7 +600,7 @@ export const eventsAPI = {
           image_url: imageUrl
         })
         .eq('id', id)
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -703,7 +703,7 @@ export const bookingsAPI = {
     try {
       const { data, error } = await supabase
         .from('bookings')
-        .select('*, event:events(*), user:users(*)');
+        .select('*, event:events(*), user:users(id, email, first_name, last_name, role, created_at, follower_count)');
         
       if (error) throw error;
       return data;
@@ -726,7 +726,7 @@ export const bookingsAPI = {
           user_id: user.id,
           status: 'CONFIRMED'
         }])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -743,7 +743,7 @@ export const bookingsAPI = {
         .from('bookings')
         .update({ status: 'CANCELLED' })
         .eq('id', id)
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -790,7 +790,7 @@ export const categoriesAPI = {
       const { data, error } = await supabase
         .from('categories')
         .insert([categoryData])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -807,7 +807,7 @@ export const categoriesAPI = {
         .from('categories')
         .update(categoryData)
         .eq('id', id)
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -851,7 +851,7 @@ export const socialAPI = {
           target_id: targetUserId,
           target_type: 'USER'
         }])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -896,7 +896,7 @@ export const socialAPI = {
           target_id: eventId,
           target_type: 'EVENT'
         }])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -941,7 +941,7 @@ export const socialAPI = {
           target_id: categoryId,
           target_type: 'CATEGORY'
         }])
-        .select()
+        .select('id, follower_id, target_id, target_type, created_at')
         .single();
         
       if (error) throw error;
@@ -1168,7 +1168,7 @@ export const socialAPI = {
       // Get user data
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('*')
+        .select('id, email, first_name, last_name, role, created_at, follower_count')
         .eq('id', userId)
         .single();
         
@@ -1203,7 +1203,7 @@ export const socialAPI = {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*, categories(*), created_by:users(*)');
+        .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)');
         
       if (error) throw error;
       return data;

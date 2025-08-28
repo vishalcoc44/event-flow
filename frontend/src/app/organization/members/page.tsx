@@ -80,8 +80,8 @@ interface Member {
 interface Invitation {
   id: string;
   email: string;
-  role: 'admin' | 'user';
-  status: 'pending' | 'accepted' | 'expired';
+  role: string;
+  status: string;
   invited_by: string;
   invited_at: string;
   expires_at: string;
@@ -156,15 +156,43 @@ export default function OrganizationMembers() {
   };
 
   const loadInvitations = async () => {
+    if (!organization) return;
+
     try {
-      // No invitations table in schema, so leave empty or implement if needed
-      setInvitations([]);
+      // Load organization invitations with a simple query to avoid permission issues
+      const { data, error } = await supabase
+        .from('organization_invitations')
+        .select(`
+          id,
+          email,
+          role,
+          status,
+          message,
+          created_at,
+          expires_at
+        `)
+        .eq('organization_id', organization.id)
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Use generic inviter information to avoid permission issues
+      const invitationsWithGenericDetails = (data || []).map((invitation) => ({
+        id: invitation.id,
+        email: invitation.email,
+        role: invitation.role.toLowerCase(),
+        status: invitation.status,
+        invited_by: 'Organization Admin', // Generic name to avoid permission issues
+        invited_at: invitation.created_at,
+        expires_at: invitation.expires_at
+      }));
+
+      setInvitations(invitationsWithGenericDetails);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load invitations.",
-        variant: "destructive",
-      });
+      console.error('Error loading invitations:', error);
+      // Don't show error toast for invitations, just log it
+      // This prevents spam if invitations fail but other functionality works
     }
   };
 
@@ -173,44 +201,25 @@ export default function OrganizationMembers() {
     
     setIsInviting(true);
     try {
-      // For now, we'll simulate invitations by sending direct email
-      // In a real implementation, you'd send an actual email invitation
-      
-      // Check if user already exists with this email
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', inviteEmail)
-        .single();
+      // Send invitation instead of directly adding user
+      const { error } = await supabase.rpc('send_organization_invitation', {
+        p_organization_id: organization.id,
+        p_email: inviteEmail,
+        p_role: inviteRole.toUpperCase(),
+        p_message: `You've been invited to join ${organization.name}`
+      });
 
-      if (existingUser) {
-        // Add user directly to organization if they exist
-        const { error } = await supabase.rpc('add_user_to_organization', {
-          p_user_id: existingUser.id,
-          p_organization_id: organization.id,
-          p_added_by: (await supabase.auth.getUser()).data.user?.id,
-          p_role_in_org: inviteRole.toUpperCase()
-        });
+      if (error) throw error;
 
-        if (error) throw error;
-
-        toast({
-          title: "User added",
-          description: `User with email ${inviteEmail} has been added to the organization.`,
-        });
-      } else {
-        // For non-existing users, we'd need to implement email invitation system
-        // For now, just show a message
-        toast({
-          title: "Invitation would be sent",
-          description: `In a full implementation, an invitation email would be sent to ${inviteEmail}`,
-        });
-      }
+      toast({
+        title: "Invitation sent",
+        description: `An invitation has been sent to ${inviteEmail}. They will need to accept it to join the organization.`,
+      });
       
       setInviteEmail('');
       setInviteRole('user');
       setShowInviteDialog(false);
-      loadMembers(); // Refresh members list
+      loadInvitations(); // Refresh invitations list
     } catch (error) {
       console.error('Error sending invitation:', error);
       toast({

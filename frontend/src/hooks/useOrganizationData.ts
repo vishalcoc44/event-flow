@@ -8,17 +8,15 @@ export const useOrganizationData = () => {
   const { loadOrganization, loadOrganizationById, organization, isLoading, error, updateOrganization } = useOrganization();
 
   useEffect(() => {
-    // Optimization: If we already have the organization_id in user data, load organization directly
-    // This skips the extra database call to look up the user's organization_id
+    // Only load organization data if AuthContext hasn't already provided it in user object
+    // and we actually need the full organization details (not just the basic info in user)
     if (!userLoading && user?.organization_id && !organization) {
-      console.log('Loading organization directly by ID:', user.organization_id);
+      console.log('Loading organization details by ID:', user.organization_id);
       loadOrganizationById(user.organization_id);
-    } else if (!userLoading && user?.id && !user?.organization_id && !organization) {
-      // Fallback: user exists but no organization_id in user data, use the original method
-      console.log('Loading organization via user lookup for user:', user.id);
-      loadOrganization(user.id);
     }
-  }, [user?.id, user?.organization_id, userLoading, organization, loadOrganization, loadOrganizationById]);
+    // Note: Removed the fallback user lookup as AuthContext now handles organization_id loading
+    // If user.organization_id is null/undefined, it means the user is not in an organization
+  }, [user?.id, user?.organization_id, userLoading, organization]);
 
   return {
     organization,

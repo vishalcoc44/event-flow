@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null)
+    const [isLoadingOrgData, setIsLoadingOrgData] = useState<boolean>(false)
     const router = useRouter()
     const { toast } = useToast()
 
@@ -119,35 +120,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         created_at: session.user.created_at
                     };
                     
-                    // Load organization data asynchronously (non-blocking)
-                    // Set a timeout to prevent hanging on organization data fetch
-                    Promise.race([
-                        authAPI.getUserOrganizationData(session.user.id),
-                        new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('Organization data timeout')), 2000)
-                        )
-                    ])
-                        .then((orgData: any) => {
-                            if (orgData) {
-                                // Update user data with organization info
-                                setUser(prevUser => {
-                                    if (prevUser && prevUser.id === session.user.id) {
-                                        return {
-                                            ...prevUser,
-                                            organization_id: orgData.organization_id,
-                                            role_in_org: orgData.role_in_org,
-                                            is_org_admin: orgData.is_org_admin,
-                                            joined_at: orgData.joined_at
-                                        };
-                                    }
-                                    return prevUser;
-                                });
-                            }
-                        })
-                        .catch((error) => {
-                            console.log('Organization data loading skipped or failed:', error.message);
-                            // Continue without organization data - user can still use the app
-                        });
+                    // Load organization data asynchronously (non-blocking) - prevent infinite loops
+                    if (!isLoadingOrgData && !userData.organization_id) {
+                        setIsLoadingOrgData(true);
+                        Promise.race([
+                            authAPI.getUserOrganizationData(session.user.id),
+                            new Promise((_, reject) => 
+                                setTimeout(() => reject(new Error('Organization data timeout')), 2000)
+                            )
+                        ])
+                            .then((orgData: any) => {
+                                if (orgData) {
+                                    // Update user data with organization info
+                                    setUser(prevUser => {
+                                        if (prevUser && prevUser.id === session.user.id) {
+                                            return {
+                                                ...prevUser,
+                                                organization_id: orgData.organization_id,
+                                                role_in_org: orgData.role_in_org,
+                                                is_org_admin: orgData.is_org_admin,
+                                                joined_at: orgData.joined_at
+                                            };
+                                        }
+                                        return prevUser;
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.log('Organization data loading skipped or failed:', error.message);
+                                // Continue without organization data - user can still use the app
+                            })
+                            .finally(() => {
+                                setIsLoadingOrgData(false);
+                            });
+                    }
                     
                     setUser(userData);
                     isInitialized = true;
@@ -186,13 +192,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             return;
                         }
                         
-                        // Normal login redirect
-                        const role = userData.role;
-                        if (role === 'ADMIN') {
-                            router.push('/admin/dashboard');
-                        } else {
-                            router.push('/customer/dashboard');
-                        }
+                        // Normal login redirect - add delay to prevent fetch conflicts
+                        setTimeout(() => {
+                            const role = userData.role;
+                            if (role === 'ADMIN') {
+                                router.push('/admin/dashboard');
+                            } else {
+                                router.push('/customer/dashboard');
+                            }
+                        }, 100);
                     }
                 } else {
                     setUser(null);
@@ -257,29 +265,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                     // Load organization data asynchronously (non-blocking)
                     // This will complete in background and update user data when ready
-                    Promise.race([
-                        authAPI.getUserOrganizationData(authResult.session.user.id),
-                        new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('Organization data timeout')), 2000)
-                        )
-                    ])
-                        .then((orgData: any) => {
-                            if (orgData) {
-                                console.log('✅ Organization data loaded in background');
-                                const updatedUserData = {
-                                    ...userData,
-                                    organization_id: orgData.organization_id,
-                                    role_in_org: orgData.role_in_org,
-                                    is_org_admin: orgData.is_org_admin,
-                                    joined_at: orgData.joined_at
-                                };
-                                setUser(updatedUserData);
-                            }
-                        })
-                        .catch((error) => {
-                            console.log('⚠️ Organization data load failed or timed out:', error.message);
-                            // Continue with user data without organization info
-                        });
+                    // Load organization data asynchronously (non-blocking) with timeout - prevent infinite loops
+                    if (!isLoadingOrgData && !userData.organization_id) {
+                        setIsLoadingOrgData(true);
+                        Promise.race([
+                            authAPI.getUserOrganizationData(authResult.session.user.id),
+                            new Promise((_, reject) => 
+                                setTimeout(() => reject(new Error('Organization data timeout')), 2000)
+                            )
+                        ])
+                            .then((orgData: any) => {
+                                if (orgData) {
+                                    console.log('✅ Organization data loaded in background');
+                                    const updatedUserData = {
+                                        ...userData,
+                                        organization_id: orgData.organization_id,
+                                        role_in_org: orgData.role_in_org,
+                                        is_org_admin: orgData.is_org_admin,
+                                        joined_at: orgData.joined_at
+                                    };
+                                    setUser(updatedUserData);
+                                }
+                            })
+                            .catch((error) => {
+                                console.log('⚠️ Organization data load failed or timed out:', error.message);
+                                // Continue with user data without organization info
+                            })
+                            .finally(() => {
+                                setIsLoadingOrgData(false);
+                            });
+                    }
 
                     console.log('✅ User data loaded successfully');
                     setUser(userData);
@@ -503,12 +518,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 return true;
             }
             
-            // Redirect based on role and organization
-            if (role === 'ADMIN') {
-                router.push('/admin/dashboard');
-            } else {
-                router.push('/customer/dashboard');
-            }
+            // Redirect based on role and organization - add delay to prevent fetch conflicts
+            setTimeout(() => {
+                if (role === 'ADMIN') {
+                    router.push('/admin/dashboard');
+                } else {
+                    router.push('/customer/dashboard');
+                }
+            }, 100);
             
             return true;
         } catch (error) {
@@ -649,11 +666,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         // Determine where to redirect based on role
                         const role = userData.role || 'USER';
                         
-                        if (role === 'ADMIN') {
-                            router.push('/admin/dashboard');
-                        } else {
-                            router.push('/customer/dashboard');
-                        }
+                        setTimeout(() => {
+                            if (role === 'ADMIN') {
+                                router.push('/admin/dashboard');
+                            } else {
+                                router.push('/customer/dashboard');
+                            }
+                        }, 100);
                     } catch (signInError) {
                         console.error('Error signing in after registration:', signInError);
                         router.push('/login');
