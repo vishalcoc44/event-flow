@@ -1024,7 +1024,7 @@ export const socialAPI = {
           if (follow.target_type === 'USER') {
             const { data: userData } = await supabase
               .from('users')
-              .select('*')
+              .select('id, email, first_name, last_name, role, created_at, follower_count')
               .eq('id', follow.target_id)
               .single();
             targetData = userData;
@@ -1076,7 +1076,7 @@ export const socialAPI = {
         data.map(async (follow) => {
           const { data: followerData } = await supabase
             .from('users')
-            .select('*')
+            .select('id, email, first_name, last_name, role, created_at, follower_count')
             .eq('id', follow.follower_id)
             .single();
           
@@ -1110,7 +1110,7 @@ export const socialAPI = {
         data.map(async (follow) => {
           const { data: followerData } = await supabase
             .from('users')
-            .select('*')
+            .select('id, email, first_name, last_name, role, created_at, follower_count')
             .eq('id', follow.follower_id)
             .single();
           
@@ -1144,7 +1144,7 @@ export const socialAPI = {
         data.map(async (follow) => {
           const { data: followerData } = await supabase
             .from('users')
-            .select('*')
+            .select('id, email, first_name, last_name, role, created_at, follower_count')
             .eq('id', follow.follower_id)
             .single();
           
