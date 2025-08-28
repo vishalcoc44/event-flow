@@ -11,6 +11,8 @@ export interface SubscriptionPlan {
   description: string;
   price_monthly: number;
   price_yearly: number;
+  price?: number; // Add price property for compatibility
+  value?: string; // Add value property for compatibility
   max_events: number;
   max_users: number;
   max_storage_mb: number;

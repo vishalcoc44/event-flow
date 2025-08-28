@@ -6,22 +6,48 @@ const nextConfig: import('next').NextConfig = {
         unoptimized: true,
     },
     reactStrictMode: true,
-    // Optimize build performance
+
+    // Performance optimizations (minimal features for static export compatibility)
     experimental: {
-        optimizePackageImports: ['@radix-ui/react-icons'],
+        optimizePackageImports: [
+            '@radix-ui/react-icons',
+            'lucide-react',
+            'framer-motion'
+        ],
+        optimizeCss: false, // Disabled for static export compatibility
+        // scrollRestoration disabled for static export compatibility
     },
+
+    // Compiler optimizations
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
+    },
+
+    // Simplified webpack config for static export compatibility
+    webpack: (config, { isServer }) => {
+        // Basic bundle splitting for static export
+        if (!isServer) {
+            config.optimization.splitChunks.chunks = 'all'
+        }
+
+        return config
+    },
+
+    // Note: Custom headers don't work with static export
+    // These would need to be set at the CDN/hosting level
+
     eslint: {
-        // Warning: This allows production builds to successfully complete even if
-        // your project has ESLint errors.
         ignoreDuringBuilds: true,
     },
     typescript: {
-        // Warning: This allows production builds to successfully complete even if
-        // your project has TypeScript errors.
         ignoreBuildErrors: true,
     },
-    // Disable static optimization for pages that need client-side features
-    staticPageGenerationTimeout: 1000,
+
+    // Optimize static generation with longer timeout for complex pages
+    staticPageGenerationTimeout: 30000,
+
+    // Compress responses
+    compress: true,
 }
 
 module.exports = nextConfig

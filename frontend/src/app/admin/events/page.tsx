@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useEvents } from '@/contexts/EventContext'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { Trash2, Edit } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 import { EventRating } from '@/components/EventRating'
 
@@ -19,28 +21,77 @@ export default function AllEvents() {
     const { toast } = useToast()
     const { user } = useAuth()
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [confirmDialog, setConfirmDialog] = useState<{
+        open: boolean;
+        eventId: string | null;
+        eventTitle: string;
+        bookingCount: number;
+    }>({ open: false, eventId: null, eventTitle: '', bookingCount: 0 })
+
+    const checkEventBookings = async (eventId: string): Promise<number> => {
+        try {
+            const { data: bookings } = await supabase
+                .from('bookings')
+                .select('id')
+                .eq('event_id', eventId);
+            return bookings?.length || 0;
+        } catch (error) {
+            console.error('Error checking bookings:', error);
+            return 0;
+        }
+    }
+
+    const handleDeleteClick = async (id: string, title: string) => {
+        const bookingCount = await checkEventBookings(id);
+        if (bookingCount > 0) {
+            setConfirmDialog({
+                open: true,
+                eventId: id,
+                eventTitle: title,
+                bookingCount
+            });
+        } else {
+            await handleDelete(id);
+        }
+    }
 
     const handleDelete = async (id: string) => {
         setDeletingId(id)
         try {
-            const success = await deleteEvent(id)
-            if (success) {
-                toast({
-                    title: "Event Deleted",
-                    description: "The event has been successfully deleted.",
-                    variant: "default",
-                })
+            const result = await deleteEvent(id)
+            if (result.success) {
+                const cancelledBookings = result.cancelledBookings || 0
+                if (cancelledBookings > 0) {
+                    toast({
+                        title: "Event Deleted",
+                        description: `The event has been successfully deleted. ${cancelledBookings} booking${cancelledBookings > 1 ? 's' : ''} ${cancelledBookings > 1 ? 'were' : 'was'} cancelled.`,
+                        variant: "default",
+                    })
+                } else {
+                    toast({
+                        title: "Event Deleted",
+                        description: "The event has been successfully deleted.",
+                        variant: "default",
+                    })
+                }
             } else {
-                throw new Error("Failed to delete event")
+                throw new Error(result.error || "Failed to delete event")
             }
-        } catch (error) {
+        } catch (error: any) {
             toast({
                 title: "Error",
-                description: "Failed to delete the event. Please try again.",
+                description: error.message || "Failed to delete the event. Please try again.",
                 variant: "destructive",
             })
         } finally {
             setDeletingId(null)
+        }
+    }
+
+    const handleConfirmDelete = async () => {
+        if (confirmDialog.eventId) {
+            await handleDelete(confirmDialog.eventId);
+            setConfirmDialog({ open: false, eventId: null, eventTitle: '', bookingCount: 0 });
         }
     }
 
@@ -68,6 +119,7 @@ export default function AllEvents() {
     }
 
     return (
+        <>
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
@@ -117,38 +169,40 @@ export default function AllEvents() {
                         </HoverShadowEffect>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <AnimatePresence>
                             {events.map((event) => (
                                 <motion.div key={event.id} variants={itemVariants} layout exit={{ opacity: 0, scale: 0.8 }}>
                                     <HoverShadowEffect className="cursor-pointer h-full" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
                                         <Card className="overflow-hidden h-full flex flex-col">
-                                        <CardHeader className="bg-gradient-to-r from-primary/80 to-primary pb-4">
-                                            <CardTitle className="text-xl font-bold text-white">{event.title}</CardTitle>
+                                        <CardHeader className="bg-gradient-to-r from-primary/80 to-primary pb-3">
+                                            <CardTitle className="text-lg font-bold text-white">{event.title}</CardTitle>
                                         </CardHeader>
-                                        <CardContent className="p-4 space-y-2 flex-grow">
-                                            <p className="text-gray-700">{event.description}</p>
-                                            <p className="text-gray-700">
-                                                <span className="font-semibold">Category:</span> {event.categories?.name || 'Uncategorized'}
-                                            </p>
-                                            <p className="text-gray-700">
-                                                <span className="font-semibold">Location:</span> {event.location}
-                                            </p>
-                                            <p className="text-gray-700">
-                                                <span className="font-semibold">Price:</span> ${event.price}
-                                            </p>
-                                            <p className="text-gray-700">
-                                                <span className="font-semibold">Date:</span> {new Date(event.date).toLocaleDateString()}
-                                            </p>
-                                            <p className="text-gray-700">
-                                                <span className="font-semibold">Time:</span> {event.time}
-                                            </p>
-                                            <div className="text-gray-700">
-                                                <span className="font-semibold">Rating:</span> 
-                                                <EventRating 
-                                                    rating={4.2} 
-                                                    reviewCount={8} 
-                                                    size="sm" 
+                                        <CardContent className="p-3 space-y-1 flex-grow">
+                                            <p className="text-sm text-gray-700 line-clamp-2">{event.description}</p>
+                                            <div className="text-xs space-y-1">
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">Category:</span> {event.categories?.name || 'Uncategorized'}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">Location:</span> {event.location}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">Price:</span> ${event.price}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    <span className="font-medium">Time:</span> {event.time}
+                                                </p>
+                                            </div>
+                                            <div className="text-xs text-gray-700">
+                                                <span className="font-medium">Rating:</span>
+                                                <EventRating
+                                                    rating={4.2}
+                                                    reviewCount={8}
+                                                    size="sm"
                                                     showCount={true}
                                                     className="ml-2"
                                                 />
@@ -176,7 +230,7 @@ export default function AllEvents() {
                                             </HoverShadowEffect>
                                             <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
                                                 <Button
-                                                    onClick={() => handleDelete(event.id)}
+                                                    onClick={() => handleDeleteClick(event.id, event.title)}
                                                     variant="destructive"
                                                     className="flex items-center"
                                                     disabled={deletingId === event.id}
@@ -206,6 +260,41 @@ export default function AllEvents() {
             
             <Footer />
         </div>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={confirmDialog.open} onOpenChange={(open) =>
+            setConfirmDialog({ ...confirmDialog, open })
+        }>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Confirm Event Deletion</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to delete the event "{confirmDialog.eventTitle}"?
+                        {confirmDialog.bookingCount > 0 && (
+                            <span className="text-red-600 font-medium">
+                                {" "}This event has {confirmDialog.bookingCount} booking{confirmDialog.bookingCount > 1 ? 's' : ''} that will be cancelled.
+                            </span>
+                        )}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button
+                        variant="outline"
+                        onClick={() => setConfirmDialog({ open: false, eventId: null, eventTitle: '', bookingCount: 0 })}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        onClick={handleConfirmDelete}
+                        disabled={deletingId === confirmDialog.eventId}
+                    >
+                        {deletingId === confirmDialog.eventId ? 'Deleting...' : 'Delete Event'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </>
     )
 }
 

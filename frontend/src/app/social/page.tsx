@@ -354,7 +354,7 @@ export default function SocialPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                 {events.length === 0 ? (
                   <p className="text-muted-foreground text-center col-span-full py-4">
                     No events available
@@ -362,14 +362,14 @@ export default function SocialPage() {
                 ) : (
                   events.map((event) => (
                     <HoverShadowEffect key={event.id} className="border rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15}>
-                      <div className="p-4 space-y-3">
+                      <div className="p-3 space-y-2">
                         <div>
-                          <h3 className="font-semibold">{event.title}</h3>
-                          <p className="text-sm text-muted-foreground">{event.description}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <h3 className="text-sm font-semibold">{event.title}</h3>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{event.description}</p>
+                          <p className="text-xs text-muted-foreground">
                             {new Date(event.date).toLocaleDateString()} at {event.time}
                           </p>
-                          <p className="text-sm text-muted-foreground">{event.location}</p>
+                          <p className="text-xs text-muted-foreground">{event.location}</p>
                         </div>
                         <FollowButton
                           targetId={event.id}

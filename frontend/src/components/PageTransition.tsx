@@ -1,72 +1,39 @@
 'use client'
 
 import { motion, AnimatePresence } from 'motion/react'
+import { easeOut } from 'motion'
 import { usePathname } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState, memo } from 'react'
 
 interface PageTransitionProps {
     children: ReactNode
 }
 
-export default function PageTransition({ children }: PageTransitionProps) {
+const OptimizedPageTransition = memo(function PageTransition({ children }: PageTransitionProps) {
     const pathname = usePathname()
     const [isLoading, setIsLoading] = useState(false)
+    const [prevPathname, setPrevPathname] = useState(pathname)
 
     useEffect(() => {
-        setIsLoading(true)
-        const timer = setTimeout(() => setIsLoading(false), 100)
-        return () => clearTimeout(timer)
-    }, [pathname])
+        // Only show loading indicator for slower transitions
+        if (prevPathname !== pathname) {
+            setIsLoading(true)
+            const timer = setTimeout(() => setIsLoading(false), 150)
+            setPrevPathname(pathname)
+            return () => clearTimeout(timer)
+        }
+    }, [pathname, prevPathname])
 
-    // Determine animation style based on page type
+    // Simplified animation styles for better performance
     const getAnimationStyle = (path: string) => {
-        if (path === '/') {
-            // Home page - slide up with fade
-            return {
-                initial: { opacity: 0, y: 30, scale: 0.95 },
-                animate: { opacity: 1, y: 0, scale: 1 },
-                exit: { opacity: 0, y: -30, scale: 0.95 },
-                transition: { duration: 0.5 }
-            }
-        } else if (path.includes('/admin')) {
-            // Admin pages - slide from right
-            return {
-                initial: { opacity: 0, x: 50, scale: 0.98 },
-                animate: { opacity: 1, x: 0, scale: 1 },
-                exit: { opacity: 0, x: -50, scale: 0.98 },
-                transition: { duration: 0.4 }
-            }
-        } else if (path.includes('/customer')) {
-            // Customer pages - slide from left
-            return {
-                initial: { opacity: 0, x: -50, scale: 0.98 },
-                animate: { opacity: 1, x: 0, scale: 1 },
-                exit: { opacity: 0, x: 50, scale: 0.98 },
-                transition: { duration: 0.4 }
-            }
-        } else if (path.includes('/events')) {
-            // Events pages - zoom in with fade
-            return {
-                initial: { opacity: 0, scale: 0.9, rotateY: -15 },
-                animate: { opacity: 1, scale: 1, rotateY: 0 },
-                exit: { opacity: 0, scale: 0.9, rotateY: 15 },
-                transition: { duration: 0.5 }
-            }
-        } else if (path.includes('/login') || path.includes('/register')) {
-            // Auth pages - fade with slight scale
-            return {
-                initial: { opacity: 0, scale: 0.95, y: 20 },
-                animate: { opacity: 1, scale: 1, y: 0 },
-                exit: { opacity: 0, scale: 0.95, y: -20 },
-                transition: { duration: 0.6 }
-            }
-        } else {
-            // Default - fade with slide up
-            return {
-                initial: { opacity: 0, y: 20, scale: 0.98 },
-                animate: { opacity: 1, y: 0, scale: 1 },
-                exit: { opacity: 0, y: -20, scale: 0.98 },
-                transition: { duration: 0.4 }
+        // Use simpler animations for better performance
+        return {
+            initial: { opacity: 0, y: 10 },
+            animate: { opacity: 1, y: 0 },
+            exit: { opacity: 0, y: -10 },
+            transition: {
+                duration: 0.2,
+                ease: easeOut
             }
         }
     }
@@ -75,25 +42,21 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
     return (
         <>
-            {/* Loading indicator */}
+            {/* Simplified loading indicator */}
             <AnimatePresence>
                 {isLoading && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 z-50"
-                        style={{
-                            background: 'linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899)',
-                            backgroundSize: '200% 100%',
-                            animation: 'loading 1s ease-in-out infinite'
-                        }}
+                        initial={{ opacity: 0, scaleX: 0 }}
+                        animate={{ opacity: 1, scaleX: 1 }}
+                        exit={{ opacity: 0, scaleX: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 z-50 origin-left"
                     />
                 )}
             </AnimatePresence>
 
-            {/* Page transition */}
-            <AnimatePresence mode="wait">
+            {/* Optimized page transition */}
+            <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                     key={pathname}
                     initial={animationStyle.initial}
@@ -105,13 +68,8 @@ export default function PageTransition({ children }: PageTransitionProps) {
                     {children}
                 </motion.div>
             </AnimatePresence>
-
-            <style jsx>{`
-                @keyframes loading {
-                    0% { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                }
-            `}</style>
         </>
     )
-} 
+})
+
+export default OptimizedPageTransition 

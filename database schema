@@ -1,0 +1,4622 @@
+1. all tables in public schema
+[
+  {
+    "table_name": "admin_requests"
+  },
+  {
+    "table_name": "bookings"
+  },
+  {
+    "table_name": "categories"
+  },
+  {
+    "table_name": "event_spaces"
+  },
+  {
+    "table_name": "events"
+  },
+  {
+    "table_name": "follows"
+  },
+  {
+    "table_name": "migration_log"
+  },
+  {
+    "table_name": "notification_preferences"
+  },
+  {
+    "table_name": "notification_templates"
+  },
+  {
+    "table_name": "notifications"
+  },
+  {
+    "table_name": "organization_settings"
+  },
+  {
+    "table_name": "organizations"
+  },
+  {
+    "table_name": "review_helpful_votes"
+  },
+  {
+    "table_name": "review_reports"
+  },
+  {
+    "table_name": "reviews"
+  },
+  {
+    "table_name": "subscription_plans"
+  },
+  {
+    "table_name": "user_profiles"
+  },
+  {
+    "table_name": "users"
+  }
+]
+
+- 2. COLUMN DETAILS FOR ALL TABLES (limited to first 100 records)
+
+
+
+[
+	{
+	  "table_name": "admin_dashboard_stats",
+	  "column_name": "pending_requests",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "admin_dashboard_stats",
+	  "column_name": "approved_requests",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "admin_dashboard_stats",
+	  "column_name": "rejected_requests",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "admin_dashboard_stats",
+	  "column_name": "requests_last_7_days",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "admin_dashboard_stats",
+	  "column_name": "requests_last_30_days",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "email",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reason",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "organization",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "experience_level",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reviewed_by",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "review_notes",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reviewed_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reviewer_email",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reviewer_first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_request_history",
+	  "column_name": "reviewer_last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "email",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "contact_number",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "reason",
+	  "data_type": "text",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "organization",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "experience_level",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "intended_use",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'PENDING'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "reviewed_by",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "reviewed_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "review_notes",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "admin_requests",
+	  "column_name": "requested_role",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'ADMIN'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "event_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "booking_date",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'PENDING'::character varying",
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "bookings",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "categories",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "categories",
+	  "column_name": "name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "categories",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "categories",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "categories",
+	  "column_name": "follower_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "event_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "event_title",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "total_reviews",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "verified_reviews",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "average_rating",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "five_star_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "four_star_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "three_star_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "two_star_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "one_star_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "event_rating_summary",
+	  "column_name": "latest_review",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "slug",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "created_by",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "is_public",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "allow_public_events",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "require_approval_for_events",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "event_spaces",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "title",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "date",
+	  "data_type": "date",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "time",
+	  "data_type": "time without time zone",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "location",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "price",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 10,
+	  "numeric_scale": 2
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "image_url",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "category_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "created_by",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "follower_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "event_space_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "is_public",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "requires_approval",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "events",
+	  "column_name": "is_approved",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "follows",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "follows",
+	  "column_name": "follower_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "follows",
+	  "column_name": "target_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "follows",
+	  "column_name": "target_type",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "follows",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "migration_log",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "migration_log",
+	  "column_name": "migration_name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "migration_log",
+	  "column_name": "applied_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "migration_log",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'SUCCESS'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "migration_log",
+	  "column_name": "details",
+	  "data_type": "jsonb",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "email_notifications",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "push_notifications",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "event_reminders",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "booking_reminders",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "follow_updates",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "category_updates",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "reminder_hours",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "24",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_preferences",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "total_notifications",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "unread_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "reminder_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "booking_count",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "notification_summary",
+	  "column_name": "latest_notification",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "type",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "title_template",
+	  "data_type": "text",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "message_template",
+	  "data_type": "text",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "is_active",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notification_templates",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "title",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "message",
+	  "data_type": "text",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "type",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "data",
+	  "data_type": "jsonb",
+	  "is_nullable": "YES",
+	  "column_default": "'{}'::jsonb",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "is_read",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "is_sent",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "scheduled_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "sent_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "notifications",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "email",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "contact_number",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "reason",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "requested_role",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "reviewed_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "review_notes",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "organization_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "organization_slug",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "username",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_admin_requests",
+	  "column_name": "current_role",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "organization_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "subscription_plan",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "subscription_status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "max_events",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "max_users",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "current_events_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "current_users_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "total_event_spaces",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "total_events",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "total_bookings",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "total_users",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "events_last_30_days",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_dashboard_stats",
+	  "column_name": "bookings_last_30_days",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "organization_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "total_events",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "upcoming_events",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "past_events",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "total_attendees",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organization_event_stats",
+	  "column_name": "total_revenue",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "setting_key",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "setting_value",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "setting_type",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'STRING'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organization_settings",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "slug",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "logo_url",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "website_url",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "contact_email",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "contact_phone",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "address",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "city",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "state",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "country",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "postal_code",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "subscription_plan",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'FREE'::character varying",
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "subscription_status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'ACTIVE'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "subscription_start_date",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "subscription_end_date",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "max_events",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "10",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "max_users",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "5",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "max_storage_mb",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "100",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "current_events_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "current_users_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "current_storage_mb",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "is_public",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "allow_public_events",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "require_approval_for_events",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "allow_user_registration",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "created_by",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "organizations",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "email",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "contact_number",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "reason",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "organization",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "experience_level",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "intended_use",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "username",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "pending_admin_requests",
+	  "column_name": "current_role",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_helpful_votes",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_helpful_votes",
+	  "column_name": "review_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_helpful_votes",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_helpful_votes",
+	  "column_name": "is_helpful",
+	  "data_type": "boolean",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_helpful_votes",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "review_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "reporter_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "reason",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "status",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'PENDING'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "review_reports",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "event_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "rating",
+	  "data_type": "integer",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "title",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "comment",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "is_verified",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "is_helpful",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "is_reported",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "reviews",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "gen_random_uuid()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "display_name",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 100,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "description",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "price_monthly",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 10,
+	  "numeric_scale": 2
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "price_yearly",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 10,
+	  "numeric_scale": 2
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "max_events",
+	  "data_type": "integer",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "max_users",
+	  "data_type": "integer",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "max_storage_mb",
+	  "data_type": "integer",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "features",
+	  "data_type": "jsonb",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "is_active",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "true",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "subscription_plans",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "profile_image_url",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "bio",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "preferences",
+	  "data_type": "jsonb",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_profiles",
+	  "column_name": "updated_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "user_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "username",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "total_reviews",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "average_rating_given",
+	  "data_type": "numeric",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "verified_reviews",
+	  "data_type": "bigint",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": 64,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "user_review_summary",
+	  "column_name": "latest_review",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "id",
+	  "data_type": "uuid",
+	  "is_nullable": "NO",
+	  "column_default": "uuid_generate_v4()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "email",
+	  "data_type": "character varying",
+	  "is_nullable": "NO",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "username",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "first_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "last_name",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "contact_number",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "street_address",
+	  "data_type": "text",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "city",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 255,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "pincode",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "role",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'USER'::character varying",
+	  "character_maximum_length": 50,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "created_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "CURRENT_TIMESTAMP",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "follower_count",
+	  "data_type": "integer",
+	  "is_nullable": "YES",
+	  "column_default": "0",
+	  "character_maximum_length": null,
+	  "numeric_precision": 32,
+	  "numeric_scale": 0
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "organization_id",
+	  "data_type": "uuid",
+	  "is_nullable": "YES",
+	  "column_default": null,
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "role_in_org",
+	  "data_type": "character varying",
+	  "is_nullable": "YES",
+	  "column_default": "'USER'::character varying",
+	  "character_maximum_length": 20,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "is_org_admin",
+	  "data_type": "boolean",
+	  "is_nullable": "YES",
+	  "column_default": "false",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	},
+	{
+	  "table_name": "users",
+	  "column_name": "joined_at",
+	  "data_type": "timestamp with time zone",
+	  "is_nullable": "YES",
+	  "column_default": "now()",
+	  "character_maximum_length": null,
+	  "numeric_precision": null,
+	  "numeric_scale": null
+	}
+  ]
+
+  3. PRIMARY KEYS
+
+  [
+	{
+	  "table_schema": "public",
+	  "table_name": "admin_requests",
+	  "constraint_name": "admin_requests_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "bookings",
+	  "constraint_name": "bookings_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "categories",
+	  "constraint_name": "categories_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "event_spaces",
+	  "constraint_name": "event_spaces_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "events",
+	  "constraint_name": "events_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "follows",
+	  "constraint_name": "follows_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "migration_log",
+	  "constraint_name": "migration_log_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "notification_preferences",
+	  "constraint_name": "notification_preferences_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "notification_templates",
+	  "constraint_name": "notification_templates_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "notifications",
+	  "constraint_name": "notifications_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organization_settings",
+	  "constraint_name": "organization_settings_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organizations",
+	  "constraint_name": "organizations_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "review_helpful_votes",
+	  "constraint_name": "review_helpful_votes_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "review_reports",
+	  "constraint_name": "review_reports_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "reviews",
+	  "constraint_name": "reviews_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "subscription_plans",
+	  "constraint_name": "subscription_plans_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "user_profiles",
+	  "constraint_name": "user_profiles_pkey",
+	  "column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "users",
+	  "constraint_name": "users_pkey",
+	  "column_name": "id"
+	}
+  ]
+
+  4. FOREIGN KEYS
+
+  [
+	{
+	  "table_schema": "public",
+	  "table_name": "admin_requests",
+	  "constraint_name": "admin_requests_organization_id_fkey",
+	  "column_name": "organization_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "organizations",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "bookings",
+	  "constraint_name": "bookings_event_id_fkey",
+	  "column_name": "event_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "events",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "bookings",
+	  "constraint_name": "bookings_user_id_fkey",
+	  "column_name": "user_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "users",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "event_spaces",
+	  "constraint_name": "event_spaces_organization_id_fkey",
+	  "column_name": "organization_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "organizations",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "events",
+	  "constraint_name": "events_category_id_fkey",
+	  "column_name": "category_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "categories",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "events",
+	  "constraint_name": "events_created_by_fkey",
+	  "column_name": "created_by",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "users",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "events",
+	  "constraint_name": "events_event_space_id_fkey",
+	  "column_name": "event_space_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "event_spaces",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "events",
+	  "constraint_name": "events_organization_id_fkey",
+	  "column_name": "organization_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "organizations",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "follows",
+	  "constraint_name": "follows_follower_id_fkey",
+	  "column_name": "follower_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "users",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organization_settings",
+	  "constraint_name": "organization_settings_organization_id_fkey",
+	  "column_name": "organization_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "organizations",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "review_helpful_votes",
+	  "constraint_name": "review_helpful_votes_review_id_fkey",
+	  "column_name": "review_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "reviews",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "review_reports",
+	  "constraint_name": "review_reports_review_id_fkey",
+	  "column_name": "review_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "reviews",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "reviews",
+	  "constraint_name": "reviews_event_id_fkey",
+	  "column_name": "event_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "events",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "user_profiles",
+	  "constraint_name": "user_profiles_user_id_fkey",
+	  "column_name": "user_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "users",
+	  "foreign_column_name": "id"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "users",
+	  "constraint_name": "users_organization_id_fkey",
+	  "column_name": "organization_id",
+	  "foreign_table_schema": "public",
+	  "foreign_table_name": "organizations",
+	  "foreign_column_name": "id"
+	}
+  ]
+
+  5. INDEXES
+
+  [
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "admin_requests_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX admin_requests_pkey ON public.admin_requests USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "admin_requests_user_id_key",
+	  "indexdef": "CREATE UNIQUE INDEX admin_requests_user_id_key ON public.admin_requests USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_created_at",
+	  "indexdef": "CREATE INDEX idx_admin_requests_created_at ON public.admin_requests USING btree (created_at)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_organization_id",
+	  "indexdef": "CREATE INDEX idx_admin_requests_organization_id ON public.admin_requests USING btree (organization_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_requested_role",
+	  "indexdef": "CREATE INDEX idx_admin_requests_requested_role ON public.admin_requests USING btree (requested_role)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_reviewed_by",
+	  "indexdef": "CREATE INDEX idx_admin_requests_reviewed_by ON public.admin_requests USING btree (reviewed_by)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_status",
+	  "indexdef": "CREATE INDEX idx_admin_requests_status ON public.admin_requests USING btree (status)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "indexname": "idx_admin_requests_user_id",
+	  "indexdef": "CREATE INDEX idx_admin_requests_user_id ON public.admin_requests USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "bookings",
+	  "indexname": "bookings_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX bookings_pkey ON public.bookings USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "categories",
+	  "indexname": "categories_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX categories_pkey ON public.categories USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "indexname": "event_spaces_organization_id_slug_key",
+	  "indexdef": "CREATE UNIQUE INDEX event_spaces_organization_id_slug_key ON public.event_spaces USING btree (organization_id, slug)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "indexname": "event_spaces_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX event_spaces_pkey ON public.event_spaces USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "indexname": "idx_event_spaces_created_by",
+	  "indexdef": "CREATE INDEX idx_event_spaces_created_by ON public.event_spaces USING btree (created_by)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "indexname": "idx_event_spaces_organization_id",
+	  "indexdef": "CREATE INDEX idx_event_spaces_organization_id ON public.event_spaces USING btree (organization_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "indexname": "idx_event_spaces_slug",
+	  "indexdef": "CREATE INDEX idx_event_spaces_slug ON public.event_spaces USING btree (slug)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "events_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX events_pkey ON public.events USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "idx_events_event_space_id",
+	  "indexdef": "CREATE INDEX idx_events_event_space_id ON public.events USING btree (event_space_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "idx_events_event_space_id_org",
+	  "indexdef": "CREATE INDEX idx_events_event_space_id_org ON public.events USING btree (event_space_id, organization_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "idx_events_is_approved",
+	  "indexdef": "CREATE INDEX idx_events_is_approved ON public.events USING btree (is_approved)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "idx_events_is_public",
+	  "indexdef": "CREATE INDEX idx_events_is_public ON public.events USING btree (is_public)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "indexname": "idx_events_organization_id",
+	  "indexdef": "CREATE INDEX idx_events_organization_id ON public.events USING btree (organization_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "indexname": "follows_follower_id_target_id_target_type_key",
+	  "indexdef": "CREATE UNIQUE INDEX follows_follower_id_target_id_target_type_key ON public.follows USING btree (follower_id, target_id, target_type)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "indexname": "follows_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX follows_pkey ON public.follows USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "indexname": "idx_follows_follower_id",
+	  "indexdef": "CREATE INDEX idx_follows_follower_id ON public.follows USING btree (follower_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "indexname": "idx_follows_target_id",
+	  "indexdef": "CREATE INDEX idx_follows_target_id ON public.follows USING btree (target_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "indexname": "idx_follows_target_type",
+	  "indexdef": "CREATE INDEX idx_follows_target_type ON public.follows USING btree (target_type)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "migration_log",
+	  "indexname": "migration_log_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX migration_log_pkey ON public.migration_log USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_preferences",
+	  "indexname": "notification_preferences_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX notification_preferences_pkey ON public.notification_preferences USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_preferences",
+	  "indexname": "notification_preferences_user_id_key",
+	  "indexdef": "CREATE UNIQUE INDEX notification_preferences_user_id_key ON public.notification_preferences USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_templates",
+	  "indexname": "notification_templates_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX notification_templates_pkey ON public.notification_templates USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_templates",
+	  "indexname": "notification_templates_type_key",
+	  "indexdef": "CREATE UNIQUE INDEX notification_templates_type_key ON public.notification_templates USING btree (type)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "idx_notifications_created_at",
+	  "indexdef": "CREATE INDEX idx_notifications_created_at ON public.notifications USING btree (created_at)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "idx_notifications_is_read",
+	  "indexdef": "CREATE INDEX idx_notifications_is_read ON public.notifications USING btree (is_read)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "idx_notifications_scheduled_at",
+	  "indexdef": "CREATE INDEX idx_notifications_scheduled_at ON public.notifications USING btree (scheduled_at)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "idx_notifications_type",
+	  "indexdef": "CREATE INDEX idx_notifications_type ON public.notifications USING btree (type)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "idx_notifications_user_id",
+	  "indexdef": "CREATE INDEX idx_notifications_user_id ON public.notifications USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "indexname": "notifications_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX notifications_pkey ON public.notifications USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organization_settings",
+	  "indexname": "organization_settings_organization_id_setting_key_key",
+	  "indexdef": "CREATE UNIQUE INDEX organization_settings_organization_id_setting_key_key ON public.organization_settings USING btree (organization_id, setting_key)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organization_settings",
+	  "indexname": "organization_settings_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX organization_settings_pkey ON public.organization_settings USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "indexname": "idx_organizations_created_at",
+	  "indexdef": "CREATE INDEX idx_organizations_created_at ON public.organizations USING btree (created_at)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "indexname": "idx_organizations_slug",
+	  "indexdef": "CREATE INDEX idx_organizations_slug ON public.organizations USING btree (slug)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "indexname": "idx_organizations_subscription_status",
+	  "indexdef": "CREATE INDEX idx_organizations_subscription_status ON public.organizations USING btree (subscription_status)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "indexname": "organizations_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX organizations_pkey ON public.organizations USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "indexname": "organizations_slug_key",
+	  "indexdef": "CREATE UNIQUE INDEX organizations_slug_key ON public.organizations USING btree (slug)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "indexname": "idx_review_helpful_votes_review_id",
+	  "indexdef": "CREATE INDEX idx_review_helpful_votes_review_id ON public.review_helpful_votes USING btree (review_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "indexname": "idx_review_helpful_votes_user_id",
+	  "indexdef": "CREATE INDEX idx_review_helpful_votes_user_id ON public.review_helpful_votes USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "indexname": "review_helpful_votes_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX review_helpful_votes_pkey ON public.review_helpful_votes USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "indexname": "review_helpful_votes_review_id_user_id_key",
+	  "indexdef": "CREATE UNIQUE INDEX review_helpful_votes_review_id_user_id_key ON public.review_helpful_votes USING btree (review_id, user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_reports",
+	  "indexname": "idx_review_reports_review_id",
+	  "indexdef": "CREATE INDEX idx_review_reports_review_id ON public.review_reports USING btree (review_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_reports",
+	  "indexname": "idx_review_reports_status",
+	  "indexdef": "CREATE INDEX idx_review_reports_status ON public.review_reports USING btree (status)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_reports",
+	  "indexname": "review_reports_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX review_reports_pkey ON public.review_reports USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "idx_reviews_created_at",
+	  "indexdef": "CREATE INDEX idx_reviews_created_at ON public.reviews USING btree (created_at)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "idx_reviews_event_id",
+	  "indexdef": "CREATE INDEX idx_reviews_event_id ON public.reviews USING btree (event_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "idx_reviews_rating",
+	  "indexdef": "CREATE INDEX idx_reviews_rating ON public.reviews USING btree (rating)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "idx_reviews_user_id",
+	  "indexdef": "CREATE INDEX idx_reviews_user_id ON public.reviews USING btree (user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "idx_reviews_verified",
+	  "indexdef": "CREATE INDEX idx_reviews_verified ON public.reviews USING btree (is_verified)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "reviews_event_id_user_id_key",
+	  "indexdef": "CREATE UNIQUE INDEX reviews_event_id_user_id_key ON public.reviews USING btree (event_id, user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "indexname": "reviews_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX reviews_pkey ON public.reviews USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "subscription_plans",
+	  "indexname": "subscription_plans_name_key",
+	  "indexdef": "CREATE UNIQUE INDEX subscription_plans_name_key ON public.subscription_plans USING btree (name)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "subscription_plans",
+	  "indexname": "subscription_plans_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX subscription_plans_pkey ON public.subscription_plans USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "user_profiles",
+	  "indexname": "user_profiles_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX user_profiles_pkey ON public.user_profiles USING btree (id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "indexname": "idx_users_is_org_admin",
+	  "indexdef": "CREATE INDEX idx_users_is_org_admin ON public.users USING btree (is_org_admin)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "indexname": "idx_users_organization_id",
+	  "indexdef": "CREATE INDEX idx_users_organization_id ON public.users USING btree (organization_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "indexname": "idx_users_role_in_org",
+	  "indexdef": "CREATE INDEX idx_users_role_in_org ON public.users USING btree (role_in_org)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "indexname": "users_email_key",
+	  "indexdef": "CREATE UNIQUE INDEX users_email_key ON public.users USING btree (email)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "indexname": "users_pkey",
+	  "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+	}
+  ]
+
+  6. POLICIES
+
+  [
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "policyname": "Organization owners can update admin requests",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "policyname": "Organization owners can view admin requests",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "policyname": "Users can create their own admin requests",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "policyname": "Users can update their own admin requests",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "admin_requests",
+	  "policyname": "Users can view their own admin requests",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "bookings",
+	  "policyname": "Event creators can view bookings for their events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(EXISTS ( SELECT 1\n   FROM events\n  WHERE ((events.id = bookings.event_id) AND (events.created_by = auth.uid()))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "bookings",
+	  "policyname": "Users can create their own bookings",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "bookings",
+	  "policyname": "Users can update their own bookings",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "bookings",
+	  "policyname": "Users can view their own bookings",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "categories",
+	  "policyname": "Categories are viewable by everyone",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "true",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "categories",
+	  "policyname": "Only admins can modify categories",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "ALL",
+	  "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "policyname": "Organization admins can create event spaces",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY (ARRAY[('OWNER'::character varying)::text, ('ADMIN'::character varying)::text])))))"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "policyname": "Organization admins can delete event spaces",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "DELETE",
+	  "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY (ARRAY[('OWNER'::character varying)::text, ('ADMIN'::character varying)::text])))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "policyname": "Organization admins can update event spaces",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY (ARRAY[('OWNER'::character varying)::text, ('ADMIN'::character varying)::text])))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "event_spaces",
+	  "policyname": "Users can view their organization's event spaces",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid())))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Admins can modify all events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "ALL",
+	  "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Event creators can delete their events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "DELETE",
+	  "qual": "((created_by = auth.uid()) AND (organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid()))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Event creators can modify their events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "((created_by = auth.uid()) AND (organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid()))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Organization admins can modify events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "ALL",
+	  "qual": "((organization_id IS NOT NULL) AND (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = events.organization_id) AND (((users.role_in_org)::text = 'OWNER'::text) OR ((users.role_in_org)::text = 'ADMIN'::text))))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Organization members can create events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid())))"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Organization members can view organization events",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "((organization_id IS NOT NULL) AND (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = events.organization_id)))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "events",
+	  "policyname": "Users can view events from their organization",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "((organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid()))) OR (is_public = true))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can create their own follows",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = follower_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can delete their own follows",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "DELETE",
+	  "qual": "(auth.uid() = follower_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can view category follows",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(((target_type)::text = 'CATEGORY'::text) AND (EXISTS ( SELECT 1\n   FROM categories\n  WHERE (categories.id = follows.target_id))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can view event follows",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(((target_type)::text = 'EVENT'::text) AND (EXISTS ( SELECT 1\n   FROM events\n  WHERE (events.id = follows.target_id))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can view their own follows",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = follower_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "follows",
+	  "policyname": "Users can view who follows them",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(((target_type)::text = 'USER'::text) AND (target_id = auth.uid()))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_preferences",
+	  "policyname": "Users can insert their own notification preferences",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_preferences",
+	  "policyname": "Users can update their own notification preferences",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notification_preferences",
+	  "policyname": "Users can view their own notification preferences",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "policyname": "System can insert notifications",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "true"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "policyname": "Users can update their own notifications",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "notifications",
+	  "policyname": "Users can view their own notifications",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "policyname": "Organization owners can delete their organization",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "DELETE",
+	  "qual": "(created_by = auth.uid())",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "policyname": "Organization owners can update their organization",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(created_by = auth.uid())",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "organizations",
+	  "policyname": "Users can view their own organization",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid())))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "policyname": "Users can create their own helpful votes",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "policyname": "Users can update their own helpful votes",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_helpful_votes",
+	  "policyname": "Users can view all helpful votes",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "true",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_reports",
+	  "policyname": "Users can create reports",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = reporter_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "review_reports",
+	  "policyname": "Users can view their own reports",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = reporter_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "policyname": "Users can create their own reviews",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = user_id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "policyname": "Users can delete their own reviews",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "DELETE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "policyname": "Users can update their own reviews",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "reviews",
+	  "policyname": "Users can view all reviews",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "true",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "user_profiles",
+	  "policyname": "Admin can view all profiles",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "user_profiles",
+	  "policyname": "Users can update their own profile",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "user_profiles",
+	  "policyname": "Users can view their own profile",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "(auth.uid() = user_id)",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "policyname": "Enable insert for authenticated users only",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "INSERT",
+	  "qual": null,
+	  "with_check": "(auth.uid() = id)"
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "policyname": "Enable read access for all users",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "SELECT",
+	  "qual": "true",
+	  "with_check": null
+	},
+	{
+	  "schemaname": "public",
+	  "tablename": "users",
+	  "policyname": "Enable update for users based on id",
+	  "permissive": "PERMISSIVE",
+	  "roles": "{public}",
+	  "cmd": "UPDATE",
+	  "qual": "(auth.uid() = id)",
+	  "with_check": null
+	}
+  ]
+
+  7. FUNCTIONS
+
+  [
+	{
+	  "routine_schema": "public",
+	  "routine_name": "add_review",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    review_id UUID;\r\nBEGIN\r\n    -- Check if user has already reviewed this event\r\n    IF EXISTS (SELECT 1 FROM reviews WHERE event_id = p_event_id AND user_id = p_user_id) THEN\r\n        RAISE EXCEPTION 'User has already reviewed this event';\r\n    END IF;\r\n    \r\n    -- Check if rating is valid\r\n    IF p_rating < 1 OR p_rating > 5 THEN\r\n        RAISE EXCEPTION 'Rating must be between 1 and 5';\r\n    END IF;\r\n    \r\n    -- Insert review\r\n    INSERT INTO reviews (event_id, user_id, rating, title, comment, is_verified)\r\n    VALUES (p_event_id, p_user_id, p_rating, p_title, p_comment, p_is_verified)\r\n    RETURNING id INTO review_id;\r\n    \r\n    RETURN review_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "add_user_to_organization",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    org_owner_id UUID;\r\n    current_user_count INTEGER;\r\n    org_max_users INTEGER;\r\nBEGIN\r\n    -- Check if user adding is organization owner or admin\r\n    SELECT created_by INTO org_owner_id \r\n    FROM organizations \r\n    WHERE id = p_organization_id;\r\n    \r\n    IF org_owner_id != p_added_by AND NOT EXISTS (\r\n        SELECT 1 FROM users \r\n        WHERE id = p_added_by \r\n        AND organization_id = p_organization_id \r\n        AND role_in_org IN ('OWNER', 'ADMIN')\r\n    ) THEN\r\n        RAISE EXCEPTION 'Only organization owners and admins can add users';\r\n    END IF;\r\n    \r\n    -- Check user limits (use different variable name to avoid ambiguity)\r\n    SELECT current_users_count, max_users \r\n    INTO current_user_count, org_max_users\r\n    FROM organizations \r\n    WHERE id = p_organization_id;\r\n    \r\n    IF current_user_count >= org_max_users THEN\r\n        RAISE EXCEPTION 'Organization has reached maximum user limit';\r\n    END IF;\r\n    \r\n    -- Add user to organization\r\n    UPDATE users \r\n    SET \r\n        organization_id = p_organization_id,\r\n        role_in_org = p_role_in_org,\r\n        is_org_admin = (p_role_in_org IN ('OWNER', 'ADMIN')),\r\n        joined_at = NOW()\r\n    WHERE id = p_user_id;\r\n    \r\n    -- Update organization user count\r\n    UPDATE organizations \r\n    SET current_users_count = current_users_count + 1\r\n    WHERE id = p_organization_id;\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "approve_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    request_user_id UUID;\r\n    reviewer_role VARCHAR;\r\nBEGIN\r\n    -- Check if reviewer is an admin\r\n    SELECT role INTO reviewer_role \r\n    FROM users \r\n    WHERE id = p_reviewer_id;\r\n    \r\n    IF reviewer_role != 'ADMIN' THEN\r\n        RAISE EXCEPTION 'Only admins can approve admin requests';\r\n    END IF;\r\n    \r\n    -- Get the user ID from the request\r\n    SELECT user_id INTO request_user_id \r\n    FROM admin_requests \r\n    WHERE id = p_request_id AND status = 'PENDING';\r\n    \r\n    IF request_user_id IS NULL THEN\r\n        RAISE EXCEPTION 'Request not found or not pending';\r\n    END IF;\r\n    \r\n    -- Update the request status\r\n    UPDATE admin_requests \r\n    SET \r\n        status = 'APPROVED',\r\n        reviewed_by = p_reviewer_id,\r\n        reviewed_at = NOW(),\r\n        review_notes = p_review_notes,\r\n        updated_at = NOW()\r\n    WHERE id = p_request_id;\r\n    \r\n    -- Update user role to ADMIN\r\n    UPDATE users \r\n    SET role = 'ADMIN', updated_at = NOW()\r\n    WHERE id = request_user_id;\r\n    \r\n    -- Update auth.users metadata\r\n    UPDATE auth.users \r\n    SET raw_user_meta_data = raw_user_meta_data || \r\n        jsonb_build_object('role', 'ADMIN')\r\n    WHERE id = request_user_id;\r\n    \r\n    -- Send approval notification\r\n    PERFORM send_admin_request_notification(\r\n        request_user_id, \r\n        'ADMIN_REQUEST_APPROVED',\r\n        jsonb_build_object('request_id', p_request_id, 'reviewer_id', p_reviewer_id)\r\n    );\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "approve_organization_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    request_record RECORD;\r\n    org_owner_id UUID;\r\nBEGIN\r\n    -- Get request details\r\n    SELECT * INTO request_record \r\n    FROM admin_requests \r\n    WHERE id = p_request_id AND status = 'PENDING';\r\n    \r\n    IF request_record IS NULL THEN\r\n        RAISE EXCEPTION 'Request not found or not pending';\r\n    END IF;\r\n    \r\n    -- Check if reviewer is organization owner\r\n    SELECT created_by INTO org_owner_id \r\n    FROM organizations \r\n    WHERE id = request_record.organization_id;\r\n    \r\n    IF org_owner_id != p_reviewer_id THEN\r\n        RAISE EXCEPTION 'Only organization owners can approve admin requests';\r\n    END IF;\r\n    \r\n    -- Update the request status\r\n    UPDATE admin_requests \r\n    SET \r\n        status = 'APPROVED',\r\n        reviewed_by = p_reviewer_id,\r\n        reviewed_at = NOW(),\r\n        review_notes = p_review_notes,\r\n        updated_at = NOW()\r\n    WHERE id = p_request_id;\r\n    \r\n    -- Add user to organization as admin\r\n    PERFORM add_user_to_organization(\r\n        request_record.user_id,\r\n        request_record.organization_id,\r\n        p_reviewer_id,\r\n        request_record.requested_role\r\n    );\r\n    \r\n    -- Send approval notification\r\n    PERFORM send_admin_request_notification(\r\n        request_record.user_id,\r\n        'ADMIN_REQUEST_APPROVED',\r\n        jsonb_build_object(\r\n            'request_id', p_request_id,\r\n            'organization_id', request_record.organization_id,\r\n            'reviewer_id', p_reviewer_id\r\n        )\r\n    );\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "cancel_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\n    BEGIN\r\n        UPDATE admin_requests \r\n        SET \r\n            status = 'CANCELLED',\r\n            updated_at = NOW()\r\n        WHERE user_id = p_user_id AND status = 'PENDING';\r\n        \r\n        IF NOT FOUND THEN\r\n            RAISE EXCEPTION 'No pending request found for this user';\r\n        END IF;\r\n        \r\n        RETURN TRUE;\r\n    END;\r\n    "
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "clean_old_notifications",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    deleted_count INTEGER;\r\nBEGIN\r\n    DELETE FROM notifications \r\n    WHERE created_at < NOW() - INTERVAL '1 day' * days_to_keep\r\n    AND is_read = TRUE;\r\n    \r\n    GET DIAGNOSTICS deleted_count = ROW_COUNT;\r\n    RETURN deleted_count;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    request_id UUID;\r\n    existing_status VARCHAR;\r\n    admin_user_id UUID;\r\nBEGIN\r\n    -- Check if user already has a request\r\n    SELECT status INTO existing_status \r\n    FROM admin_requests \r\n    WHERE user_id = p_user_id;\r\n    \r\n    IF existing_status IS NOT NULL THEN\r\n        IF existing_status = 'PENDING' THEN\r\n            RAISE EXCEPTION 'You already have a pending admin request';\r\n        ELSIF existing_status = 'APPROVED' THEN\r\n            RAISE EXCEPTION 'Your admin request has already been approved';\r\n        ELSIF existing_status = 'REJECTED' THEN\r\n            RAISE EXCEPTION 'Your admin request was rejected. Please contact support for reconsideration';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- Check if user is already an admin\r\n    IF EXISTS (SELECT 1 FROM users WHERE id = p_user_id AND role = 'ADMIN') THEN\r\n        RAISE EXCEPTION 'You are already an admin';\r\n    END IF;\r\n    \r\n    -- Create the request\r\n    INSERT INTO admin_requests (\r\n        user_id, \r\n        email, \r\n        first_name, \r\n        last_name, \r\n        contact_number, \r\n        reason, \r\n        organization, \r\n        experience_level, \r\n        intended_use\r\n    )\r\n    VALUES (\r\n        p_user_id, \r\n        p_email, \r\n        p_first_name, \r\n        p_last_name, \r\n        p_contact_number, \r\n        p_reason, \r\n        p_organization, \r\n        p_experience_level, \r\n        p_intended_use\r\n    )\r\n    RETURNING id INTO request_id;\r\n    \r\n    -- Send confirmation notification to user\r\n    PERFORM send_admin_request_notification(\r\n        p_user_id, \r\n        'ADMIN_REQUEST_SUBMITTED',\r\n        jsonb_build_object('request_id', request_id)\r\n    );\r\n    \r\n    -- Send notification to all admins\r\n    FOR admin_user_id IN \r\n        SELECT id FROM users WHERE role = 'ADMIN'\r\n    LOOP\r\n        PERFORM send_admin_request_notification(\r\n            admin_user_id, \r\n            'NEW_ADMIN_REQUEST',\r\n            jsonb_build_object('request_id', request_id, 'requester_email', p_email)\r\n        );\r\n    END LOOP;\r\n    \r\n    RETURN request_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_event_reminders",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    booking_record RECORD;\r\n    reminder_hours INTEGER;\r\n    reminder_count INTEGER := 0;\r\nBEGIN\r\n    -- Get all upcoming bookings that need reminders\r\n    FOR booking_record IN \r\n        SELECT \r\n            b.id as booking_id,\r\n            b.user_id,\r\n            b.event_id,\r\n            e.title as event_title,\r\n            e.date as event_date,\r\n            e.time as event_time,\r\n            e.location,\r\n            np.reminder_hours,\r\n            np.event_reminders\r\n        FROM bookings b\r\n        JOIN events e ON b.event_id = e.id\r\n        LEFT JOIN notification_preferences np ON b.user_id = np.user_id\r\n        WHERE b.status = 'CONFIRMED'\r\n        AND e.date > NOW()\r\n        AND e.date <= NOW() + INTERVAL '24 hours'\r\n        AND (np.event_reminders IS NULL OR np.event_reminders = TRUE)\r\n        AND NOT EXISTS (\r\n            SELECT 1 FROM notifications n \r\n            WHERE n.user_id = b.user_id \r\n            AND n.type = 'EVENT_REMINDER' \r\n            AND n.data->>'booking_id' = b.id::text\r\n        )\r\n    LOOP\r\n        -- Calculate time until event\r\n        reminder_hours := COALESCE(booking_record.reminder_hours, 24);\r\n        \r\n        -- Create reminder notification\r\n        PERFORM create_notification_from_template(\r\n            booking_record.user_id,\r\n            'EVENT_REMINDER',\r\n            jsonb_build_object(\r\n                'event_title', booking_record.event_title,\r\n                'time_until_event', \r\n                CASE \r\n                    WHEN booking_record.event_date::date = NOW()::date THEN 'today'\r\n                    ELSE 'tomorrow'\r\n                END,\r\n                'location', booking_record.location,\r\n                'booking_id', booking_record.booking_id\r\n            ),\r\n            NOW()\r\n        );\r\n        \r\n        reminder_count := reminder_count + 1;\r\n    END LOOP;\r\n    \r\n    RETURN reminder_count;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_notification",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    notification_id UUID;\r\nBEGIN\r\n    INSERT INTO notifications (user_id, title, message, type, data, scheduled_at)\r\n    VALUES (p_user_id, p_title, p_message, p_type, p_data, p_scheduled_at)\r\n    RETURNING id INTO notification_id;\r\n    \r\n    RETURN notification_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_notification_from_template",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    template_record RECORD;\r\n    notification_id UUID;\r\n    final_title TEXT;\r\n    final_message TEXT;\r\nBEGIN\r\n    -- Get template\r\n    SELECT * INTO template_record \r\n    FROM notification_templates \r\n    WHERE type = p_type AND is_active = TRUE;\r\n    \r\n    IF NOT FOUND THEN\r\n        RAISE EXCEPTION 'Template not found for type: %', p_type;\r\n    END IF;\r\n    \r\n    -- Replace placeholders in template\r\n    final_title := template_record.title_template;\r\n    final_message := template_record.message_template;\r\n    \r\n    -- Simple placeholder replacement\r\n    final_title := replace(final_title, '{{event_title}}', COALESCE(p_data->>'event_title', ''));\r\n    final_title := replace(final_title, '{{category_name}}', COALESCE(p_data->>'category_name', ''));\r\n    final_title := replace(final_title, '{{username}}', COALESCE(p_data->>'username', ''));\r\n    final_title := replace(final_title, '{{target_type}}', COALESCE(p_data->>'target_type', ''));\r\n    final_title := replace(final_title, '{{target_name}}', COALESCE(p_data->>'target_name', ''));\r\n    \r\n    final_message := replace(final_message, '{{event_title}}', COALESCE(p_data->>'event_title', ''));\r\n    final_message := replace(final_message, '{{category_name}}', COALESCE(p_data->>'category_name', ''));\r\n    final_message := replace(final_message, '{{time_until_event}}', COALESCE(p_data->>'time_until_event', ''));\r\n    final_message := replace(final_message, '{{location}}', COALESCE(p_data->>'location', ''));\r\n    final_message := replace(final_message, '{{username}}', COALESCE(p_data->>'username', ''));\r\n    final_message := replace(final_message, '{{action}}', COALESCE(p_data->>'action', ''));\r\n    final_message := replace(final_message, '{{target_type}}', COALESCE(p_data->>'target_type', ''));\r\n    final_message := replace(final_message, '{{target_name}}', COALESCE(p_data->>'target_name', ''));\r\n    \r\n    -- Create notification\r\n    SELECT create_notification(p_user_id, final_title, final_message, p_type, p_data, p_scheduled_at)\r\n    INTO notification_id;\r\n    \r\n    RETURN notification_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_organization",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    org_id UUID;\r\nBEGIN\r\n    -- Check if slug is already taken\r\n    IF EXISTS (SELECT 1 FROM organizations WHERE slug = p_slug) THEN\r\n        RAISE EXCEPTION 'Organization slug already exists: %', p_slug;\r\n    END IF;\r\n    \r\n    -- Create organization\r\n    INSERT INTO organizations (\r\n        name,\r\n        slug,\r\n        description,\r\n        created_by,\r\n        subscription_plan,\r\n        subscription_start_date\r\n    )\r\n    VALUES (\r\n        p_name,\r\n        p_slug,\r\n        p_description,\r\n        p_created_by,\r\n        p_subscription_plan,\r\n        NOW()\r\n    )\r\n    RETURNING id INTO org_id;\r\n    \r\n    -- Create default event space\r\n    INSERT INTO event_spaces (\r\n        name,\r\n        description,\r\n        slug,\r\n        organization_id,\r\n        created_by\r\n    )\r\n    VALUES (\r\n        'General',\r\n        'Default event space for general events',\r\n        'general',\r\n        org_id,\r\n        p_created_by\r\n    );\r\n    \r\n    -- Update user to be organization owner\r\n    UPDATE users \r\n    SET \r\n        organization_id = org_id,\r\n        role_in_org = 'OWNER',\r\n        is_org_admin = TRUE\r\n    WHERE id = p_created_by;\r\n    \r\n    -- Update organization counts\r\n    UPDATE organizations \r\n    SET current_users_count = 1\r\n    WHERE id = org_id;\r\n    \r\n    RETURN org_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_organization_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    request_id UUID;\r\n    existing_status VARCHAR;\r\n    org_owner_id UUID;\r\nBEGIN\r\n    -- Check if user already has a request for this organization\r\n    SELECT status INTO existing_status \r\n    FROM admin_requests \r\n    WHERE user_id = p_user_id AND organization_id = p_organization_id;\r\n    \r\n    IF existing_status IS NOT NULL THEN\r\n        IF existing_status = 'PENDING' THEN\r\n            RAISE EXCEPTION 'You already have a pending admin request for this organization';\r\n        ELSIF existing_status = 'APPROVED' THEN\r\n            RAISE EXCEPTION 'Your admin request for this organization has already been approved';\r\n        ELSIF existing_status = 'REJECTED' THEN\r\n            RAISE EXCEPTION 'Your admin request for this organization was rejected';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- Check if user is already an admin in this organization\r\n    IF EXISTS (\r\n        SELECT 1 FROM users \r\n        WHERE id = p_user_id \r\n        AND organization_id = p_organization_id \r\n        AND role_in_org IN ('OWNER', 'ADMIN')\r\n    ) THEN\r\n        RAISE EXCEPTION 'You are already an admin in this organization';\r\n    END IF;\r\n    \r\n    -- Get organization owner\r\n    SELECT created_by INTO org_owner_id \r\n    FROM organizations \r\n    WHERE id = p_organization_id;\r\n    \r\n    -- Create the request\r\n    INSERT INTO admin_requests (\r\n        user_id,\r\n        organization_id,\r\n        email,\r\n        first_name,\r\n        last_name,\r\n        contact_number,\r\n        reason,\r\n        requested_role\r\n    )\r\n    VALUES (\r\n        p_user_id,\r\n        p_organization_id,\r\n        p_email,\r\n        p_first_name,\r\n        p_last_name,\r\n        p_contact_number,\r\n        p_reason,\r\n        p_requested_role\r\n    )\r\n    RETURNING id INTO request_id;\r\n    \r\n    -- Send notification to organization owner\r\n    PERFORM send_admin_request_notification(\r\n        org_owner_id,\r\n        'NEW_ADMIN_REQUEST',\r\n        jsonb_build_object(\r\n            'request_id', request_id,\r\n            'organization_id', p_organization_id,\r\n            'requester_email', p_email\r\n        )\r\n    );\r\n    \r\n    RETURN request_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "create_organization_event",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    event_id UUID;\r\n    user_role VARCHAR(50);\r\nBEGIN\r\n    -- Check if user is admin or owner of the organization\r\n    SELECT role_in_org INTO user_role\r\n    FROM users\r\n    WHERE id = p_created_by AND organization_id = p_organization_id;\r\n    \r\n    IF user_role IS NULL OR (user_role != 'OWNER' AND user_role != 'ADMIN') THEN\r\n        RAISE EXCEPTION 'Only organization owners and admins can create events for the organization';\r\n    END IF;\r\n    \r\n    -- Create the event\r\n    INSERT INTO events (\r\n        title,\r\n        description,\r\n        category_id,\r\n        location,\r\n        price,\r\n        date,\r\n        time,\r\n        image_url,\r\n        organization_id,\r\n        created_by,\r\n        created_at\r\n    )\r\n    VALUES (\r\n        p_title,\r\n        p_description,\r\n        p_category_id,\r\n        p_location,\r\n        p_price,\r\n        p_date,\r\n        p_time,\r\n        p_image_url,\r\n        p_organization_id,\r\n        p_created_by,\r\n        NOW()\r\n    )\r\n    RETURNING id INTO event_id;\r\n    \r\n    RETURN event_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "delete_event_space",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    space_org_id UUID;\r\n    user_role VARCHAR;\r\n    event_count INTEGER;\r\nBEGIN\r\n    -- Get the event space details\r\n    SELECT organization_id INTO space_org_id\r\n    FROM event_spaces\r\n    WHERE id = p_space_id;\r\n    \r\n    IF space_org_id IS NULL THEN\r\n        RAISE EXCEPTION 'Event space not found';\r\n    END IF;\r\n    \r\n    -- Check if user has permission (org owner or admin)\r\n    SELECT role_in_org INTO user_role\r\n    FROM users\r\n    WHERE id = p_user_id AND organization_id = space_org_id;\r\n    \r\n    IF user_role IS NULL OR (user_role != 'OWNER' AND user_role != 'ADMIN') THEN\r\n        RAISE EXCEPTION 'Only organization owners and admins can delete event spaces';\r\n    END IF;\r\n    \r\n    -- Check if there are events in this space\r\n    SELECT COUNT(*) INTO event_count\r\n    FROM events\r\n    WHERE event_space_id = p_space_id;\r\n    \r\n    IF event_count > 0 THEN\r\n        RAISE EXCEPTION 'Cannot delete event space that contains events. Please move or delete all events first.';\r\n    END IF;\r\n    \r\n    -- Check if this is the last event space in the organization\r\n    IF (SELECT COUNT(*) FROM event_spaces WHERE organization_id = space_org_id) <= 1 THEN\r\n        RAISE EXCEPTION 'Cannot delete the last event space in an organization. Each organization must have at least one event space.';\r\n    END IF;\r\n    \r\n    -- Delete the event space\r\n    DELETE FROM event_spaces\r\n    WHERE id = p_space_id;\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "delete_review",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nBEGIN\r\n    DELETE FROM reviews \r\n    WHERE id = p_review_id AND user_id = p_user_id;\r\n    \r\n    RETURN FOUND;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_event_reviews",
+	  "routine_type": "FUNCTION",
+	  "return_type": "record",
+	  "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        r.id,\r\n        r.user_id,\r\n        COALESCE(u.raw_user_meta_data->>'username', u.email) as username,\r\n        r.rating,\r\n        r.title,\r\n        r.comment,\r\n        r.is_verified,\r\n        r.is_helpful,\r\n        r.created_at,\r\n        COUNT(rhv.id) FILTER (WHERE rhv.is_helpful = TRUE) as helpful_votes_count,\r\n        MAX(rhv2.is_helpful) as user_helpful_vote\r\n    FROM reviews r\r\n    JOIN auth.users u ON r.user_id = u.id\r\n    LEFT JOIN review_helpful_votes rhv ON r.id = rhv.review_id\r\n    LEFT JOIN review_helpful_votes rhv2 ON r.id = rhv2.review_id AND rhv2.user_id = auth.uid()\r\n    WHERE r.event_id = p_event_id\r\n    GROUP BY r.id, r.user_id, u.username, r.rating, r.title, r.comment, r.is_verified, r.is_helpful, r.created_at\r\n    ORDER BY \r\n        CASE WHEN p_sort_by = 'rating' AND p_sort_order = 'DESC' THEN r.rating END DESC,\r\n        CASE WHEN p_sort_by = 'rating' AND p_sort_order = 'ASC' THEN r.rating END ASC,\r\n        CASE WHEN p_sort_by = 'helpful' AND p_sort_order = 'DESC' THEN r.is_helpful END DESC,\r\n        CASE WHEN p_sort_by = 'helpful' AND p_sort_order = 'ASC' THEN r.is_helpful END ASC,\r\n        CASE WHEN p_sort_by = 'verified' AND p_sort_order = 'DESC' THEN r.is_verified::int END DESC,\r\n        CASE WHEN p_sort_by = 'verified' AND p_sort_order = 'ASC' THEN r.is_verified::int END ASC,\r\n        r.created_at DESC\r\n    LIMIT p_limit OFFSET p_offset;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_notification_summary",
+	  "routine_type": "FUNCTION",
+	  "return_type": "record",
+	  "routine_definition": "\r\nBEGIN\r\n    RETURN QUERY\r\n    SELECT \r\n        n.user_id,\r\n        COUNT(*) as total_notifications,\r\n        COUNT(*) FILTER (WHERE n.is_read = FALSE) as unread_count,\r\n        COUNT(*) FILTER (WHERE n.type = 'EVENT_REMINDER') as reminder_count,\r\n        COUNT(*) FILTER (WHERE n.type = 'BOOKING_CONFIRMED') as booking_count,\r\n        MAX(n.created_at) as latest_notification\r\n    FROM notifications n\r\n    WHERE n.user_id = p_user_id\r\n    GROUP BY n.user_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_organization_events",
+	  "routine_type": "FUNCTION",
+	  "return_type": "record",
+	  "routine_definition": "\r\nBEGIN\r\n    -- Check if user has access to this organization\r\n    IF p_user_id IS NOT NULL AND NOT EXISTS (\r\n        SELECT 1 FROM users \r\n        WHERE id = p_user_id \r\n        AND organization_id = p_organization_id\r\n    ) THEN\r\n        RAISE EXCEPTION 'User does not have access to this organization';\r\n    END IF;\r\n    \r\n    RETURN QUERY\r\n    SELECT \r\n        e.id as event_id,\r\n        e.title,\r\n        e.description,\r\n        e.date as event_date,\r\n        e.time as event_time,\r\n        e.location,\r\n        e.price,\r\n        e.image_url,\r\n        c.name as category_name,\r\n        es.name as event_space_name,\r\n        e.is_public,\r\n        e.is_approved,\r\n        e.created_by,\r\n        -- Use CAST to ensure proper type for creator_name\r\n        CAST(COALESCE(u.first_name || ' ' || u.last_name, u.email) AS character varying) as creator_name,\r\n        COUNT(b.id)::integer as total_bookings,\r\n        ROUND(AVG(r.rating), 2) as average_rating\r\n    FROM events e\r\n    LEFT JOIN categories c ON e.category_id = c.id\r\n    LEFT JOIN event_spaces es ON e.event_space_id = es.id\r\n    LEFT JOIN users u ON e.created_by = u.id\r\n    LEFT JOIN bookings b ON e.id = b.event_id AND b.status = 'CONFIRMED'\r\n    LEFT JOIN reviews r ON e.id = r.event_id\r\n    WHERE e.organization_id = p_organization_id\r\n    GROUP BY \r\n        e.id, \r\n        e.title, \r\n        e.description, \r\n        e.date, \r\n        e.time, \r\n        e.location, \r\n        e.price, \r\n        e.image_url, \r\n        c.name, \r\n        es.name, \r\n        e.is_public, \r\n        e.is_approved, \r\n        e.created_by, \r\n        u.first_name,\r\n        u.last_name,\r\n        u.email\r\n    ORDER BY e.date DESC, e.created_at DESC;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_pending_admin_requests",
+	  "routine_type": "FUNCTION",
+	  "return_type": "record",
+	  "routine_definition": "\r\n    BEGIN\r\n        -- Check if current user is admin\r\n        IF NOT EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'ADMIN') THEN\r\n            RAISE EXCEPTION 'Only admins can view pending requests';\r\n        END IF;\r\n        \r\n        RETURN QUERY\r\n        SELECT \r\n            ar.id,\r\n            ar.user_id,\r\n            ar.email,\r\n            ar.first_name,\r\n            ar.last_name,\r\n            ar.contact_number,\r\n            ar.reason,\r\n            ar.organization,\r\n            ar.experience_level,\r\n            ar.intended_use,\r\n            ar.created_at,\r\n            u.username\r\n        FROM admin_requests ar\r\n        LEFT JOIN users u ON ar.user_id = u.id\r\n        WHERE ar.status = 'PENDING'\r\n        ORDER BY ar.created_at ASC;\r\n    END;\r\n    "
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_unread_notification_count",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    count_val INTEGER;\r\nBEGIN\r\n    SELECT COUNT(*) INTO count_val\r\n    FROM notifications\r\n    WHERE user_id = p_user_id AND is_read = FALSE;\r\n    \r\n    RETURN count_val;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_user_admin_request_status",
+	  "routine_type": "FUNCTION",
+	  "return_type": "record",
+	  "routine_definition": "\r\n    BEGIN\r\n        RETURN QUERY\r\n        SELECT \r\n            ar.id,\r\n            ar.status,\r\n            ar.reason,\r\n            ar.organization,\r\n            ar.experience_level,\r\n            ar.created_at,\r\n            ar.reviewed_at,\r\n            ar.review_notes\r\n        FROM admin_requests ar\r\n        WHERE ar.user_id = p_user_id\r\n        ORDER BY ar.created_at DESC\r\n        LIMIT 1;\r\n    END;\r\n    "
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "get_user_profile",
+	  "routine_type": "FUNCTION",
+	  "return_type": "USER-DEFINED",
+	  "routine_definition": "\r\nBEGIN\r\n  RETURN QUERY SELECT * FROM users WHERE id = auth.uid();\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "handle_new_user",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n  INSERT INTO public.users (id, email, username, first_name, last_name, contact_number, city, pincode, street_address, role)\r\n  VALUES (\r\n    NEW.id,\r\n    NEW.email,\r\n    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),\r\n    COALESCE(NEW.raw_user_meta_data->>'first_name', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'last_name', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'contact_number', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'city', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'pincode', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'street_address', ''),\r\n    COALESCE(NEW.raw_user_meta_data->>'role', 'USER')\r\n  )\r\n  ON CONFLICT (id) DO UPDATE\r\n  SET\r\n    email = EXCLUDED.email,\r\n    username = EXCLUDED.username,\r\n    first_name = EXCLUDED.first_name,\r\n    last_name = EXCLUDED.last_name,\r\n    contact_number = EXCLUDED.contact_number,\r\n    city = EXCLUDED.city,\r\n    pincode = EXCLUDED.pincode,\r\n    street_address = EXCLUDED.street_address,\r\n    role = EXCLUDED.role;\r\n  RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "mark_all_notifications_read",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    affected_rows INTEGER;\r\nBEGIN\r\n    UPDATE notifications \r\n    SET is_read = TRUE, updated_at = NOW()\r\n    WHERE user_id = p_user_id AND is_read = FALSE;\r\n    \r\n    GET DIAGNOSTICS affected_rows = ROW_COUNT;\r\n    RETURN affected_rows;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "mark_notification_read",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nBEGIN\r\n    UPDATE notifications \r\n    SET is_read = TRUE, updated_at = NOW()\r\n    WHERE id = p_notification_id;\r\n    \r\n    RETURN FOUND;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "move_events_to_default_space",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    default_space_id UUID;\r\n    moved_count INTEGER;\r\nBEGIN\r\n    -- First, try to find a 'general' or 'General' event space within the organization\r\n    -- that is NOT the space being deleted.\r\n    SELECT id INTO default_space_id\r\n    FROM public.event_spaces\r\n    WHERE organization_id = p_organization_id\r\n    AND id != p_from_space_id\r\n    AND (slug = 'general' OR name = 'General')\r\n    LIMIT 1;\r\n\r\n    -- If no 'general' space is found, pick any other existing space in the organization\r\n    -- that is not the one being deleted.\r\n    IF default_space_id IS NULL THEN\r\n        SELECT id INTO default_space_id\r\n        FROM public.event_spaces\r\n        WHERE organization_id = p_organization_id\r\n        AND id != p_from_space_id\r\n        LIMIT 1;\r\n    END IF;\r\n\r\n    -- If after all attempts, no alternative space is found, raise an exception.\r\n    -- This means there's no suitable place to move the events.\r\n    IF default_space_id IS NULL THEN\r\n        RAISE EXCEPTION 'No alternative event space found to move events to within organization %s', p_organization_id;\r\n    END IF;\r\n\r\n    -- Update the events: reassign them from the space being deleted\r\n    -- to the determined default_space_id.\r\n    UPDATE public.events\r\n    SET event_space_id = default_space_id\r\n    WHERE event_space_id = p_from_space_id;\r\n\r\n    -- Get the number of rows (events) that were affected by the UPDATE.\r\n    GET DIAGNOSTICS moved_count = ROW_COUNT;\r\n\r\n    -- Return the count of moved events.\r\n    RETURN moved_count;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "notify_event_followers",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    event_record RECORD;\r\n    follower_record RECORD;\r\n    notification_count INTEGER := 0;\r\nBEGIN\r\n    -- Get event details\r\n    SELECT e.*, c.name as category_name\r\n    INTO event_record\r\n    FROM events e\r\n    LEFT JOIN categories c ON e.category_id = c.id\r\n    WHERE e.id = p_event_id;\r\n    \r\n    IF NOT FOUND THEN\r\n        RETURN 0;\r\n    END IF;\r\n    \r\n    -- Notify users following the event's category\r\n    FOR follower_record IN\r\n        SELECT f.follower_id\r\n        FROM follows f\r\n        LEFT JOIN notification_preferences np ON f.follower_id = np.user_id\r\n        WHERE f.target_type = 'CATEGORY' \r\n        AND f.target_id = event_record.category_id\r\n        AND (np.category_updates IS NULL OR np.category_updates = TRUE)\r\n    LOOP\r\n        PERFORM create_notification_from_template(\r\n            follower_record.follower_id,\r\n            'CATEGORY_UPDATE',\r\n            jsonb_build_object(\r\n                'category_name', event_record.category_name,\r\n                'event_title', event_record.title\r\n            )\r\n        );\r\n        \r\n        notification_count := notification_count + 1;\r\n    END LOOP;\r\n    \r\n    RETURN notification_count;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "process_scheduled_notifications",
+	  "routine_type": "FUNCTION",
+	  "return_type": "integer",
+	  "routine_definition": "\r\nDECLARE\r\n    notification_record RECORD;\r\n    processed_count INTEGER := 0;\r\nBEGIN\r\n    -- Process event reminders\r\n    PERFORM create_event_reminders();\r\n    \r\n    -- Mark scheduled notifications as sent\r\n    UPDATE notifications \r\n    SET is_sent = TRUE, sent_at = NOW()\r\n    WHERE scheduled_at <= NOW() \r\n    AND is_sent = FALSE;\r\n    \r\n    GET DIAGNOSTICS processed_count = ROW_COUNT;\r\n    RETURN processed_count;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "reject_admin_request",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    request_user_id UUID;\r\n    reviewer_role VARCHAR;\r\nBEGIN\r\n    -- Check if reviewer is an admin\r\n    SELECT role INTO reviewer_role \r\n    FROM users \r\n    WHERE id = p_reviewer_id;\r\n    \r\n    IF reviewer_role != 'ADMIN' THEN\r\n        RAISE EXCEPTION 'Only admins can reject admin requests';\r\n    END IF;\r\n    \r\n    -- Get the user ID from the request\r\n    SELECT user_id INTO request_user_id \r\n    FROM admin_requests \r\n    WHERE id = p_request_id AND status = 'PENDING';\r\n    \r\n    IF request_user_id IS NULL THEN\r\n        RAISE EXCEPTION 'Request not found or not pending';\r\n    END IF;\r\n    \r\n    -- Update the request status\r\n    UPDATE admin_requests \r\n    SET \r\n        status = 'REJECTED',\r\n        reviewed_by = p_reviewer_id,\r\n        reviewed_at = NOW(),\r\n        review_notes = p_review_notes,\r\n        updated_at = NOW()\r\n    WHERE id = p_request_id AND status = 'PENDING';\r\n    \r\n    -- Send rejection notification\r\n    PERFORM send_admin_request_notification(\r\n        request_user_id, \r\n        'ADMIN_REQUEST_REJECTED',\r\n        jsonb_build_object('request_id', p_request_id, 'reviewer_id', p_reviewer_id, 'notes', p_review_notes)\r\n    );\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "remove_user_from_organization",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    user_role VARCHAR;\r\n    org_owner_id UUID;\r\nBEGIN\r\n    -- Check if user removing is organization owner\r\n    SELECT created_by INTO org_owner_id \r\n    FROM organizations \r\n    WHERE id = p_organization_id;\r\n    \r\n    IF org_owner_id != p_removed_by THEN\r\n        RAISE EXCEPTION 'Only organization owners can remove users';\r\n    END IF;\r\n    \r\n    -- Get user's role\r\n    SELECT role_in_org INTO user_role \r\n    FROM users \r\n    WHERE id = p_user_id AND organization_id = p_organization_id;\r\n    \r\n    IF user_role IS NULL THEN\r\n        RAISE EXCEPTION 'User is not a member of this organization';\r\n    END IF;\r\n    \r\n    IF user_role = 'OWNER' THEN\r\n        RAISE EXCEPTION 'Cannot remove organization owner';\r\n    END IF;\r\n    \r\n    -- Remove user from organization (properly set role_in_org to NULL)\r\n    UPDATE users \r\n    SET \r\n        organization_id = NULL,\r\n        role_in_org = NULL,  -- Set to NULL instead of 'USER'\r\n        is_org_admin = FALSE,\r\n        joined_at = NULL\r\n    WHERE id = p_user_id;\r\n    \r\n    -- Update organization user count\r\n    UPDATE organizations \r\n    SET current_users_count = current_users_count - 1\r\n    WHERE id = p_organization_id;\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "report_review",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    report_id UUID;\r\nBEGIN\r\n    -- Check if user has already reported this review\r\n    IF EXISTS (SELECT 1 FROM review_reports WHERE review_id = p_review_id AND reporter_id = p_reporter_id) THEN\r\n        RAISE EXCEPTION 'User has already reported this review';\r\n    END IF;\r\n    \r\n    -- Insert report\r\n    INSERT INTO review_reports (review_id, reporter_id, reason, description)\r\n    VALUES (p_review_id, p_reporter_id, p_reason, p_description)\r\n    RETURNING id INTO report_id;\r\n    \r\n    -- Mark review as reported if multiple reports\r\n    UPDATE reviews \r\n    SET is_reported = TRUE\r\n    WHERE id = p_review_id AND (\r\n        SELECT COUNT(*) FROM review_reports WHERE review_id = p_review_id\r\n    ) >= 3;\r\n    \r\n    RETURN report_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "safe_delete_event_space",
+	  "routine_type": "FUNCTION",
+	  "return_type": "json",
+	  "routine_definition": "\r\nDECLARE\r\n    space_org_id UUID;\r\n    user_org_id UUID;\r\n    user_role_in_org VARCHAR;\r\n    event_count INTEGER;\r\n    total_spaces INTEGER;\r\n    events_moved INTEGER := 0;\r\n    target_space_id UUID;\r\n    deletion_result INTEGER;\r\n    space_name VARCHAR;\r\nBEGIN\r\n    -- Debug: Log the start of the function\r\n    RAISE NOTICE 'Starting deletion for space_id: %, user_id: %', p_space_id, p_user_id;\r\n    \r\n    -- Get the space's organization and name\r\n    SELECT organization_id, name INTO space_org_id, space_name\r\n    FROM public.event_spaces \r\n    WHERE id = p_space_id;\r\n    \r\n    IF space_org_id IS NULL THEN\r\n        RAISE EXCEPTION 'Event space not found';\r\n    END IF;\r\n    \r\n    RAISE NOTICE 'Found space \"%\" in organization: %', space_name, space_org_id;\r\n    \r\n    -- Get user's organization and role\r\n    SELECT organization_id, role_in_org INTO user_org_id, user_role_in_org\r\n    FROM public.users \r\n    WHERE id = p_user_id;\r\n    \r\n    -- Check permissions\r\n    IF user_org_id IS NULL OR user_org_id != space_org_id THEN\r\n        RAISE EXCEPTION 'User does not have access to this event space';\r\n    END IF;\r\n    \r\n    IF user_role_in_org NOT IN ('OWNER', 'ADMIN') THEN\r\n        RAISE EXCEPTION 'Only organization owners and admins can delete event spaces';\r\n    END IF;\r\n    \r\n    -- Count events in this space\r\n    SELECT COUNT(*) INTO event_count\r\n    FROM public.events \r\n    WHERE event_space_id = p_space_id;\r\n    \r\n    -- Count total spaces in organization\r\n    SELECT COUNT(*) INTO total_spaces\r\n    FROM public.event_spaces \r\n    WHERE organization_id = space_org_id;\r\n    \r\n    RAISE NOTICE 'Event count: %, Total spaces: %', event_count, total_spaces;\r\n    \r\n    -- BUSINESS LOGIC: Determine if deletion is allowed\r\n    IF total_spaces <= 1 THEN\r\n        -- This is the last (or only) space in the organization\r\n        IF event_count > 0 THEN\r\n            -- Last space with events - cannot delete\r\n            RAISE EXCEPTION 'Cannot delete the last event space when it contains % events. Please move or delete the events first.', event_count;\r\n        ELSE\r\n            -- Last space with no events - can delete, but warn\r\n            RAISE NOTICE 'Deleting the last event space in organization (no events to move)';\r\n        END IF;\r\n    ELSE\r\n        -- There are other spaces, handle events if any\r\n        IF event_count > 0 THEN\r\n            RAISE NOTICE 'Multiple spaces available, will move % events', event_count;\r\n        ELSE\r\n            RAISE NOTICE 'No events to move, proceeding with deletion';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- STEP 1: Handle events if they exist AND there are alternative spaces\r\n    IF event_count > 0 AND total_spaces > 1 THEN\r\n        -- Find target space for events\r\n        IF p_move_events_to_space_id IS NOT NULL THEN\r\n            -- Validate the target space\r\n            SELECT id INTO target_space_id\r\n            FROM public.event_spaces \r\n            WHERE id = p_move_events_to_space_id \r\n            AND organization_id = space_org_id;\r\n            \r\n            IF target_space_id IS NULL THEN\r\n                RAISE EXCEPTION 'Target event space not found or not in same organization';\r\n            END IF;\r\n        ELSE\r\n            -- Find any other space in the same organization\r\n            SELECT id INTO target_space_id\r\n            FROM public.event_spaces \r\n            WHERE organization_id = space_org_id \r\n            AND id != p_space_id\r\n            LIMIT 1;\r\n            \r\n            IF target_space_id IS NULL THEN\r\n                RAISE EXCEPTION 'No alternative event space found';\r\n            END IF;\r\n        END IF;\r\n        \r\n        RAISE NOTICE 'Moving % events to space: %', event_count, target_space_id;\r\n        \r\n        -- Move the events\r\n        UPDATE public.events \r\n        SET event_space_id = target_space_id\r\n        WHERE event_space_id = p_space_id;\r\n        \r\n        GET DIAGNOSTICS events_moved = ROW_COUNT;\r\n        RAISE NOTICE 'Actually moved % events', events_moved;\r\n        \r\n        -- Verify the move was successful\r\n        IF events_moved != event_count THEN\r\n            RAISE EXCEPTION 'Event move failed: expected to move % events, actually moved %', event_count, events_moved;\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- STEP 2: Verify no events are left in the space\r\n    SELECT COUNT(*) INTO event_count\r\n    FROM public.events \r\n    WHERE event_space_id = p_space_id;\r\n    \r\n    IF event_count > 0 THEN\r\n        RAISE EXCEPTION 'Cannot delete event space: % events still reference it after move attempt', event_count;\r\n    END IF;\r\n    \r\n    RAISE NOTICE 'Confirmed no events left, proceeding with space deletion';\r\n    \r\n    -- STEP 3: Delete the event space\r\n    DELETE FROM public.event_spaces \r\n    WHERE id = p_space_id AND organization_id = space_org_id;\r\n    \r\n    GET DIAGNOSTICS deletion_result = ROW_COUNT;\r\n    RAISE NOTICE 'DELETE command affected % rows', deletion_result;\r\n    \r\n    -- Verify deletion\r\n    IF deletion_result = 0 THEN\r\n        -- Check if space still exists\r\n        IF EXISTS (SELECT 1 FROM public.event_spaces WHERE id = p_space_id) THEN\r\n            RAISE EXCEPTION 'Event space still exists after deletion attempt - may be protected by RLS policies or constraints';\r\n        ELSE\r\n            RAISE EXCEPTION 'No rows were deleted - space may not exist or user may not have permission';\r\n        END IF;\r\n    END IF;\r\n    \r\n    -- Final verification\r\n    IF EXISTS (SELECT 1 FROM public.event_spaces WHERE id = p_space_id) THEN\r\n        RAISE EXCEPTION 'Event space still exists after successful delete command - check for triggers or constraints';\r\n    END IF;\r\n    \r\n    RAISE NOTICE 'Successfully deleted event space: % (%)', p_space_id, space_name;\r\n    \r\n    -- Return success result\r\n    RETURN json_build_object(\r\n        'success', true,\r\n        'events_moved', events_moved,\r\n        'moved_to_space_id', target_space_id,\r\n        'space_name', space_name,\r\n        'message', CASE \r\n            WHEN events_moved > 0 THEN \r\n                'Event space \"' || space_name || '\" deleted successfully. ' || events_moved || ' events were moved to another space.'\r\n            ELSE \r\n                'Event space \"' || space_name || '\" deleted successfully.'\r\n        END\r\n    );\r\n    \r\nEXCEPTION\r\n    WHEN OTHERS THEN\r\n        RAISE NOTICE 'Error occurred: %', SQLERRM;\r\n        RETURN json_build_object(\r\n            'success', false,\r\n            'error', SQLERRM,\r\n            'message', 'Failed to delete event space: ' || SQLERRM\r\n        );\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "send_admin_request_notification",
+	  "routine_type": "FUNCTION",
+	  "return_type": "uuid",
+	  "routine_definition": "\r\nDECLARE\r\n    notification_id UUID;\r\nBEGIN\r\n    -- Use the existing create_notification_from_template function\r\n    SELECT create_notification_from_template(\r\n        p_user_id,\r\n        p_template_type,\r\n        p_additional_data\r\n    ) INTO notification_id;\r\n    \r\n    RETURN notification_id;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "trigger_booking_notifications",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nDECLARE\r\n    event_title TEXT;\r\nBEGIN\r\n    -- Get event title\r\n    SELECT title INTO event_title\r\n    FROM events\r\n    WHERE id = NEW.event_id;\r\n    \r\n    -- Create booking confirmation notification\r\n    PERFORM create_notification_from_template(\r\n        NEW.user_id,\r\n        'BOOKING_CONFIRMED',\r\n        jsonb_build_object(\r\n            'event_title', event_title,\r\n            'booking_id', NEW.id\r\n        )\r\n    );\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "trigger_event_notifications",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    -- Notify followers of the category\r\n    PERFORM notify_event_followers(NEW.id);\r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "trigger_follow_notifications",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nDECLARE\r\n    target_name TEXT;\r\n    target_type TEXT;\r\n    follower_username TEXT;\r\nBEGIN\r\n    -- Get target details\r\n    IF NEW.target_type = 'USER' THEN\r\n        SELECT username INTO target_name\r\n        FROM auth.users\r\n        WHERE id = NEW.target_id;\r\n        target_type := 'user';\r\n    ELSIF NEW.target_type = 'EVENT' THEN\r\n        SELECT title INTO target_name\r\n        FROM events\r\n        WHERE id = NEW.target_id;\r\n        target_type := 'event';\r\n    ELSIF NEW.target_type = 'CATEGORY' THEN\r\n        SELECT name INTO target_name\r\n        FROM categories\r\n        WHERE id = NEW.target_id;\r\n        target_type := 'category';\r\n    END IF;\r\n    \r\n    -- Get follower username\r\n    SELECT username INTO follower_username\r\n    FROM auth.users\r\n    WHERE id = NEW.follower_id;\r\n    \r\n    -- Create follow notification\r\n    PERFORM create_notification_from_template(\r\n        NEW.target_id,\r\n        'FOLLOW_UPDATE',\r\n        jsonb_build_object(\r\n            'username', follower_username,\r\n            'action', 'started following',\r\n            'target_type', target_type,\r\n            'target_name', target_name\r\n        )\r\n    );\r\n    \r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_admin_requests_updated_at",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_event_rating",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    -- This trigger ensures the event_rating_summary view stays updated\r\n    -- The view will automatically reflect changes\r\n    RETURN COALESCE(NEW, OLD);\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_event_space_timestamps",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_follower_count",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        -- Increment follower count\r\n        IF NEW.target_type = 'USER' THEN\r\n            UPDATE users SET follower_count = follower_count + 1 WHERE id = NEW.target_id;\r\n        ELSIF NEW.target_type = 'EVENT' THEN\r\n            UPDATE events SET follower_count = follower_count + 1 WHERE id = NEW.target_id;\r\n        ELSIF NEW.target_type = 'CATEGORY' THEN\r\n            UPDATE categories SET follower_count = follower_count + 1 WHERE id = NEW.target_id;\r\n        END IF;\r\n        RETURN NEW;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        -- Decrement follower count\r\n        IF OLD.target_type = 'USER' THEN\r\n            UPDATE users SET follower_count = GREATEST(follower_count - 1, 0) WHERE id = OLD.target_id;\r\n        ELSIF OLD.target_type = 'EVENT' THEN\r\n            UPDATE events SET follower_count = GREATEST(follower_count - 1, 0) WHERE id = OLD.target_id;\r\n        ELSIF OLD.target_type = 'CATEGORY' THEN\r\n            UPDATE categories SET follower_count = GREATEST(follower_count - 1, 0) WHERE id = OLD.target_id;\r\n        END IF;\r\n        RETURN OLD;\r\n    END IF;\r\n    RETURN NULL;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_member_role_in_organization",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nDECLARE\r\n    updater_role VARCHAR(50);\r\n    current_user_role VARCHAR(50);\r\nBEGIN\r\n    -- Check if the user making the update has permission (owner or admin)\r\n    SELECT role_in_org INTO updater_role\r\n    FROM users\r\n    WHERE id = p_updated_by AND organization_id = p_organization_id;\r\n    \r\n    IF updater_role IS NULL OR (updater_role != 'OWNER' AND updater_role != 'ADMIN') THEN\r\n        RAISE EXCEPTION 'Only organization owners and admins can update member roles';\r\n    END IF;\r\n    \r\n    -- Get current role of the user being updated\r\n    SELECT role_in_org INTO current_user_role\r\n    FROM users\r\n    WHERE id = p_user_id AND organization_id = p_organization_id;\r\n    \r\n    IF current_user_role IS NULL THEN\r\n        RAISE EXCEPTION 'User is not a member of this organization';\r\n    END IF;\r\n    \r\n    -- Only owners can change other users to owner\r\n    IF p_new_role = 'OWNER' AND updater_role != 'OWNER' THEN\r\n        RAISE EXCEPTION 'Only organization owners can promote users to owner';\r\n    END IF;\r\n    \r\n    -- Only owners can demote other owners\r\n    IF current_user_role = 'OWNER' AND updater_role != 'OWNER' THEN\r\n        RAISE EXCEPTION 'Only organization owners can change owner roles';\r\n    END IF;\r\n    \r\n    -- Update the user's role\r\n    UPDATE users\r\n    SET \r\n        role_in_org = p_new_role,\r\n        is_org_admin = (p_new_role = 'OWNER' OR p_new_role = 'ADMIN')\r\n    WHERE id = p_user_id AND organization_id = p_organization_id;\r\n    \r\n    IF NOT FOUND THEN\r\n        RAISE EXCEPTION 'Failed to update user role';\r\n    END IF;\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_organization_event_count",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    IF TG_OP = 'INSERT' THEN\r\n        UPDATE organizations \r\n        SET current_events_count = current_events_count + 1\r\n        WHERE id = NEW.organization_id;\r\n        RETURN NEW;\r\n    ELSIF TG_OP = 'DELETE' THEN\r\n        UPDATE organizations \r\n        SET current_events_count = current_events_count - 1\r\n        WHERE id = OLD.organization_id;\r\n        RETURN OLD;\r\n    END IF;\r\n    RETURN NULL;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_organization_timestamps",
+	  "routine_type": "FUNCTION",
+	  "return_type": "trigger",
+	  "routine_definition": "\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    RETURN NEW;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "update_review",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nBEGIN\r\n    -- Check if user owns the review\r\n    IF NOT EXISTS (SELECT 1 FROM reviews WHERE id = p_review_id AND user_id = p_user_id) THEN\r\n        RETURN FALSE;\r\n    END IF;\r\n    \r\n    -- Update review\r\n    UPDATE reviews \r\n    SET \r\n        rating = COALESCE(p_rating, rating),\r\n        title = COALESCE(p_title, title),\r\n        comment = COALESCE(p_comment, comment),\r\n        updated_at = NOW()\r\n    WHERE id = p_review_id AND user_id = p_user_id;\r\n    \r\n    RETURN FOUND;\r\nEND;\r\n"
+	},
+	{
+	  "routine_schema": "public",
+	  "routine_name": "vote_review_helpful",
+	  "routine_type": "FUNCTION",
+	  "return_type": "boolean",
+	  "routine_definition": "\r\nBEGIN\r\n    -- Insert or update vote\r\n    INSERT INTO review_helpful_votes (review_id, user_id, is_helpful)\r\n    VALUES (p_review_id, p_user_id, p_is_helpful)\r\n    ON CONFLICT (review_id, user_id) \r\n    DO UPDATE SET is_helpful = p_is_helpful, created_at = NOW();\r\n    \r\n    -- Update helpful count on review\r\n    UPDATE reviews \r\n    SET is_helpful = (\r\n        SELECT COUNT(*) \r\n        FROM review_helpful_votes \r\n        WHERE review_id = p_review_id AND is_helpful = TRUE\r\n    )\r\n    WHERE id = p_review_id;\r\n    \r\n    RETURN TRUE;\r\nEND;\r\n"
+	}
+  ]
+
+
+  8. TRIGGERS
+
+  [
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "admin_requests_updated_at_trigger",
+	  "event_object_table": "admin_requests",
+	  "event_manipulation": "UPDATE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_admin_requests_updated_at()",
+	  "action_timing": "BEFORE"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "booking_notifications_trigger",
+	  "event_object_table": "bookings",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION trigger_booking_notifications()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "event_space_timestamps_trigger",
+	  "event_object_table": "event_spaces",
+	  "event_manipulation": "UPDATE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_event_space_timestamps()",
+	  "action_timing": "BEFORE"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "event_notifications_trigger",
+	  "event_object_table": "events",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION trigger_event_notifications()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "organization_event_count_trigger",
+	  "event_object_table": "events",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_organization_event_count()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "organization_event_count_trigger",
+	  "event_object_table": "events",
+	  "event_manipulation": "DELETE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_organization_event_count()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "follow_notifications_trigger",
+	  "event_object_table": "follows",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION trigger_follow_notifications()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "trigger_update_follower_count",
+	  "event_object_table": "follows",
+	  "event_manipulation": "DELETE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_follower_count()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "trigger_update_follower_count",
+	  "event_object_table": "follows",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_follower_count()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "organization_timestamps_trigger",
+	  "event_object_table": "organizations",
+	  "event_manipulation": "UPDATE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_organization_timestamps()",
+	  "action_timing": "BEFORE"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "review_rating_trigger",
+	  "event_object_table": "reviews",
+	  "event_manipulation": "INSERT",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_event_rating()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "review_rating_trigger",
+	  "event_object_table": "reviews",
+	  "event_manipulation": "DELETE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_event_rating()",
+	  "action_timing": "AFTER"
+	},
+	{
+	  "trigger_schema": "public",
+	  "trigger_name": "review_rating_trigger",
+	  "event_object_table": "reviews",
+	  "event_manipulation": "UPDATE",
+	  "event_object_schema": "public",
+	  "action_statement": "EXECUTE FUNCTION update_event_rating()",
+	  "action_timing": "AFTER"
+	}
+  ]
+
+  9. VIEWS
+
+  
+  
+  [
+	{
+	  "table_schema": "public",
+	  "table_name": "admin_dashboard_stats",
+	  "view_definition": " SELECT count(*) FILTER (WHERE ((status)::text = 'PENDING'::text)) AS pending_requests,\n    count(*) FILTER (WHERE ((status)::text = 'APPROVED'::text)) AS approved_requests,\n    count(*) FILTER (WHERE ((status)::text = 'REJECTED'::text)) AS rejected_requests,\n    count(*) FILTER (WHERE (created_at >= (now() - '7 days'::interval))) AS requests_last_7_days,\n    count(*) FILTER (WHERE (created_at >= (now() - '30 days'::interval))) AS requests_last_30_days\n   FROM admin_requests;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "admin_request_history",
+	  "view_definition": " SELECT ar.id,\n    ar.user_id,\n    ar.email,\n    ar.first_name,\n    ar.last_name,\n    ar.reason,\n    ar.organization,\n    ar.experience_level,\n    ar.status,\n    ar.reviewed_by,\n    ar.review_notes,\n    ar.created_at,\n    ar.reviewed_at,\n    reviewer.email AS reviewer_email,\n    reviewer.first_name AS reviewer_first_name,\n    reviewer.last_name AS reviewer_last_name\n   FROM (admin_requests ar\n     LEFT JOIN users reviewer ON ((ar.reviewed_by = reviewer.id)))\n  ORDER BY ar.created_at DESC;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "event_rating_summary",
+	  "view_definition": " SELECT e.id AS event_id,\n    e.title AS event_title,\n    count(r.id) AS total_reviews,\n    count(r.id) FILTER (WHERE (r.is_verified = true)) AS verified_reviews,\n    round(avg(r.rating), 2) AS average_rating,\n    count(r.id) FILTER (WHERE (r.rating = 5)) AS five_star_count,\n    count(r.id) FILTER (WHERE (r.rating = 4)) AS four_star_count,\n    count(r.id) FILTER (WHERE (r.rating = 3)) AS three_star_count,\n    count(r.id) FILTER (WHERE (r.rating = 2)) AS two_star_count,\n    count(r.id) FILTER (WHERE (r.rating = 1)) AS one_star_count,\n    max(r.created_at) AS latest_review\n   FROM (events e\n     LEFT JOIN reviews r ON ((e.id = r.event_id)))\n  GROUP BY e.id, e.title;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "notification_summary",
+	  "view_definition": " SELECT user_id,\n    count(*) AS total_notifications,\n    count(*) FILTER (WHERE (is_read = false)) AS unread_count,\n    count(*) FILTER (WHERE ((type)::text = 'EVENT_REMINDER'::text)) AS reminder_count,\n    count(*) FILTER (WHERE ((type)::text = 'BOOKING_CONFIRMED'::text)) AS booking_count,\n    max(created_at) AS latest_notification\n   FROM notifications\n  GROUP BY user_id;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organization_admin_requests",
+	  "view_definition": " SELECT ar.id,\n    ar.user_id,\n    ar.email,\n    ar.first_name,\n    ar.last_name,\n    ar.contact_number,\n    ar.reason,\n    ar.organization_id,\n    ar.requested_role,\n    ar.status,\n    ar.created_at,\n    ar.reviewed_at,\n    ar.review_notes,\n    o.name AS organization_name,\n    o.slug AS organization_slug,\n    u.username,\n    u.role_in_org AS \"current_role\"\n   FROM ((admin_requests ar\n     LEFT JOIN organizations o ON ((ar.organization_id = o.id)))\n     LEFT JOIN users u ON ((ar.user_id = u.id)))\n  WHERE ((ar.status)::text = 'PENDING'::text)\n  ORDER BY ar.created_at;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organization_dashboard_stats",
+	  "view_definition": " SELECT o.id AS organization_id,\n    o.name AS organization_name,\n    o.subscription_plan,\n    o.subscription_status,\n    o.max_events,\n    o.max_users,\n    o.current_events_count,\n    o.current_users_count,\n    count(DISTINCT es.id) AS total_event_spaces,\n    count(DISTINCT e.id) AS total_events,\n    count(DISTINCT b.id) AS total_bookings,\n    count(DISTINCT u.id) AS total_users,\n    count(DISTINCT e.id) FILTER (WHERE (e.created_at >= (now() - '30 days'::interval))) AS events_last_30_days,\n    count(DISTINCT b.id) FILTER (WHERE (b.created_at >= (now() - '30 days'::interval))) AS bookings_last_30_days\n   FROM ((((organizations o\n     LEFT JOIN event_spaces es ON ((o.id = es.organization_id)))\n     LEFT JOIN events e ON ((o.id = e.organization_id)))\n     LEFT JOIN bookings b ON ((e.id = b.event_id)))\n     LEFT JOIN users u ON ((o.id = u.organization_id)))\n  GROUP BY o.id, o.name, o.subscription_plan, o.subscription_status, o.max_events, o.max_users, o.current_events_count, o.current_users_count;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "organization_event_stats",
+	  "view_definition": " SELECT o.id AS organization_id,\n    o.name AS organization_name,\n    count(e.id) AS total_events,\n    count(e.id) FILTER (WHERE (e.date >= CURRENT_DATE)) AS upcoming_events,\n    count(e.id) FILTER (WHERE (e.date < CURRENT_DATE)) AS past_events,\n    count(DISTINCT b.user_id) AS total_attendees,\n    sum((e.price * (( SELECT count(*) AS count\n           FROM bookings\n          WHERE ((bookings.event_id = e.id) AND ((bookings.status)::text = 'CONFIRMED'::text))))::numeric)) AS total_revenue\n   FROM ((organizations o\n     LEFT JOIN events e ON ((o.id = e.organization_id)))\n     LEFT JOIN bookings b ON (((e.id = b.event_id) AND ((b.status)::text = 'CONFIRMED'::text))))\n  GROUP BY o.id, o.name;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "pending_admin_requests",
+	  "view_definition": " SELECT ar.id,\n    ar.user_id,\n    ar.email,\n    ar.first_name,\n    ar.last_name,\n    ar.contact_number,\n    ar.reason,\n    ar.organization,\n    ar.experience_level,\n    ar.intended_use,\n    ar.created_at,\n    u.username,\n    u.role AS \"current_role\"\n   FROM (admin_requests ar\n     LEFT JOIN users u ON ((ar.user_id = u.id)))\n  WHERE ((ar.status)::text = 'PENDING'::text)\n  ORDER BY ar.created_at;"
+	},
+	{
+	  "table_schema": "public",
+	  "table_name": "user_review_summary",
+	  "view_definition": " SELECT u.id AS user_id,\n    COALESCE((u.raw_user_meta_data ->> 'username'::text), (u.email)::text) AS username,\n    count(r.id) AS total_reviews,\n    round(avg(r.rating), 2) AS average_rating_given,\n    count(r.id) FILTER (WHERE (r.is_verified = true)) AS verified_reviews,\n    max(r.created_at) AS latest_review\n   FROM (auth.users u\n     LEFT JOIN reviews r ON ((u.id = r.user_id)))\n  GROUP BY u.id, (u.raw_user_meta_data ->> 'username'::text), u.email;"
+	}
+  ]
+
+  
+
+  

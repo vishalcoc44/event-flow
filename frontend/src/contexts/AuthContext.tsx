@@ -3,7 +3,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { authAPI } from '@/lib/api'
+import { performanceUtils } from '@/lib/performance'
 import { supabase } from '@/lib/supabase'
+import { useToast } from '@/hooks/use-toast'
 
 type User = {
     id: string
@@ -41,6 +43,8 @@ type AuthContextType = {
         role?: string,
         isAdminRequest?: boolean
     }) => Promise<boolean>
+    refreshAuth: () => Promise<void>
+    clearInvalidSession: () => Promise<void>
     isLoading: boolean
 }
 
@@ -49,13 +53,55 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null)
     const router = useRouter()
+    const { toast } = useToast()
+
+    // Stabilized loading setter to prevent flickering
+    const setLoadingStabilized = (loading: boolean) => {
+        if (loadingTimeout) {
+            clearTimeout(loadingTimeout)
+        }
+
+        if (loading) {
+            setIsLoading(true)
+        } else {
+            // Add a small delay before setting loading to false to prevent flickering
+            const timeout = setTimeout(() => {
+                setIsLoading(false)
+            }, 100)
+            setLoadingTimeout(timeout)
+        }
+    }
 
     useEffect(() => {
+        let isInitialized = false;
+
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                console.log('Auth state change:', event, !!session, window?.location?.pathname);
+            async (event: any, session: any) => {
+                console.log('🔄 Auth state change:', event, !!session, window?.location?.pathname);
+                console.log('🔍 Session details:', session?.user?.email, session?.expires_at);
+
+                // Handle token refresh errors by checking session validity
+                if (event === 'TOKEN_REFRESHED' && !session) {
+                    console.log('🔄 Token refresh failed, clearing session...');
+                    await clearInvalidSession();
+                    return;
+                }
+
+                // Handle authentication errors (including refresh token errors)
+                if (event === 'SIGNED_OUT') {
+                    console.log('🔄 User signed out, clearing session...');
+                    setUser(null);
+                    isInitialized = true;
+                    return;
+                }
+
+                // Prevent duplicate processing during initialization
+                if (event === 'INITIAL_SESSION' && isInitialized) {
+                    return;
+                }
                 
                 if (session && session.user) {
                     // Get user data including custom metadata
@@ -73,27 +119,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         created_at: session.user.created_at
                     };
                     
-                    // Load organization data for the user
-                    try {
-                        const { data: userOrgData, error: orgError } = await supabase
-                            .from('users')
-                            .select('organization_id, role_in_org, is_org_admin, joined_at')
-                            .eq('id', session.user.id)
-                            .single();
-                        
-                        if (!orgError && userOrgData) {
-                            Object.assign(userData, {
-                                organization_id: userOrgData.organization_id,
-                                role_in_org: userOrgData.role_in_org,
-                                is_org_admin: userOrgData.is_org_admin,
-                                joined_at: userOrgData.joined_at
-                            });
-                        }
-                    } catch (orgError) {
-                        console.error('Error loading organization data:', orgError);
-                    }
+                    // Load organization data asynchronously (non-blocking)
+                    // Set a timeout to prevent hanging on organization data fetch
+                    Promise.race([
+                        authAPI.getUserOrganizationData(session.user.id),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Organization data timeout')), 2000)
+                        )
+                    ])
+                        .then((orgData: any) => {
+                            if (orgData) {
+                                // Update user data with organization info
+                                setUser(prevUser => {
+                                    if (prevUser && prevUser.id === session.user.id) {
+                                        return {
+                                            ...prevUser,
+                                            organization_id: orgData.organization_id,
+                                            role_in_org: orgData.role_in_org,
+                                            is_org_admin: orgData.is_org_admin,
+                                            joined_at: orgData.joined_at
+                                        };
+                                    }
+                                    return prevUser;
+                                });
+                            }
+                        })
+                        .catch((error) => {
+                            console.log('Organization data loading skipped or failed:', error.message);
+                            // Continue without organization data - user can still use the app
+                        });
                     
                     setUser(userData);
+                    isInitialized = true;
                     
                     // Check if we should redirect after sign in
                     // Don't redirect during password reset flows or if already on auth pages
@@ -139,92 +196,108 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 } else {
                     setUser(null);
+                    isInitialized = true;
                 }
                 setIsLoading(false);
             }
         );
 
-        // Initial session check
+        // Optimized initial session check - must complete within 3 seconds
         const initializeAuth = async () => {
+            const startTime = performance.now();
+
             try {
                 console.log('🔄 Initializing auth - checking session...');
 
-                // Add timeout to prevent hanging
-                const sessionPromise = supabase.auth.getSession();
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Session check timeout')), 8000)
-                );
+                // Use optimized auth status check with retries and increased timeout
+                const authResult = await authAPI.checkAuthStatus(2); // 2 retries
 
-                const { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+                if (authResult.error) {
+                    // Handle different types of errors differently
+                    if (authResult.error.includes('Invalid Refresh Token') ||
+                        authResult.error.includes('Refresh Token Not Found') ||
+                        authResult.error.includes('invalid_grant')) {
+                        console.log('🔄 Invalid refresh token detected, clearing session...');
+                        await clearInvalidSession();
+                        isInitialized = true;
+                        setLoadingStabilized(false);
+                        return;
+                    } else if (authResult.error.includes('timeout')) {
+                        // Don't block the app due to timeout - proceed as unauthenticated
+                        console.log('⏰ Auth check timeout, proceeding as unauthenticated');
+                        setUser(null);
+                        isInitialized = true;
+                        setLoadingStabilized(false);
+                        return;
+                    }
 
-                if (sessionError) {
-                    console.error('Session check error:', sessionError);
-                    setIsLoading(false);
+                    console.log('⚠️ Auth error:', authResult.error);
+                    setUser(null);
+                    isInitialized = true;
+                    setLoadingStabilized(false);
                     return;
                 }
 
-                if (session && session.user) {
+                if (authResult.isAuthenticated && authResult.session?.user) {
                     console.log('✅ Session found, loading user data...');
+
                     const userData = {
-                        id: session.user.id,
-                        email: session.user.email || '',
-                        role: (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
-                        username: session.user.user_metadata.username || session.user.email?.split('@')[0] || '',
-                        first_name: session.user.user_metadata.first_name,
-                        last_name: session.user.user_metadata.last_name,
-                        contact_number: session.user.user_metadata.contact_number,
-                        city: session.user.user_metadata.city,
-                        pincode: session.user.user_metadata.pincode,
-                        street_address: session.user.user_metadata.street_address,
-                        created_at: session.user.created_at
+                        id: authResult.session.user.id,
+                        email: authResult.session.user.email || '',
+                        role: (authResult.session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
+                        username: authResult.session.user.user_metadata.username || authResult.session.user.email?.split('@')[0] || '',
+                        first_name: authResult.session.user.user_metadata.first_name,
+                        last_name: authResult.session.user.user_metadata.last_name,
+                        contact_number: authResult.session.user.user_metadata.contact_number,
+                        city: authResult.session.user.user_metadata.city,
+                        pincode: authResult.session.user.user_metadata.pincode,
+                        street_address: authResult.session.user.user_metadata.street_address,
+                        created_at: authResult.session.user.created_at
                     };
 
-                    // Load organization data for the user (non-blocking with timeout)
-                    try {
-                        console.log('🔄 Loading organization data...');
-
-                        // Add timeout to organization data loading
-                        const orgDataPromise = supabase
-                            .from('users')
-                            .select('organization_id, role_in_org, is_org_admin, joined_at')
-                            .eq('id', session.user.id)
-                            .single();
-
-                        const orgTimeoutPromise = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('Organization data timeout')), 3000)
-                        );
-
-                        const { data: userOrgData, error: orgError } = await Promise.race([orgDataPromise, orgTimeoutPromise]) as any;
-
-                        if (!orgError && userOrgData) {
-                            console.log('✅ Organization data loaded');
-                            Object.assign(userData, {
-                                organization_id: userOrgData.organization_id,
-                                role_in_org: userOrgData.role_in_org,
-                                is_org_admin: userOrgData.is_org_admin,
-                                joined_at: userOrgData.joined_at
-                            });
-                        } else {
-                            console.log('⚠️ No organization data found or error:', orgError?.message);
-                        }
-                    } catch (orgError) {
-                        console.error('Error loading organization data:', orgError);
-                        // Continue without organization data - don't fail the whole auth process
-                    }
+                    // Load organization data asynchronously (non-blocking)
+                    // This will complete in background and update user data when ready
+                    Promise.race([
+                        authAPI.getUserOrganizationData(authResult.session.user.id),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Organization data timeout')), 2000)
+                        )
+                    ])
+                        .then((orgData: any) => {
+                            if (orgData) {
+                                console.log('✅ Organization data loaded in background');
+                                const updatedUserData = {
+                                    ...userData,
+                                    organization_id: orgData.organization_id,
+                                    role_in_org: orgData.role_in_org,
+                                    is_org_admin: orgData.is_org_admin,
+                                    joined_at: orgData.joined_at
+                                };
+                                setUser(updatedUserData);
+                            }
+                        })
+                        .catch((error) => {
+                            console.log('⚠️ Organization data load failed or timed out:', error.message);
+                            // Continue with user data without organization info
+                        });
 
                     console.log('✅ User data loaded successfully');
                     setUser(userData);
+                    isInitialized = true;
                 } else {
                     console.log('ℹ️ No active session found');
                     setUser(null);
+                    isInitialized = true;
                 }
-            } catch (error) {
-                console.error('Auth initialization error:', error);
+
+                const totalTime = performance.now() - startTime;
+                console.log(`⚡ Auth initialization completed in ${totalTime.toFixed(2)}ms ${totalTime > 3000 ? '(SLOW!)' : '(FAST!)'}`);
+
+            } catch (error: any) {
                 setUser(null);
+                isInitialized = true;
             } finally {
-                // Always set loading to false, even if there are errors
-                console.log('🔚 Auth initialization complete');
-                setIsLoading(false);
+                setLoadingStabilized(false);
             }
         };
         
@@ -233,130 +306,197 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Safety timeout to prevent indefinite loading (reduced since we have individual timeouts)
         const loadingTimeout = setTimeout(() => {
             console.warn('Auth loading timeout reached, resetting loading state');
-            setIsLoading(false);
-        }, 15000); // 15 seconds timeout
+            setLoadingStabilized(false);
+        }, 3000); // 3 seconds timeout to match our performance requirement
         
         // Cleanup subscription and timeout
         return () => {
             subscription.unsubscribe();
-            clearTimeout(loadingTimeout);
+            if (loadingTimeout) {
+                clearTimeout(loadingTimeout);
+            }
         };
     }, []);
 
+    // Method to force refresh auth state
+    const refreshAuth = async () => {
+        try {
+            console.log('🔄 Refreshing auth state...');
+            setLoadingStabilized(true);
+
+            // Use optimized auth check with retries
+            const authResult = await authAPI.checkAuthStatus(1); // 1 retry for refresh
+
+            if (authResult.error) {
+                // Handle different types of errors
+                if (authResult.error.includes('Invalid Refresh Token') ||
+                    authResult.error.includes('Refresh Token Not Found') ||
+                    authResult.error.includes('invalid_grant')) {
+                    console.log('🔄 Invalid refresh token during refresh, clearing session...');
+                    await clearInvalidSession();
+                    return;
+                } else if (authResult.error.includes('timeout')) {
+                    console.log('⏰ Auth refresh timeout');
+                    setIsLoading(false);
+                    return;
+                }
+
+                console.log('⚠️ Auth refresh error:', authResult.error);
+                setUser(null);
+                return;
+            }
+
+            if (authResult.isAuthenticated && authResult.session?.user) {
+                console.log('✅ Session found during refresh');
+                const userData = {
+                    id: authResult.session.user.id,
+                    email: authResult.session.user.email || '',
+                    role: (authResult.session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
+                    username: authResult.session.user.user_metadata.username || authResult.session.user.email?.split('@')[0] || '',
+                    first_name: authResult.session.user.user_metadata.first_name,
+                    last_name: authResult.session.user.user_metadata.last_name,
+                    contact_number: authResult.session.user.user_metadata.contact_number,
+                    city: authResult.session.user.user_metadata.city,
+                    pincode: authResult.session.user.user_metadata.pincode,
+                    street_address: authResult.session.user.user_metadata.street_address,
+                    created_at: authResult.session.user.created_at
+                };
+
+                // Load organization data asynchronously using cache
+                authAPI.getUserOrganizationData(authResult.session.user.id)
+                    .then((orgData) => {
+                        if (orgData) {
+                            const updatedUserData = {
+                                ...userData,
+                                organization_id: orgData.organization_id,
+                                role_in_org: orgData.role_in_org,
+                                is_org_admin: orgData.is_org_admin,
+                                joined_at: orgData.joined_at
+                            };
+                            setUser(updatedUserData);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('Organization data load failed during refresh:', error.message);
+                        // Still set user data without organization info
+                        setUser(userData);
+                    });
+
+                // Set user data immediately, organization data will be added asynchronously
+                setUser(userData);
+            } else {
+                console.log('ℹ️ No session found during refresh');
+                setUser(null);
+            }
+        } catch (error) {
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const login = async (email: string, password: string) => {
         try {
-            setIsLoading(true);
+            setLoadingStabilized(true);
             console.log('🔄 Starting login process for:', email);
 
-            // Call login API with timeout
-            const loginPromise = supabase.auth.signInWithPassword({
-                email,
-                password
-            });
+            // First check if there's already an active session
+            try {
+                const { data: { session: existingSession }, error: sessionCheckError } = await supabase.auth.getSession();
 
-            const loginTimeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Login request timeout - Supabase not responding')), 10000)
-            );
-
-            const { data, error } = await Promise.race([loginPromise, loginTimeoutPromise]) as any;
-
-            console.log('🔍 Login response:', {
-                success: !error,
-                hasUser: !!data?.user,
-                userId: data?.user?.id,
-                error: error?.message
-            });
-
-            if (error) {
-                throw error;
+                if (sessionCheckError) {
+                    // If it's a refresh token error, clear the invalid session
+                    if (sessionCheckError.message?.includes('Invalid Refresh Token') ||
+                        sessionCheckError.message?.includes('Refresh Token Not Found') ||
+                        sessionCheckError.message?.includes('invalid_grant')) {
+                        console.log('🔄 Clearing invalid session before login...');
+                        await clearInvalidSession();
+                    }
+                } else if (existingSession && existingSession.user) {
+                    console.log('✅ Existing session found - refreshing auth state');
+                    await refreshAuth();
+                    return true;
+                }
+            } catch (sessionError: any) {
+                // If it's a refresh token error, clear the invalid session
+                if (sessionError?.message?.includes('Invalid Refresh Token') ||
+                    sessionError?.message?.includes('Refresh Token Not Found') ||
+                    sessionError?.message?.includes('invalid_grant')) {
+                    console.log('🔄 Clearing invalid session before login...');
+                    await clearInvalidSession();
+                }
             }
 
-            if (!data.user) {
+            // Call login API with new result-based approach
+            console.log('🔄 Calling authAPI.login...');
+            const loginResult = await authAPI.login(email, password);
+            console.log('🔍 Login API result:', loginResult);
+
+            if (!loginResult.success) {
+                console.log('❌ Login API returned error:', loginResult.error);
+                // For invalid credentials, throw a specific error that the UI can catch
+                if (loginResult.error?.includes('Invalid login credentials') || 
+                    loginResult.error?.includes('invalid_credentials') ||
+                    loginResult.error?.includes('Invalid email or password')) {
+                    throw new Error('Invalid email or password. Please check your credentials and try again.');
+                } else {
+                    // Throw the specific error for other types of failures
+                    throw new Error(loginResult.error || 'Login failed');
+                }
+            }
+
+            if (!loginResult.data?.user) {
                 throw new Error('No user data received');
             }
+
+            const data = loginResult.data;
 
             console.log('✅ Supabase authentication successful');
             
             // Get user role from metadata
             const role = data.user.user_metadata.role as 'ADMIN' | 'USER' || 'USER';
             
-            // Load organization data for the user (with timeout)
-            try {
-                console.log('🔄 Loading organization data after login...');
+            // Load organization data using optimized cached method
+            const userData = {
+                id: data.user.id,
+                email: data.user.email || '',
+                role: role,
+                username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
+                first_name: data.user.user_metadata.first_name,
+                last_name: data.user.user_metadata.last_name,
+                contact_number: data.user.user_metadata.contact_number,
+                city: data.user.user_metadata.city,
+                pincode: data.user.user_metadata.pincode,
+                street_address: data.user.user_metadata.street_address,
+                created_at: data.user.created_at
+            };
 
-                // Add timeout to prevent hanging
-                const orgDataPromise = supabase
-                    .from('users')
-                    .select('organization_id, role_in_org, is_org_admin, joined_at')
-                    .eq('id', data.user.id)
-                    .single();
-
-                const orgTimeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Organization data timeout during login')), 5000)
-                );
-
-                const { data: userOrgData, error: orgError } = await Promise.race([orgDataPromise, orgTimeoutPromise]) as any;
-
-                if (!orgError && userOrgData) {
-                    console.log('✅ Organization data loaded after login');
-                    // Update user data with organization info
-                    const userData = {
-                        id: data.user.id,
-                        email: data.user.email || '',
-                        role: role,
-                        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
-                        first_name: data.user.user_metadata.first_name,
-                        last_name: data.user.user_metadata.last_name,
-                        contact_number: data.user.user_metadata.contact_number,
-                        city: data.user.user_metadata.city,
-                        pincode: data.user.user_metadata.pincode,
-                        street_address: data.user.user_metadata.street_address,
-                        created_at: data.user.created_at,
-                        organization_id: userOrgData.organization_id,
-                        role_in_org: userOrgData.role_in_org,
-                        is_org_admin: userOrgData.is_org_admin,
-                        joined_at: userOrgData.joined_at
-                    };
+            // Load organization data asynchronously (non-blocking)
+            authAPI.getUserOrganizationData(data.user.id)
+                .then((orgData) => {
+                    if (orgData) {
+                        console.log('✅ Organization data loaded after login');
+                        const updatedUserData = {
+                            ...userData,
+                            organization_id: orgData.organization_id,
+                            role_in_org: orgData.role_in_org,
+                            is_org_admin: orgData.is_org_admin,
+                            joined_at: orgData.joined_at
+                        };
+                        setUser(updatedUserData);
+                    }
+                })
+                .catch((error) => {
+                    console.log('⚠️ Organization data load failed after login:', error.message);
+                    // Continue with user data without organization info
                     setUser(userData);
-                } else {
-                    console.log('⚠️ No organization data found after login:', orgError?.message);
-                    // Still set user data without organization info
-                    const userData = {
-                        id: data.user.id,
-                        email: data.user.email || '',
-                        role: role,
-                        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
-                        first_name: data.user.user_metadata.first_name,
-                        last_name: data.user.user_metadata.last_name,
-                        contact_number: data.user.user_metadata.contact_number,
-                        city: data.user.user_metadata.city,
-                        pincode: data.user.user_metadata.pincode,
-                        street_address: data.user.user_metadata.street_address,
-                        created_at: data.user.created_at
-                    };
-                    setUser(userData);
-                }
-            } catch (orgError) {
-                console.error('Error loading organization data during login:', orgError);
-                // Continue with login even if organization data fails
-                const userData = {
-                    id: data.user.id,
-                    email: data.user.email || '',
-                    role: role,
-                    username: data.user.user_metadata.username || data.user.email?.split('@')[0] || '',
-                    first_name: data.user.user_metadata.first_name,
-                    last_name: data.user.user_metadata.last_name,
-                    contact_number: data.user.user_metadata.contact_number,
-                    city: data.user.user_metadata.city,
-                    pincode: data.user.user_metadata.pincode,
-                    street_address: data.user.user_metadata.street_address,
-                    created_at: data.user.created_at
-                };
-                setUser(userData);
-            }
+                });
+
+            // Set user data immediately
+            setUser(userData);
             
             // Set loading to false before redirect
-            setIsLoading(false);
+            setLoadingStabilized(false);
             
             // Don't auto-redirect if user is on password reset page
             if (typeof window !== 'undefined' && window.location.pathname === '/reset-password') {
@@ -372,9 +512,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             return true;
         } catch (error) {
-            console.error('Login error:', error);
-            setIsLoading(false);
-            return false;
+            setLoadingStabilized(false);
+            console.log('❌ Login function throwing error:', error);
+            throw error; // Re-throw to allow the login page to handle it
         }
     };
 
@@ -382,9 +522,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             await supabase.auth.signOut();
             setUser(null);
+
+            // Clear all auth-related storage
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('supabase.auth.token');
+                sessionStorage.removeItem('passwordResetMode');
+            }
+
             router.push('/login');
         } catch (error) {
-            console.error('Logout error:', error);
+            // Logout error - silently handle
+        }
+    };
+
+    // Utility function to clear invalid sessions
+    const clearInvalidSession = async () => {
+        console.log('🔄 Clearing invalid session...');
+
+        try {
+            setLoadingStabilized(true);
+            setUser(null);
+
+            // Clear Supabase session
+            await supabase.auth.signOut();
+
+            // Clear all auth-related storage
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('supabase.auth.token');
+                sessionStorage.removeItem('passwordResetMode');
+                // Clear any other Supabase-related localStorage items
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('supabase.auth.')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            }
+
+            console.log('✅ Invalid session cleared');
+        } catch (error) {
+            // Error clearing invalid session - silently handle
+        } finally {
+            setLoadingStabilized(false);
         }
     };
 
@@ -402,7 +580,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdminRequest?: boolean
     }) => {
         try {
-            setIsLoading(true);
+            setLoadingStabilized(true);
             
             // Register the user with Supabase
             const { data, error } = await supabase.auth.signUp({
@@ -485,15 +663,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             return true;
         } catch (error) {
-            console.error('Registration error:', error);
+            // Registration error - silently handle
             return false;
         } finally {
-            setIsLoading(false);
+            setLoadingStabilized(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, register, isLoading }}>
+        <AuthContext.Provider value={{ user, login, logout, register, refreshAuth, clearInvalidSession, isLoading }}>
             {children}
         </AuthContext.Provider>
     );
@@ -505,4 +683,16 @@ export const useAuth = () => {
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
+};
+
+// Custom hook to force refresh auth state when inconsistencies are detected
+export const useAuthRefresh = () => {
+    const { refreshAuth } = useAuth();
+
+    return {
+        forceRefreshAuth: async () => {
+            console.log('🔄 Force refreshing auth state due to detected inconsistency...');
+            await refreshAuth();
+        }
+    };
 };

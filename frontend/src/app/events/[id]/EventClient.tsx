@@ -14,6 +14,7 @@ import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, DollarSign, ArrowLeft, Users, User, CalendarDays } from 'lucide-react'
 import { ReviewSystem } from '@/components/ReviewSystem'
+import { supabase } from '@/lib/supabase'
 
 type Event = {
     id: string
@@ -41,14 +42,181 @@ export default function EventClient() {
     const [event, setEvent] = useState<Event | null>(null)
     const [isBooked, setIsBooked] = useState(false)
     const [userBookings, setUserBookings] = useState<any[]>([])
+    const [loadingDirect, setLoadingDirect] = useState(false)
 
     useEffect(() => {
-        if (params.id && events) {
+        const fetchEvent = async () => {
+            if (!params.id) return
+
+            console.log('🔍 Looking for event:', params.id)
+            console.log('📊 Events in context:', events ? events.length : 0)
+
+            // First try to find the event in the context
+            if (events) {
             const foundEvent = events.find(e => e.id === params.id)
             if (foundEvent) {
+                    console.log('✅ Event found in context:', foundEvent.title)
                 setEvent(foundEvent)
+                    return
+                }
+                console.log('❌ Event not found in context, will try database fetch')
+            } else {
+                console.log('⚠️ No events in context, will try database fetch')
+            }
+
+            // If not found in context, try to fetch directly from Supabase
+            // This handles the case where the event wasn't pre-generated at build time
+            console.log('🔍 Event not found in context, fetching directly from database...')
+            setLoadingDirect(true)
+
+            try {
+                console.log('🔍 Fetching event with ID:', params.id)
+
+                // Check if Supabase is properly configured
+                const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+                const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+                if (!supabaseUrl || !supabaseKey) {
+                    console.error('❌ Supabase configuration missing:', {
+                        hasUrl: !!supabaseUrl,
+                        hasKey: !!supabaseKey,
+                        note: 'Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in .env.local'
+                    })
+                    return
+                }
+
+                console.log('✅ Supabase configuration found')
+
+                // Test basic Supabase connectivity
+                try {
+                    const { data: connectionTest, error: connectionError } = await supabase
+                        .from('events')
+                        .select('count')
+                        .limit(1)
+
+                    if (connectionError) {
+                        console.error('❌ Supabase connection test failed:', {
+                            error: connectionError,
+                            message: connectionError.message,
+                            code: connectionError.code
+                        })
+                        return
+                    }
+
+                    console.log('✅ Supabase connection test passed')
+                } catch (connectionTestError) {
+                    console.error('❌ Supabase connection test error:', connectionTestError)
+                    return
+                }
+
+                // First, try a simple query to check if the table and column exist
+                const { data: testData, error: testError } = await supabase
+                    .from('events')
+                    .select('id, title')
+                    .eq('id', params.id)
+                    .single()
+
+                if (testError) {
+                    console.error('❌ Basic event fetch failed:', {
+                        error: testError,
+                        message: testError.message,
+                        details: testError.details,
+                        hint: testError.hint,
+                        code: testError.code
+                    })
+                    return
+                }
+
+                if (!testData) {
+                    console.log('ℹ️ Event not found in database:', params.id)
+                    return
+                }
+
+                // Now try the full query with joins
+                const { data: directEvent, error } = await supabase
+                    .from('events')
+                    .select(`
+                        *,
+                        categories:category_id(name),
+                        event_spaces:event_space_id(name)
+                    `)
+                    .eq('id', params.id)
+                    .single()
+
+                if (error) {
+                    console.error('❌ Full event fetch failed:', {
+                        error,
+                        message: error.message,
+                        details: error.details,
+                        hint: error.hint,
+                        code: error.code
+                    })
+
+                    // If join fails, try without joins
+                    console.log('🔄 Trying fetch without joins...')
+                    const { data: simpleEvent, error: simpleError } = await supabase
+                        .from('events')
+                        .select('*')
+                        .eq('id', params.id)
+                        .single()
+
+                    if (simpleError) {
+                        console.error('❌ Simple event fetch also failed:', simpleError)
+                        return
+                    }
+
+                    if (simpleEvent) {
+                        console.log('✅ Simple event fetch succeeded')
+                        const transformedEvent: Event = {
+                            id: simpleEvent.id,
+                            title: simpleEvent.title || 'Untitled Event',
+                            description: simpleEvent.description || '',
+                            date: simpleEvent.event_date || '',
+                            time: simpleEvent.event_time || '',
+                            location: simpleEvent.location || '',
+                            price: simpleEvent.price || 0,
+                            image_url: simpleEvent.image_url,
+                            created_by: simpleEvent.created_by,
+                            created_at: simpleEvent.created_at
+                        }
+                        setEvent(transformedEvent)
+                        console.log('✅ Event fetched successfully (without joins)')
+                    }
+                    return
+                }
+
+                if (directEvent) {
+                    console.log('✅ Full event fetch succeeded with joins')
+                    // Transform the data to match our Event type
+                    const transformedEvent: Event = {
+                        id: directEvent.id,
+                        title: directEvent.title,
+                        description: directEvent.description,
+                        date: directEvent.event_date,
+                        time: directEvent.event_time,
+                        location: directEvent.location,
+                        price: directEvent.price,
+                        image_url: directEvent.image_url,
+                        categories: directEvent.categories ? { name: directEvent.categories.name } : undefined,
+                        created_by: directEvent.created_by,
+                        created_at: directEvent.created_at
+                    }
+                    setEvent(transformedEvent)
+                    console.log('✅ Event fetched directly from database')
+                }
+            } catch (error) {
+                console.error('💥 Unexpected error in direct event fetch:', {
+                    error,
+                    message: error instanceof Error ? error.message : 'Unknown error',
+                    stack: error instanceof Error ? error.stack : undefined,
+                    eventId: params.id
+                })
+            } finally {
+                setLoadingDirect(false)
             }
         }
+
+        fetchEvent()
     }, [params.id, events])
 
     useEffect(() => {
@@ -64,17 +232,20 @@ export default function EventClient() {
         }
     }, [user, bookings, event])
 
-    if (eventsLoading) {
+    if (eventsLoading || loadingDirect) {
         return (
             <div className="min-h-screen flex flex-col bg-white">
                 <Header />
                 <main className="flex-grow container mx-auto px-4 py-8">
-                    <div className="flex justify-center items-center h-64">
+                    <div className="flex flex-col justify-center items-center h-64 space-y-4">
                         <motion.div
                             className="w-12 h-12 border-4 border-t-[#6CDAEC] rounded-full"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
+                        <p className="text-gray-600 text-sm">
+                            {loadingDirect ? 'Loading event details...' : 'Loading events...'}
+                        </p>
                     </div>
                 </main>
                 <Footer />
@@ -89,10 +260,36 @@ export default function EventClient() {
                 <main className="flex-grow container mx-auto px-4 py-8">
                     <div className="text-center py-12">
                         <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
-                        <p className="text-gray-600 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+                        <p className="text-gray-600 mb-4">
+                            The event you're looking for doesn't exist, has been removed, or couldn't be loaded from the database.
+                        </p>
+
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                            <div className="flex items-center mb-2">
+                                <span className="text-yellow-800 font-medium">Troubleshooting:</span>
+                            </div>
+                            <ul className="text-sm text-yellow-700 space-y-1 text-left">
+                                <li>• Check if the event ID is correct</li>
+                                <li>• Try refreshing the organization events page first</li>
+                                <li>• Ensure your database connection is working</li>
+                                <li>• Check browser console for detailed error logs</li>
+                            </ul>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex gap-3 justify-center">
                         <Link href="/events">
-                            <Button>Back to Events</Button>
+                                    <Button>Browse All Events</Button>
+                                </Link>
+                                <Link href="/organization/events">
+                                    <Button variant="outline">Organization Events</Button>
                         </Link>
+                            </div>
+                            <div className="text-sm text-gray-500 mt-4 space-y-1">
+                                <p>Event ID: <code className="bg-gray-100 px-1 rounded">{params.id}</code></p>
+                                <p className="text-xs">Check console (F12) for detailed error information</p>
+                            </div>
+                        </div>
                     </div>
                 </main>
                 <Footer />

@@ -102,7 +102,7 @@ export const ReviewProvider: React.FC<ReviewProviderProps> = ({ children }) => {
           events!inner(title),
           review_helpful_votes!left(id, is_helpful, user_id)
         `)
-        .eq('event_id', eventId)
+        .eq('id', eventId)
         .order(sortBy, { ascending: sortOrder === 'ASC' })
         .range(offset, offset + limit - 1);
 
@@ -141,21 +141,67 @@ export const ReviewProvider: React.FC<ReviewProviderProps> = ({ children }) => {
     }
   };
 
-  // Load rating summary for an event
+  // Load rating summary for an event (calculated from reviews table)
   const loadEventRatingSummary = async (eventId: string) => {
     if (!eventId) return;
 
     try {
       setError(null);
-      
-      const { data, error } = await supabase
-        .from('event_rating_summary')
-        .select('*')
-        .eq('event_id', eventId)
-        .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
-      setRatingSummary(data || null);
+      // Calculate rating summary from reviews table
+      const { data: reviews, error } = await supabase
+        .from('reviews')
+        .select('rating, is_verified, title, created_at')
+        .eq('event_id', eventId); // Reviews table uses event_id to reference events
+
+      if (error) throw error;
+
+      if (!reviews || reviews.length === 0) {
+        setRatingSummary({
+          event_id: eventId,
+          event_title: '', // We don't have event title here, could be added later
+          total_reviews: 0,
+          verified_reviews: 0,
+          average_rating: 0,
+          five_star_count: 0,
+          four_star_count: 0,
+          three_star_count: 0,
+          two_star_count: 0,
+          one_star_count: 0
+        });
+        return;
+      }
+
+      // Calculate statistics
+      const totalReviews = reviews.length;
+      const verifiedReviews = reviews.filter(review => review.is_verified).length;
+      const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+
+      // Calculate rating distribution
+      const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      reviews.forEach(review => {
+        ratingCounts[review.rating as keyof typeof ratingCounts]++;
+      });
+
+      // Find latest review date
+      const latestReviewDate = reviews
+        .map(review => new Date(review.created_at))
+        .sort((a, b) => b.getTime() - a.getTime())[0]
+        ?.toISOString();
+
+      setRatingSummary({
+        event_id: eventId,
+        event_title: '', // We don't have event title here, could be added later
+        total_reviews: totalReviews,
+        verified_reviews: verifiedReviews,
+        average_rating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+        five_star_count: ratingCounts[5],
+        four_star_count: ratingCounts[4],
+        three_star_count: ratingCounts[3],
+        two_star_count: ratingCounts[2],
+        one_star_count: ratingCounts[1],
+        latest_review: latestReviewDate
+      });
     } catch (error: any) {
       console.error('Error loading rating summary:', error);
       setError(error.message || 'Failed to load rating summary');

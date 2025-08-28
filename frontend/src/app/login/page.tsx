@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
@@ -11,6 +11,13 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/use-toast'
 import { EvervaultCard } from '@/components/ui/evervault-card'
 import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from '@/components/ui/dialog'
 
 export default function Login() {
     const router = useRouter()
@@ -21,19 +28,27 @@ export default function Login() {
         email: '',
         password: '',
     })
-    
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showErrorDialog, setShowErrorDialog] = useState(false)
+    const isShowingErrorRef = useRef(false)
     
     // Reset form when component mounts or when navigating back
     useEffect(() => {
-        setLoading(false)
-        setError(null)
+        // Don't reset error states if we're currently showing an error
+        if (!isShowingErrorRef.current) {
+            setLoading(false)
+            setError(null)
+            setShowErrorDialog(false)
+        }
 
         console.log('🔍 Login page state:', {
             user: !!user,
             authLoading,
-            userRole: user?.role
+            userRole: user?.role,
+            isShowingError: isShowingErrorRef.current
         })
 
         // If user is already logged in, redirect them
@@ -44,20 +59,38 @@ export default function Login() {
             } else {
                 router.push('/customer/dashboard')
             }
-        } else if (!authLoading) {
+        } else if (!authLoading && !isShowingErrorRef.current) {
             console.log('✅ Auth initialization complete - showing login form')
         }
     }, [user, authLoading, router])
     
+    // Track error dialog state to prevent interference
+    useEffect(() => {
+        isShowingErrorRef.current = showErrorDialog
+        if (showErrorDialog) {
+            console.log('🔍 Error dialog is now showing - protecting state')
+        } else {
+            console.log('🔍 Error dialog closed - allowing normal state management')
+        }
+    }, [showErrorDialog])
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
+        // Clear error and dialog when user starts typing
+        if (error) {
+            setError(null)
+            setShowErrorDialog(false)
+            isShowingErrorRef.current = false
+        }
     }
     
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError(null)
+        setShowErrorDialog(false)
+        isShowingErrorRef.current = false
 
         try {
             console.log('🚀 Starting login process...')
@@ -68,47 +101,63 @@ export default function Login() {
             const endTime = Date.now()
 
             console.log('⏱️ Login process took:', (endTime - startTime) / 1000, 'seconds')
+            console.log('🔍 Login result:', success)
 
             if (success) {
-                console.log('✅ Login successful - user authenticated')
+                console.log('✅ Login successful, showing toast')
                 toast({
                     title: "Login successful",
                     description: "Welcome back to EventFlow!",
                 })
                 // The AuthContext will handle the redirect
             } else {
-                console.log('❌ Login failed - invalid credentials')
+                console.log('❌ Login returned false - showing invalid credentials error')
+                console.log('🔍 Setting error state and dialog state')
                 setError('Invalid email or password. Please try again.')
+                setShowErrorDialog(true)
+                isShowingErrorRef.current = true
+                console.log('🔍 Error state set, showErrorDialog should be true')
             }
         } catch (err: any) {
-            console.error('💥 Login error:', err)
-            console.error('Error details:', {
-                message: err?.message,
-                name: err?.name,
-                stack: err?.stack
-            })
-
+            console.log('❌ Login error caught:', err?.message);
+            console.log('🔍 Error object:', err);
             // Provide more specific error messages
             let errorMessage = 'Login failed. Please try again.'
 
             if (err?.message?.includes('timeout')) {
                 errorMessage = 'Connection timeout. Please check your internet connection and try again.'
             } else if (err?.message?.includes('Invalid login credentials')) {
-                errorMessage = 'Invalid email or password. Please check your credentials.'
+                errorMessage = 'Invalid email or password. Please check your credentials and try again.'
+            } else if (err?.message?.includes('invalid_credentials')) {
+                errorMessage = 'Invalid email or password. Please check your credentials and try again.'
             } else if (err?.message?.includes('Email not confirmed')) {
                 errorMessage = 'Please check your email and click the confirmation link before logging in.'
+            } else if (err?.message?.includes('Too many requests')) {
+                errorMessage = 'Too many login attempts. Please wait a few minutes and try again.'
+            } else if (err?.message?.includes('User not found')) {
+                errorMessage = 'No account found with this email address. Please check your email or register for a new account.'
+            } else if (err?.message?.includes('Email link is invalid')) {
+                errorMessage = 'The login link has expired. Please request a new one.'
+            } else if (err?.message?.includes('Login failed')) {
+                errorMessage = 'Invalid email or password. Please check your credentials and try again.'
             } else if (err?.message) {
-                errorMessage = err.message
+                // Show the actual error message for debugging
+                errorMessage = `Login failed: ${err.message}`
             }
 
+            console.log('🔍 Setting error message:', errorMessage);
             setError(errorMessage)
+            setShowErrorDialog(true)
+            isShowingErrorRef.current = true
+            console.log('🔍 Error state set in catch block, showErrorDialog should be true')
         } finally {
             setLoading(false)
         }
     }
     
-    // Show loading screen during auth initialization
-    if (authLoading) {
+    // Show loading screen during auth initialization with stabilized loading
+    // But don't show loading if we have an error dialog to show
+    if (authLoading && !isShowingErrorRef.current) {
         console.log('⏳ Showing loading screen - auth initializing...')
         return (
             <div className="min-h-screen flex flex-col bg-white">
@@ -120,6 +169,13 @@ export default function Login() {
                         <p className="text-gray-500 text-sm">Checking authentication status</p>
                         <div className="mt-4 text-xs text-gray-400">
                             <p>This should only take a few seconds</p>
+                        </div>
+                        <div className="mt-4 flex justify-center">
+                            <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-[#6CDAEC] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-2 h-2 bg-[#6CDAEC] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-2 h-2 bg-[#6CDAEC] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -167,11 +223,32 @@ export default function Login() {
                                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
                                 <p className="text-gray-600 mb-8">Sign in to your EventFlow account to manage your events.</p>
                                 
-                                {error && (
-                                    <div className="bg-red-50 text-red-600 p-3 rounded-md mb-6">
-                                        {error}
-                                    </div>
-                                )}
+                                {/* Error Dialog */}
+                                <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+                                    <DialogContent className="sm:max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center space-x-2 text-red-600">
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                </svg>
+                                                <span>Login Failed</span>
+                                            </DialogTitle>
+                                            <DialogDescription className="text-gray-600">
+                                                {error}
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex justify-end space-x-2 mt-4">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowErrorDialog(false)}
+                                            >
+                                                Try Again
+                                            </Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+
+
                                 
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     <div>
@@ -217,14 +294,33 @@ export default function Login() {
                                             <Input
                                                 id="password"
                                                 name="password"
-                                                type="password"
+                                                type={showPassword ? "text" : "password"}
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
                                                 required
-                                                className="pl-10"
+                                                className="pl-10 pr-10"
                                                 disabled={loading || authLoading}
                                             />
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                disabled={loading || authLoading}
+                                                tabIndex={-1}
+                                            >
+                                                {showPassword ? (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 10.605 10.605 0 00-2.387-4.612l-1.611-1.612zm-1.61 6.61c.406.375.856.729 1.31 1.046l-4.273 4.273a10.029 10.029 0 01-3.3-4.38 10.605 10.605 0 012.387-4.612L5.19 6.22a10.029 10.029 0 013.3 4.38zm7.43 7.44l-4.274-4.274a3.75 3.75 0 01-1.31 1.046l1.745 1.745a10.029 10.029 0 004.38 3.3 10.605 10.605 0 004.612 2.387l-1.612-1.612zm-8.61-8.61l4.273 4.273a3.75 3.75 0 00-1.31-1.046L8.48 3.69a10.029 10.029 0 00-4.38-3.3 10.605 10.605 0 00-4.612-2.387l1.612 1.612z" clipRule="evenodd" />
+                                                        <path d="m13.879 9.879-4 4a.75.75 0 01-1.06-1.06l4-4a.75.75 0 011.06 1.06z" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                                        <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                                    </svg>
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
                                     

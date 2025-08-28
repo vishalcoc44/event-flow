@@ -29,7 +29,7 @@ type EventContextType = {
     error: string | null
     addEvent: (eventData: Omit<Event, 'id' | 'image_url'>) => Promise<Event | null>
     updateEvent: (id: string, eventData: Partial<Event>) => Promise<Event | null>
-    deleteEvent: (id: string) => Promise<boolean>
+    deleteEvent: (id: string) => Promise<{ success: boolean; cancelledBookings?: number; error?: string }>
     fetchEvents: () => Promise<void>
 }
 
@@ -103,12 +103,17 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const result = await eventsAPI.deleteEvent(id)
             if (result.success) {
                 setEvents(prev => prev.filter(event => event.id !== id))
+                // Return additional info about cancelled bookings
+                return {
+                    success: true,
+                    cancelledBookings: result.cancelledBookings || 0
+                }
             }
-            return result.success
+            return { success: false }
         } catch (err: any) {
             console.error('Error deleting event:', err)
             setError(err.message || 'Failed to delete event')
-            return false
+            return { success: false, error: err.message }
         } finally {
             setLoading(false)
         }

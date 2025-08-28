@@ -592,14 +592,14 @@ export default function CustomerDashboard() {
                         </Link>
                     </motion.div>
                     
-                        <motion.div 
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            {recommendedEvents.slice(0, 3).map((event, index) => (
+                            {recommendedEvents.slice(0, 4).map((event, index) => (
                                 <motion.div 
                                     key={event.id} 
                                     initial={{ opacity: 0, y: 30 }}
@@ -613,9 +613,9 @@ export default function CustomerDashboard() {
                                 >
                                     <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                         <Card className="overflow-hidden border-0 shadow-none">
-                                <div className="relative h-48">
-                                    <img 
-                                                src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
+                                <div className="relative h-32">
+                                    <img
+                                                src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'}
                                                 alt={event.title}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -623,30 +623,30 @@ export default function CustomerDashboard() {
                                         }}
                                     />
                                 </div>
-                                <div className="p-4">
-                                            <h3 className="text-lg font-semibold mb-2 text-gray-900">{event.title}</h3>
-                                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                                                <Calendar className="h-4 w-4 mr-1" />
-                                                <span>{event.date ? new Date(event.date).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'short', 
-                                            day: 'numeric' 
+                                <div className="p-3">
+                                            <h3 className="text-base font-semibold mb-2 text-gray-900 line-clamp-2">{event.title}</h3>
+                                    <div className="flex items-center text-xs text-gray-500 mb-1">
+                                                <Calendar className="h-3 w-3 mr-1" />
+                                                <span>{event.date ? new Date(event.date).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
                                                 }) : 'N/A'}</span>
                                     </div>
-                                    <div className="flex items-center text-sm text-gray-500 mb-4">
-                                                <MapPin className="h-4 w-4 mr-1" />
+                                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                                                <MapPin className="h-3 w-3 mr-1" />
                                                 <span>{event.location || 'N/A'}</span>
                                     </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-sm font-medium text-gray-900">
+                                                <span className="text-xs font-medium text-gray-900">
                                                     ${event.price || 0}
                                                 </span>
-                                                <div className="flex space-x-2">
+                                                <div className="flex space-x-1">
                                     <Link href={`/events/${event.id}`}>
-                                                        <Button variant="outline" size="sm">Learn More</Button>
+                                                        <Button variant="outline" size="sm" className="text-xs px-2 py-1">Learn More</Button>
                                                     </Link>
                                                     <Link href={`/customer/book-event/${event.id}`}>
-                                                        <Button size="sm" className="bg-[#6CDAEC] hover:bg-[#5BC8D9]">
+                                                        <Button size="sm" className="bg-[#6CDAEC] hover:bg-[#5BC8D9] text-xs px-2 py-1">
                                                             Buy Ticket
                                                         </Button>
                                     </Link>

@@ -48,13 +48,13 @@ export default function EventList() {
     return (
         <>
             <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, staggerChildren: 0.1 }}
             >
                 {events.length === 0 ? (
-                    <p className="text-white col-span-3 text-center">No events available.</p>
+                    <p className="text-white col-span-4 text-center">No events available.</p>
                 ) : (
                     events.map((event) => (
                         <motion.div
@@ -63,25 +63,28 @@ export default function EventList() {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Card className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-white overflow-hidden">
-                                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500">
-                                    <CardTitle>{event.title}</CardTitle>
+                                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 py-3">
+                                    <CardTitle className="text-lg">{event.title}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-4 space-y-2">
-                                    <p>{event.description}</p>
-                                    <p><span className="font-semibold">Category:</span> {event.categories?.name || 'Uncategorized'}</p>
-                                    <p><span className="font-semibold">Location:</span> {event.location}</p>
-                                    <p><span className="font-semibold">Price:</span> ${event.price}</p>
-                                    <p><span className="font-semibold">Date:</span> {new Date(event.date).toLocaleDateString()}</p>
-                                    <p><span className="font-semibold">Time:</span> {event.time}</p>
-                                    {(event as any).follower_count !== undefined && (
-                                        <p><span className="font-semibold">Followers:</span> {(event as any).follower_count}</p>
-                                    )}
+                                <CardContent className="p-3 space-y-1">
+                                    <p className="text-sm line-clamp-2">{event.description}</p>
+                                    <div className="text-xs space-y-1">
+                                        <p><span className="font-medium">Category:</span> {event.categories?.name || 'Uncategorized'}</p>
+                                        <p><span className="font-medium">Location:</span> {event.location}</p>
+                                        <p><span className="font-medium">Price:</span> ${event.price}</p>
+                                        <p><span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()}</p>
+                                        <p><span className="font-medium">Time:</span> {event.time}</p>
+                                        {(event as any).follower_count !== undefined && (
+                                            <p><span className="font-medium">Followers:</span> {(event as any).follower_count}</p>
+                                        )}
+                                    </div>
                                 </CardContent>
-                                <CardFooter className="flex flex-col space-y-2">
+                                <CardFooter className="flex flex-col space-y-1 py-3">
                                     {user && user.role === 'USER' && (
                                         <Button
                                             onClick={() => handleBuyTicket(event)}
-                                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                                            size="sm"
+                                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm py-2"
                                         >
                                             Book Event
                                         </Button>
@@ -93,7 +96,7 @@ export default function EventList() {
                                         followerCount={(event as any).follower_count || 0}
                                         variant="outline"
                                         size="sm"
-                                        className="w-full"
+                                        className="w-full text-sm py-1"
                                     />
                                 </CardFooter>
                             </Card>

@@ -29,8 +29,7 @@ interface EventFormData {
   image_url: string
   is_public: boolean
   requires_approval: boolean
-  max_attendees: string
-  registration_deadline: string
+  // Note: max_attendees and registration_deadline removed - not supported in current schema
 }
 
 interface EventSpace {
@@ -64,9 +63,8 @@ export default function CreateOrganizationEvent() {
     image: null,
     image_url: '',
     is_public: true,
-    requires_approval: false,
-    max_attendees: '',
-    registration_deadline: ''
+    requires_approval: false
+    // Note: max_attendees and registration_deadline removed from form state
   })
 
   // Fetch event spaces for the organization
@@ -197,7 +195,7 @@ export default function CreateOrganizationEvent() {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+                  body: JSON.stringify({
           event_data: {
             title: formData.title,
             description: formData.description,
@@ -209,9 +207,8 @@ export default function CreateOrganizationEvent() {
             time: formData.time,
             image_url: imageUrl,
             is_public: formData.is_public,
-            requires_approval: formData.requires_approval,
-            max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : null,
-            registration_deadline: formData.registration_deadline || null
+            requires_approval: formData.requires_approval
+            // Note: max_attendees and registration_deadline are not supported in current schema
           },
           organization_id: organization.id
         })
@@ -446,32 +443,7 @@ export default function CreateOrganizationEvent() {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="max_attendees">Max Attendees</Label>
-                    <Input
-                      id="max_attendees"
-                      name="max_attendees"
-                      type="number"
-                      min="1"
-                      placeholder="Unlimited"
-                      value={formData.max_attendees}
-                      onChange={handleInputChange}
-                      className="bg-white"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 lg:col-span-3">
-                    <Label htmlFor="registration_deadline">Registration Deadline</Label>
-                    <Input
-                      id="registration_deadline"
-                      name="registration_deadline"
-                      type="date"
-                      value={formData.registration_deadline}
-                      onChange={handleInputChange}
-                      className="bg-white"
-                      min={new Date().toISOString().split('T')[0]}
-                    />
-                  </div>
+                  {/* Max Attendees and Registration Deadline fields removed - not supported in current schema */}
                 </div>
               </CardContent>
             </Card>

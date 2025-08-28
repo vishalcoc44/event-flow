@@ -20,6 +20,8 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type }: {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -137,24 +139,70 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type }: {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
-                <Input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  type="password"
-                  placeholder="New password"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="New password"
+                    required
+                    className="pr-10"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 10.605 10.605 0 00-2.387-4.612l-1.611-1.612zm-1.61 6.61c.406.375.856.729 1.31 1.046l-4.273 4.273a10.029 10.029 0 01-3.3-4.38 10.605 10.605 0 012.387-4.612L5.19 6.22a10.029 10.029 0 013.3 4.38zm7.43 7.44l-4.274-4.274a3.75 3.75 0 01-1.31 1.046l1.745 1.745a10.029 10.029 0 004.38 3.3 10.605 10.605 0 004.612 2.387l-1.612-1.612zm-8.61-8.61l4.273 4.273a3.75 3.75 0 00-1.31-1.046L8.48 3.69a10.029 10.029 0 00-4.38-3.3 10.605 10.605 0 00-4.612-2.387l1.612 1.612z" clipRule="evenodd" />
+                        <path d="m13.879 9.879-4 4a.75.75 0 01-1.06-1.06l4-4a.75.75 0 011.06 1.06z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                        <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
-                <Input
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  type="password"
-                  placeholder="Confirm password"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    required
+                    className="pr-10"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={loading}
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 10.605 10.605 0 00-2.387-4.612l-1.611-1.612zm-1.61 6.61c.406.375.856.729 1.31 1.046l-4.273 4.273a10.029 10.029 0 01-3.3-4.38 10.605 10.605 0 012.387-4.612L5.19 6.22a10.029 10.029 0 013.3 4.38zm7.43 7.44l-4.274-4.274a3.75 3.75 0 01-1.31 1.046l1.745 1.745a10.029 10.029 0 004.38 3.3 10.605 10.605 0 004.612 2.387l-1.612-1.612zm-8.61-8.61l4.273 4.273a3.75 3.75 0 00-1.31-1.046L8.48 3.69a10.029 10.029 0 00-4.38-3.3 10.605 10.605 0 00-4.612-2.387l1.612 1.612z" clipRule="evenodd" />
+                        <path d="m13.879 9.879-4 4a.75.75 0 01-1.06-1.06l4-4a.75.75 0 011.06 1.06z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                        <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

@@ -20,8 +20,7 @@ interface EventData {
   image_url?: string
   is_public?: boolean
   requires_approval?: boolean
-  max_attendees?: number | null
-  registration_deadline?: string | null
+  // Note: max_attendees and registration_deadline are not supported in the current schema
 }
 
 interface CreateEventRequest {
@@ -135,11 +134,8 @@ serve(async (req) => {
         created_by: user.id,
         is_public: event_data.is_public ?? true,
         requires_approval: event_data.requires_approval ?? false,
-        max_attendees: event_data.max_attendees || null,
-        registration_deadline: event_data.registration_deadline || null,
-        is_approved: !(event_data.requires_approval ?? false), // Auto-approve unless requires approval
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        is_approved: !(event_data.requires_approval ?? false) // Auto-approve unless requires approval
+        // Note: max_attendees and registration_deadline are not part of the events table schema
       })
       .select()
       .single()

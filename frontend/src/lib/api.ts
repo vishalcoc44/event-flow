@@ -1,19 +1,66 @@
 import { supabase } from './supabase';
 
+// Simple cache for organization data to avoid repeated DB calls
+const orgDataCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Auth timeout configuration
+const AUTH_TIMEOUT_CONFIG = {
+  baseTimeout: 4000, // 4 seconds base timeout
+  maxTimeout: 8000,  // Maximum 8 seconds timeout
+  maxRetries: 2      // Maximum number of retries
+};
+
+const getCachedOrgData = (userId: string) => {
+  const cached = orgDataCache.get(userId);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+};
+
+const setCachedOrgData = (userId: string, data: any) => {
+  orgDataCache.set(userId, { data, timestamp: Date.now() });
+};
+
+const clearCachedOrgData = (userId: string) => {
+  orgDataCache.delete(userId);
+};
+
 // Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
     try {
+      console.log('🔐 Attempting login for:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+
+      if (error) {
+        console.log('❌ Supabase auth error:', error);
+        // Return error result instead of throwing to prevent console popup
+        return {
+          success: false,
+          data: null,
+          error: error.message
+        };
+      }
+
+      console.log('✅ Supabase auth success:', data?.user?.email);
+      return {
+        success: true,
+        data: data,
+        error: null
+      };
+    } catch (error: any) {
+      console.log('💥 Supabase auth exception:', error);
+      // Return error result instead of throwing
+      return {
+        success: false,
+        data: null,
+        error: error.message || 'Login failed'
+      };
     }
   },
   
@@ -58,7 +105,13 @@ export const authAPI = {
   
   getCurrentUser: async () => {
     try {
-      const { data, error } = await supabase.auth.getUser();
+      // Add timeout to prevent hanging beyond 3 seconds
+      const userPromise = supabase.auth.getUser();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('User fetch timeout')), 2000)
+      );
+
+      const { data, error } = await Promise.race([userPromise, timeoutPromise]) as { data: any; error: any };
       if (error) throw error;
       return data.user;
     } catch (error) {
@@ -66,7 +119,117 @@ export const authAPI = {
       throw error;
     }
   },
-  
+
+  // Optimized auth status check with caching and timeouts
+  checkAuthStatus: async (customRetries?: number) => {
+    const maxRetries = customRetries ?? AUTH_TIMEOUT_CONFIG.maxRetries;
+
+    console.log(`🔍 Starting auth status check with ${maxRetries + 1} attempts...`);
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        // Adaptive timeout based on attempt
+        const timeoutMs = Math.min(
+          AUTH_TIMEOUT_CONFIG.baseTimeout * (attempt + 1),
+          AUTH_TIMEOUT_CONFIG.maxTimeout
+        );
+
+        console.log(`🔄 Auth check attempt ${attempt + 1}/${maxRetries + 1} (timeout: ${timeoutMs}ms)`);
+
+        const startTime = performance.now();
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(`Auth check timeout (${timeoutMs}ms) - attempt ${attempt + 1}/${maxRetries + 1}`)), timeoutMs)
+        );
+
+        const { data, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        const endTime = performance.now();
+
+        console.log(`⚡ Auth check attempt ${attempt + 1} completed in ${(endTime - startTime).toFixed(2)}ms`);
+
+        if (error) {
+          // If it's the last attempt, throw the error
+          if (attempt === maxRetries) {
+            throw error;
+          }
+          // Otherwise, log and retry
+          console.warn(`Auth check attempt ${attempt + 1} failed:`, error.message);
+          continue;
+        }
+
+        console.log(`✅ Auth check successful - authenticated: ${!!data.session}`);
+        return {
+          isAuthenticated: !!data.session,
+          user: data.session?.user || null,
+          session: data.session
+        };
+      } catch (error: any) {
+        const isLastAttempt = attempt === maxRetries;
+
+        if (isLastAttempt) {
+          console.error(`❌ Auth status check failed after ${maxRetries + 1} attempts:`, error);
+          return {
+            isAuthenticated: false,
+            user: null,
+            session: null,
+            error: error.message
+          };
+        }
+
+        // Wait before retrying (exponential backoff)
+        const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+        console.log(`🔄 Auth check failed, retrying in ${delay}ms... (${error.message})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    // This should never be reached, but just in case
+    return {
+      isAuthenticated: false,
+      user: null,
+      session: null,
+      error: 'Auth check failed after all retries'
+    };
+  },
+
+  // Optimized organization data loading with caching
+  getUserOrganizationData: async (userId: string, useCache: boolean = true) => {
+    try {
+      // Check cache first
+      if (useCache) {
+        const cachedData = getCachedOrgData(userId);
+        if (cachedData) {
+          return cachedData;
+        }
+      }
+
+      // Add timeout to prevent hanging
+      const orgPromise = supabase
+        .from('users')
+        .select('organization_id, role_in_org, is_org_admin, joined_at')
+        .eq('id', userId)
+        .single();
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Organization data timeout')), 1500)
+      );
+
+      const { data, error } = await Promise.race([orgPromise, timeoutPromise]) as any;
+
+      if (error) throw error;
+
+      // Cache the result
+      if (useCache) {
+        setCachedOrgData(userId, data);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Get organization data error:', error);
+      return null; // Return null instead of throwing to make it non-blocking
+    }
+  },
+
   signOut: async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -75,6 +238,11 @@ export const authAPI = {
       console.error('Sign out error:', error);
       throw error;
     }
+  },
+
+  // Clear user's organization cache (useful after leaving organization)
+  clearUserOrganizationCache: (userId: string) => {
+    clearCachedOrgData(userId);
   }
 };
 
@@ -258,6 +426,24 @@ export const organizationAPI = {
       console.error('Update member role error:', error);
       throw error;
     }
+  },
+
+  // Leave organization (for current user)
+  leaveOrganization: async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase.rpc('leave_organization', {
+        p_user_id: user.id
+      });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Leave organization error:', error);
+      throw error;
+    }
   }
 };
 
@@ -427,13 +613,47 @@ export const eventsAPI = {
   
   deleteEvent: async (id: string) => {
     try {
+      // First, check if there are any bookings for this event
+      const { data: bookings, error: bookingsError } = await supabase
+        .from('bookings')
+        .select('id, status, user_id')
+        .eq('event_id', id);
+
+      if (bookingsError) {
+        console.error('Error checking bookings:', bookingsError);
+        throw bookingsError;
+      }
+
+      // If there are bookings, handle them first
+      if (bookings && bookings.length > 0) {
+        console.log(`Found ${bookings.length} bookings for event ${id}, cancelling them...`);
+
+        // Cancel all bookings for this event
+        const { error: cancelError } = await supabase
+          .from('bookings')
+          .update({ status: 'CANCELLED' })
+          .eq('event_id', id);
+
+        if (cancelError) {
+          console.error('Error cancelling bookings:', cancelError);
+          throw cancelError;
+        }
+
+        console.log('Successfully cancelled all bookings for the event');
+      }
+
+      // Now delete the event
       const { error } = await supabase
         .from('events')
         .delete()
         .eq('id', id);
-        
+
       if (error) throw error;
-      return { success: true };
+
+      return {
+        success: true,
+        cancelledBookings: bookings?.length || 0
+      };
     } catch (error) {
       console.error('Delete event error:', error);
       throw error;

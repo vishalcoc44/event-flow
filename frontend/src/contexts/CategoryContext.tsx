@@ -6,6 +6,7 @@ import { categoriesAPI } from '@/lib/api'
 type Category = {
   id: string
   name: string
+  title?: string // Add title property for compatibility
   description: string
   created_at?: string
 }

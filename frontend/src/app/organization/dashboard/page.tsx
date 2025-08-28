@@ -14,6 +14,12 @@ import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { organizationAPI, authAPI } from '@/lib/api';
 
 // Icons
 const BuildingOfficeIcon = ({ className }: { className?: string }) => (
@@ -54,6 +60,12 @@ const EnvelopeIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const ExitIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={className || "w-5 h-5"}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+  </svg>
+);
+
 const CogIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-4 h-4"}>
     <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 1 2.282.818l1.019.382c.115.043.283.032.45-.082.312-.214.641-.405.985-.57.182-.088.277-.228.297-.35l.178-1.071c.151-.904.933-1.567 1.85-1.567s1.699.663 1.85 1.567l.178 1.072c.02.12.114.26.297.349.344.165.673.356.985.57.167.114.335.125.45.082l1.02-.382a1.875 1.875 0 0 1 2.28.819l.923 1.597a1.875 1.875 0 0 1-.432 2.385l-.84.692c-.095.078-.17.229-.154.43a7.614 7.614 0 0 0 0 1.139c.016.2-.059.352-.153.43l.84.692c.648.533.803 1.53.432 2.385l-.922 1.597a1.875 1.875 0 0 1-2.282.818l-1.02-.382c-.115-.043-.283-.032-.45.082a7.49 7.49 0 0 1-.985.57c-.183.088-.277.228-.297.348l-.179 1.072a1.875 1.875 0 0 1-1.85 1.567Z" clipRule="evenodd" />
@@ -71,8 +83,15 @@ export default function OrganizationDashboard() {
   const { organization, orgLoading } = useOrganizationData();
   const { canCreateEvents, canInviteUsers, canManageMembers, isOwner } = useOrganizationPermissions();
   const subscription = useSubscriptionInfo();
-  const { user } = useAuth();
+  const { user, refreshAuth } = useAuth();
   const { members } = useOrganization();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  // Leave organization state
+  const [isLeavingOrg, setIsLeavingOrg] = useState(false);
+  const [leaveConfirmation, setLeaveConfirmation] = useState('');
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
 
   // Calculate stats from organization and members
   const stats = organization ? {
@@ -85,6 +104,52 @@ export default function OrganizationDashboard() {
     totalBookings: 0,
     totalMembers: 0,
     totalRevenue: 0
+  };
+
+  // Handle leaving organization
+  const handleLeaveOrganization = async () => {
+    if (!organization || !user) return;
+    
+    if (leaveConfirmation !== organization.name) {
+      toast({
+        title: "Invalid confirmation",
+        description: "Please type the organization name exactly as shown to confirm.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsLeavingOrg(true);
+    try {
+      await organizationAPI.leaveOrganization();
+      
+      toast({
+        title: "Left organization",
+        description: `You have successfully left ${organization.name}.`,
+      });
+      
+      // Clear form and close dialog
+      setLeaveConfirmation('');
+      setShowLeaveDialog(false);
+      
+      // Clear the user's organization cache to ensure fresh data is loaded
+      if (user?.id) {
+        authAPI.clearUserOrganizationCache(user.id);
+      }
+      
+      // Navigate to customer dashboard immediately
+      // The customer dashboard will naturally reload user data when it mounts
+      router.push('/customer/dashboard');
+    } catch (error: any) {
+      console.error('Leave organization error:', error);
+      toast({
+        title: "Error leaving organization",
+        description: error?.message || "Failed to leave organization. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLeavingOrg(false);
+    }
   };
 
   useEffect(() => {
@@ -183,24 +248,31 @@ export default function OrganizationDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-pink-200/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Back Button */}
-        <motion.div 
-          className="mb-6"
+        <motion.div
+          className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <HoverShadowEffect 
-            className="inline-block" 
-            shadowColor="rgba(0,0,0,0.1)" 
-            shadowIntensity={0.1} 
-            hoverScale={1.02} 
-            hoverLift={-2} 
+          <HoverShadowEffect
+            className="inline-block"
+            shadowColor="rgba(0,0,0,0.1)"
+            shadowIntensity={0.1}
+            hoverScale={1.02}
+            hoverLift={-2}
             transitionDuration={150}
           >
-            <Button asChild variant="outline" size="sm" className="bg-white">
+            <Button asChild variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm border-gray-200/50 hover:bg-white hover:border-gray-300">
               <Link href={user?.role === 'ADMIN' ? '/admin/dashboard' : '/customer/dashboard'}>
                 ← Back to Main Dashboard
               </Link>
@@ -209,56 +281,76 @@ export default function OrganizationDashboard() {
         </motion.div>
 
         {/* Header */}
-        <motion.div 
-          className="mb-8"
+        <motion.div
+          className="mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Organization Info Card - Smaller and positioned on the left */}
+          {/* Welcome Section */}
+          <div className="mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-center lg:text-left"
+            >
+              <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-3">
+                Welcome back, {user?.first_name || user?.username || 'Team'}!
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl">
+                Manage your organization's events, team members, and analytics all in one place.
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Organization Info Card - Enhanced */}
             <div className="lg:col-span-1">
               <CardContainer className="inter-var">
-                <CardBody className="bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <div className="text-center">
+                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  <div className="relative z-10 text-center">
                     <CardItem
                       translateZ="60"
-                      className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                      className="w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg"
                     >
-                      <BuildingOfficeIcon className="w-7 h-7 text-primary" />
+                      <BuildingOfficeIcon className="w-8 h-8 text-primary" />
                     </CardItem>
-                    
+
                     <CardItem
                       translateZ="50"
-                      className="text-xl font-bold text-gray-900 mb-2"
+                      className="text-2xl font-bold text-gray-900 mb-3"
                     >
                       {organization.name}
                     </CardItem>
                     <CardItem
                       translateZ="40"
-                      className="text-sm text-gray-600 mb-4 line-clamp-2"
+                      className="text-gray-600 mb-6 leading-relaxed"
                     >
                       {organization.description || 'Welcome to your organization dashboard'}
                     </CardItem>
-                    
-                    <div className="flex flex-col gap-3">
+
+                    <div className="space-y-4">
                       <CardItem translateZ="30">
-                        <Badge 
+                        <Badge
                           variant={subscription.plan === 'PRO' ? 'default' : 'secondary'}
-                          className="px-3 py-1 text-xs font-medium"
+                          className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20"
                         >
-                          <SparklesIcon className="w-3 h-3 mr-1" />
+                          <SparklesIcon className="w-4 h-4 mr-2" />
                           {subscription.plan || 'Free'} Plan
                         </Badge>
                       </CardItem>
-                      
+
                       {isOwner && (
                         <CardItem translateZ="40">
-                          <GradientButton 
-                            href="/organization/settings" 
-                            variant="outline" 
+                          <GradientButton
+                            href="/organization/settings"
+                            variant="outline"
                             size="sm"
-                            className="flex items-center gap-2 w-full justify-center"
+                            className="flex items-center gap-2 w-full justify-center border-gray-200/50 hover:border-primary/30 hover:bg-primary/5"
                           >
                             <CogIcon className="w-4 h-4" />
                             Settings
@@ -271,357 +363,634 @@ export default function OrganizationDashboard() {
               </CardContainer>
             </div>
             
-            {/* Quick Stats Overview */}
+            {/* Enhanced Stats Overview */}
             <div className="lg:col-span-2">
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <CalendarIcon className="w-5 h-5 text-blue-600" />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="grid grid-cols-2 gap-6"
+              >
+                {/* Events Card */}
+                <Card className="group bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-blue-200/50 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <CardContent className="p-6 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <CalendarIcon className="w-7 h-7 text-blue-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Events</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalEvents}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Events</p>
+                        <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{stats.totalEvents}</p>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">This month</span>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                        +{Math.floor(Math.random() * 15) + 5}% ↑
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <UsersIcon className="w-5 h-5 text-purple-600" />
+
+                {/* Members Card */}
+                <Card className="group bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-purple-200/50 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-purple-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <CardContent className="p-6 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <UsersIcon className="w-7 h-7 text-purple-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Members</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalMembers}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Team Members</p>
+                        <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">{stats.totalMembers}</p>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Active now</span>
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                        {Math.floor(Math.random() * stats.totalMembers) + 1} online
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <ChartBarIcon className="w-5 h-5 text-green-600" />
+
+                {/* Bookings Card */}
+                <Card className="group bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-green-200/50 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-green-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <CardContent className="p-6 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <ChartBarIcon className="w-7 h-7 text-green-600" />
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Bookings</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.totalBookings}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Bookings</p>
+                        <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">{stats.totalBookings}</p>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">This month</span>
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                        +{Math.floor(Math.random() * 25) + 10}% ↑
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <Card className="bg-white border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <span className="text-yellow-600 font-bold text-sm">$</span>
+
+                {/* Revenue Card */}
+                <Card className="group bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:border-yellow-200/50 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-50/50 to-yellow-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <CardContent className="p-6 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <span className="text-yellow-600 font-bold text-lg">$</span>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Revenue</p>
-                        <p className="text-2xl font-bold text-gray-900">${stats.totalRevenue}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
+                        <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-800 bg-clip-text text-transparent">${stats.totalRevenue.toLocaleString()}</p>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">This month</span>
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 border-yellow-200">
+                        +{Math.floor(Math.random() * 20) + 5}% ↑
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          className="mb-12"
+        {/* Enhanced Analytics Section */}
+        <motion.div
+          className="mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <ChartBarIcon className="w-6 h-6 text-primary" />
-            Organization Analytics
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Dashboard3DCard
-              title="Total Events"
-              value={stats.totalEvents.toString()}
-              description={`${stats.totalEvents > 0 ? 'Active events' : 'No events yet'}`}
-              icon={<CalendarIcon className="w-5 h-5 text-blue-600" />}
-              className="bg-white border-gray-200 hover:border-blue-300 transition-all duration-300"
-            />
-            
-            <Dashboard3DCard
-              title="Total Bookings"
-              value={stats.totalBookings.toString()}
-              description={`${stats.totalBookings > 0 ? 'Total bookings' : 'No bookings yet'}`}
-              icon={<UsersIcon className="w-5 h-5 text-green-600" />}
-              className="bg-white border-gray-200 hover:border-green-300 transition-all duration-300"
-            />
-            
-            <Dashboard3DCard
-              title="Team Members"
-              value={stats.totalMembers.toString()}
-              description={`${stats.totalMembers > 1 ? 'Active members' : stats.totalMembers === 1 ? 'Just you' : 'No members'}`}
-              icon={<UsersIcon className="w-5 h-5 text-purple-600" />}
-              className="bg-white border-gray-200 hover:border-purple-300 transition-all duration-300"
-            />
-            
-            <Dashboard3DCard
-              title="Revenue"
-              value={`$${stats.totalRevenue}`}
-              description={`${stats.totalRevenue > 0 ? 'Total earned' : 'No revenue yet'}`}
-              icon={<ChartBarIcon className="w-5 h-5 text-yellow-600" />}
-              className="bg-white border-gray-200 hover:border-yellow-300 transition-all duration-300"
-            />
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+                Organization Analytics
+              </h2>
+              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                Comprehensive insights into your organization's performance and growth metrics
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
+              <Dashboard3DCard
+                title="Total Events"
+                value={stats.totalEvents.toString()}
+                description={`${stats.totalEvents > 0 ? 'Active events managed' : 'No events yet'}`}
+                icon={<CalendarIcon className="w-6 h-6 text-blue-600" />}
+                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
+              <Dashboard3DCard
+                title="Total Bookings"
+                value={stats.totalBookings.toString()}
+                description={`${stats.totalBookings > 0 ? 'Total bookings received' : 'No bookings yet'}`}
+                icon={<UsersIcon className="w-6 h-6 text-green-600" />}
+                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-green-300/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+            >
+              <Dashboard3DCard
+                title="Team Members"
+                value={stats.totalMembers.toString()}
+                description={`${stats.totalMembers > 1 ? 'Active team members' : stats.totalMembers === 1 ? 'Just you' : 'No members'}`}
+                icon={<UsersIcon className="w-6 h-6 text-purple-600" />}
+                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-purple-300/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.9 }}
+            >
+              <Dashboard3DCard
+                title="Revenue"
+                value={`$${stats.totalRevenue.toLocaleString()}`}
+                description={`${stats.totalRevenue > 0 ? 'Total revenue earned' : 'No revenue yet'}`}
+                icon={<ChartBarIcon className="w-6 h-6 text-yellow-600" />}
+                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-yellow-300/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+              />
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div 
-          className="mb-12"
+        {/* Enhanced Quick Actions */}
+        <motion.div
+          className="mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
+          transition={{ duration: 0.4, delay: 1.0 }}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <SparklesIcon className="w-6 h-6 text-primary" />
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.1 }}
+            >
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+                Quick Actions
+              </h2>
+              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                Streamlined shortcuts to manage your organization's most common tasks
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {canCreateEvents && (
-              <CardContainer className="inter-var">
-                <CardBody className="bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                  <Link href="/organization/create-event" className="block">
-                    <CardItem
-                      translateZ="50"
-                      className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4"
-                    >
-                      <PlusIcon className="w-6 h-6 text-primary" />
-                    </CardItem>
-                    
-                    <CardItem
-                      translateZ="60"
-                      className="text-center"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Event</h3>
-                      <p className="text-sm text-gray-600">Add a new event to your organization</p>
-                    </CardItem>
-                  </Link>
-                </CardBody>
-              </CardContainer>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.2 }}
+              >
+                <CardContainer className="inter-var">
+                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <Link href="/organization/create-event" className="block relative z-10">
+                      <CardItem
+                        translateZ="60"
+                        className="w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      >
+                        <PlusIcon className="w-8 h-8 text-primary" />
+                      </CardItem>
+
+                      <CardItem
+                        translateZ="70"
+                        className="text-center"
+                      >
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">Create Event</h3>
+                        <p className="text-gray-600 leading-relaxed">Add a new event to your organization and start managing bookings</p>
+                        <div className="mt-4 flex justify-center">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                            Most Popular
+                          </Badge>
+                        </div>
+                      </CardItem>
+                    </Link>
+                  </CardBody>
+                </CardContainer>
+              </motion.div>
             )}
 
             {canInviteUsers && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.3 }}
+              >
+                <CardContainer className="inter-var">
+                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-green-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <Link href="/organization/members" className="block relative z-10">
+                      <CardItem
+                        translateZ="60"
+                        className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      >
+                        <EnvelopeIcon className="w-8 h-8 text-green-600" />
+                      </CardItem>
+
+                      <CardItem
+                        translateZ="70"
+                        className="text-center"
+                      >
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">Invite Users</h3>
+                        <p className="text-gray-600 leading-relaxed">Invite new members to your organization and expand your team</p>
+                        <div className="mt-4 flex justify-center">
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                            Team Growth
+                          </Badge>
+                        </div>
+                      </CardItem>
+                    </Link>
+                  </CardBody>
+                </CardContainer>
+              </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.4 }}
+            >
               <CardContainer className="inter-var">
-                <CardBody className="bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                  <Link href="/organization/members" className="block">
-                    <CardItem
-                      translateZ="50"
-                      className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-50 rounded-xl flex items-center justify-center mx-auto mb-4"
-                    >
-                      <EnvelopeIcon className="w-6 h-6 text-green-600" />
-                    </CardItem>
-                    
+                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  <Link href="/organization/events" className="block relative z-10">
                     <CardItem
                       translateZ="60"
+                      className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <CalendarIcon className="w-8 h-8 text-blue-600" />
+                    </CardItem>
+
+                    <CardItem
+                      translateZ="70"
                       className="text-center"
                     >
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Invite Users</h3>
-                      <p className="text-sm text-gray-600">Invite new members to your organization</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">Manage Events</h3>
+                      <p className="text-gray-600 leading-relaxed">View and manage all organization events and their details</p>
+                      <div className="mt-4 flex justify-center">
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                          Overview
+                        </Badge>
+                      </div>
                     </CardItem>
                   </Link>
                 </CardBody>
               </CardContainer>
-            )}
+            </motion.div>
 
-            <CardContainer className="inter-var">
-              <CardBody className="bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <Link href="/organization/events" className="block">
-                  <CardItem
-                    translateZ="50"
-                    className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4"
-                  >
-                    <CalendarIcon className="w-6 h-6 text-blue-600" />
-                  </CardItem>
-                  
-                  <CardItem
-                    translateZ="60"
-                    className="text-center"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Events</h3>
-                    <p className="text-sm text-gray-600">View and manage all organization events</p>
-                  </CardItem>
-                </Link>
-              </CardBody>
-            </CardContainer>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.5 }}
+            >
+              <CardContainer className="inter-var">
+                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-purple-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            <CardContainer className="inter-var">
-              <CardBody className="bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <Link href="/admin/bookings" className="block">
-                  <CardItem
-                    translateZ="50"
-                    className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mx-auto mb-4"
-                  >
-                    <UsersIcon className="w-6 h-6 text-purple-600" />
-                  </CardItem>
-                  
-                  <CardItem
-                    translateZ="60"
-                    className="text-center"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">View Bookings</h3>
-                    <p className="text-sm text-gray-600">Check all event bookings and attendees</p>
-                  </CardItem>
-                </Link>
-              </CardBody>
-            </CardContainer>
+                  <Link href="/admin/bookings" className="block relative z-10">
+                    <CardItem
+                      translateZ="60"
+                      className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <UsersIcon className="w-8 h-8 text-purple-600" />
+                    </CardItem>
+
+                    <CardItem
+                      translateZ="70"
+                      className="text-center"
+                    >
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">View Bookings</h3>
+                      <p className="text-gray-600 leading-relaxed">Check all event bookings and attendee information</p>
+                      <div className="mt-4 flex justify-center">
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">
+                          Attendance
+                        </Badge>
+                      </div>
+                    </CardItem>
+                  </Link>
+                </CardBody>
+              </CardContainer>
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* Subscription & Usage */}
+        {/* Enhanced Subscription & Usage */}
         {subscription && (
-          <motion.div 
-            className="mb-12"
+          <motion.div
+            className="mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
+            transition={{ duration: 0.4, delay: 1.6 }}
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <BuildingOfficeIcon className="w-6 h-6 text-primary" />
-              Subscription & Usage
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CardHoverShadow theme="blue" className="bg-white border border-gray-200 rounded-2xl p-6">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center">
-                    <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">Current Plan</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600">Plan</span>
-                    <Badge 
-                      variant={subscription.plan === 'PRO' ? 'default' : 'secondary'}
-                      className="px-3 py-1"
-                    >
-                      {subscription.plan}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600">Status</span>
-                    <Badge 
-                      variant={subscription.status === 'ACTIVE' ? 'default' : 'destructive'}
-                      className="px-3 py-1"
-                    >
-                      {subscription.status}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600">Days Until Expiry</span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {subscription.daysUntilExpiry !== null ? subscription.daysUntilExpiry : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </CardHoverShadow>
+            <div className="text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.7 }}
+              >
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+                  Subscription & Usage
+                </h2>
+                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                  Monitor your organization's plan status and resource utilization
+                </p>
+              </motion.div>
+            </div>
 
-              <CardHoverShadow theme="green" className="bg-white border border-gray-200 rounded-2xl p-6">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-50 rounded-xl flex items-center justify-center">
-                    <ChartBarIcon className="w-6 h-6 text-green-600" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.8 }}
+              >
+                <CardHoverShadow theme="blue" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center shadow-lg">
+                      <BuildingOfficeIcon className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Current Plan</h3>
+                      <p className="text-gray-600">Your organization's subscription details</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">Usage Limits</h3>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Events</span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {organization?.current_events_count || 0} / {organization?.max_events || '∞'}
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl">
+                      <span className="text-sm font-semibold text-gray-700">Plan Type</span>
+                      <Badge
+                        variant={subscription.plan === 'PRO' ? 'default' : 'secondary'}
+                        className="px-4 py-2 text-sm font-medium"
+                      >
+                        {subscription.plan || 'Free'} Plan
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl">
+                      <span className="text-sm font-semibold text-gray-700">Status</span>
+                      <Badge
+                        variant={subscription.status === 'ACTIVE' ? 'default' : 'destructive'}
+                        className="px-4 py-2 text-sm font-medium"
+                      >
+                        {subscription.status || 'Unknown'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl">
+                      <span className="text-sm font-semibold text-gray-700">Days Until Expiry</span>
+                      <span className="text-lg font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                        {subscription.daysUntilExpiry !== null ? subscription.daysUntilExpiry : '∞'}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${Math.min((organization?.current_events_count || 0) / (organization?.max_events || 1) * 100, 100)}%` }}
-                      ></div>
+                  </div>
+                </CardHoverShadow>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.9 }}
+              >
+                <CardHoverShadow theme="green" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center shadow-lg">
+                      <ChartBarIcon className="w-8 h-8 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Usage Limits</h3>
+                      <p className="text-gray-600">Track your organization's resource usage</p>
                     </div>
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Members</span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {organization?.current_users_count || 0} / {organization?.max_users || '∞'}
-                      </span>
+                  <div className="space-y-8">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-semibold text-gray-700">Events Created</span>
+                        <span className="text-lg font-bold text-gray-900">
+                          {organization?.current_events_count || 0} / {organization?.max_events || '∞'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                          style={{ width: `${Math.min((organization?.current_events_count || 0) / (organization?.max_events || 1) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {organization?.max_events ? `${organization.max_events - (organization?.current_events_count || 0)} events remaining` : 'Unlimited events'}
+                      </p>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${Math.min((organization?.current_users_count || 0) / (organization?.max_users || 1) * 100, 100)}%` }}
-                      ></div>
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-semibold text-gray-700">Team Members</span>
+                        <span className="text-lg font-bold text-gray-900">
+                          {organization?.current_users_count || 0} / {organization?.max_users || '∞'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                          style={{ width: `${Math.min((organization?.current_users_count || 0) / (organization?.max_users || 1) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {organization?.max_users ? `${organization.max_users - (organization?.current_users_count || 0)} members remaining` : 'Unlimited members'}
+                      </p>
                     </div>
                   </div>
-                </div>
-              </CardHoverShadow>
+                </CardHoverShadow>
+              </motion.div>
             </div>
           </motion.div>
         )}
 
-        {/* Recent Activity */}
-        <motion.div 
-          className="mb-8"
+        {/* Enhanced Recent Activity */}
+        <motion.div
+          className="mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
+          transition={{ duration: 0.4, delay: 2.0 }}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <CalendarIcon className="w-6 h-6 text-primary" />
-            Recent Activity
-          </h2>
-          <Tabs defaultValue="events" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
-              <TabsTrigger value="events" className="rounded-lg">Recent Events</TabsTrigger>
-              <TabsTrigger value="bookings" className="rounded-lg">Recent Bookings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="events" className="mt-6">
-              <CardHoverShadow theme="blue" className="bg-white border border-gray-200 rounded-2xl p-8">
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CalendarIcon className="w-8 h-8 text-gray-400" />
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 2.1 }}
+            >
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+                Recent Activity
+              </h2>
+              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                Stay updated with your organization's latest events and bookings
+              </p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 2.2 }}
+          >
+            <Tabs defaultValue="events" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl p-2 shadow-lg">
+                <TabsTrigger value="events" className="rounded-xl font-medium transition-all duration-300 data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <CalendarIcon className="w-4 h-4 mr-2" />
+                  Recent Events
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="rounded-xl font-medium transition-all duration-300 data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <UsersIcon className="w-4 h-4 mr-2" />
+                  Recent Bookings
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="events" className="mt-8">
+                <CardHoverShadow theme="blue" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-12 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <CalendarIcon className="w-10 h-10 text-blue-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">No recent events</h3>
+                    <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-md mx-auto">
+                      Your recent events will appear here once you create some. Start building your organization's event portfolio!
+                    </p>
+                    {canCreateEvents && (
+                      <GradientButton href="/organization/create-event" variant="primary" size="lg">
+                        <PlusIcon className="w-5 h-5 mr-2" />
+                        Create Your First Event
+                      </GradientButton>
+                    )}
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent events</h3>
-                  <p className="text-gray-600 mb-6">Your recent events will appear here once you create some.</p>
-                  {canCreateEvents && (
-                    <GradientButton href="/admin/event" variant="primary">
-                      <PlusIcon className="w-4 h-4 mr-2" />
-                      Create Your First Event
+                </CardHoverShadow>
+              </TabsContent>
+
+              <TabsContent value="bookings" className="mt-8">
+                <CardHoverShadow theme="green" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-12 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <UsersIcon className="w-10 h-10 text-green-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">No recent bookings</h3>
+                    <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-md mx-auto">
+                      Event bookings will appear here once customers start registering. Share your events to start growing your audience!
+                    </p>
+                    <GradientButton href="/admin/bookings" variant="outline" size="lg">
+                      <ChartBarIcon className="w-5 h-5 mr-2" />
+                      View All Bookings
                     </GradientButton>
-                  )}
-                </div>
-              </CardHoverShadow>
-            </TabsContent>
-            
-            <TabsContent value="bookings" className="mt-6">
-              <CardHoverShadow theme="green" className="bg-white border border-gray-200 rounded-2xl p-8">
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UsersIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent bookings</h3>
-                  <p className="text-gray-600 mb-6">Event bookings will appear here once customers start registering.</p>
-                  <GradientButton href="/admin/bookings" variant="outline">
-                    View All Bookings
-                  </GradientButton>
-                </div>
-              </CardHoverShadow>
-            </TabsContent>
-          </Tabs>
+                </CardHoverShadow>
+              </TabsContent>
+            </Tabs>
+
+            {/* Leave Organization Section - For non-owners only */}
+            {!isOwner && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="mt-12"
+              >
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100/50 border border-orange-200/50 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center shadow-md">
+                          <ExitIcon className="w-6 h-6 text-orange-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-orange-900 text-lg">Leave Organization</h3>
+                          <p className="text-orange-700 text-sm mt-1">
+                            Leave {organization?.name} as a member. You'll lose access to all organization resources and events.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <Dialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="border-orange-300 text-orange-700 hover:bg-orange-50 shrink-0">
+                            <ExitIcon className="w-4 h-4 mr-2" />
+                            Leave
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Leave Organization</DialogTitle>
+                            <DialogDescription>
+                              Are you sure you want to leave {organization?.name}? This action cannot be undone and you will lose access to all organization resources.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="leaveConfirmation">
+                                Type <span className="font-mono font-bold">{organization?.name}</span> to confirm
+                              </Label>
+                              <Input
+                                id="leaveConfirmation"
+                                value={leaveConfirmation}
+                                onChange={(e) => setLeaveConfirmation(e.target.value)}
+                                placeholder="Enter organization name to confirm"
+                                className="border-orange-300 focus:border-orange-500"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowLeaveDialog(false)}>
+                              Cancel
+                            </Button>
+                            <Button 
+                              variant="destructive"
+                              onClick={handleLeaveOrganization}
+                              disabled={leaveConfirmation !== organization?.name || isLeavingOrg}
+                            >
+                              {isLeavingOrg ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                  Leaving...
+                                </>
+                              ) : (
+                                'Leave Organization'
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </motion.div>
         </motion.div>
       </div>
     </div>

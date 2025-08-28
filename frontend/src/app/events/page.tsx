@@ -198,8 +198,8 @@ export default function EventsPage() {
                         )}
                     </div>
                 ) : (
-                    <motion.div 
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-50px" }}
@@ -222,9 +222,9 @@ export default function EventsPage() {
                                 >
                                     <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                         <Card className="overflow-hidden border-0 shadow-none">
-                                        <div className="relative h-48">
-                                            <img 
-                                                src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
+                                        <div className="relative h-32">
+                                            <img
+                                                src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'}
                                                 alt={event.title}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
@@ -246,60 +246,60 @@ export default function EventsPage() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold mb-2 text-gray-900 line-clamp-2">
+                                        <div className="p-3">
+                                            <h3 className="text-base font-semibold mb-2 text-gray-900 line-clamp-2">
                                                 {event.title}
                                             </h3>
-                                            
-                                            <div className="space-y-2 mb-4">
-                                                <div className="flex items-center text-sm text-gray-500">
-                                                    <Calendar className="h-4 w-4 mr-2" />
-                                                    <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                                                        year: 'numeric', 
-                                                        month: 'short', 
-                                                        day: 'numeric' 
+
+                                            <div className="space-y-1 mb-3">
+                                                <div className="flex items-center text-xs text-gray-500">
+                                                    <Calendar className="h-3 w-3 mr-2" />
+                                                    <span>{new Date(event.date).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric'
                                                     })}</span>
                                                 </div>
-                                                <div className="flex items-center text-sm text-gray-500">
-                                                    <Clock className="h-4 w-4 mr-2" />
+                                                <div className="flex items-center text-xs text-gray-500">
+                                                    <Clock className="h-3 w-3 mr-2" />
                                                     <span>{event.time}</span>
                                                 </div>
-                                                <div className="flex items-center text-sm text-gray-500">
-                                                    <MapPin className="h-4 w-4 mr-2" />
+                                                <div className="flex items-center text-xs text-gray-500">
+                                                    <MapPin className="h-3 w-3 mr-2" />
                                                     <span className="line-clamp-1">{event.location || 'Location TBD'}</span>
                                                 </div>
-                                                <div className="flex items-center text-sm text-gray-500">
-                                                    <EventRating 
-                                                        rating={4.2} 
-                                                        reviewCount={8} 
-                                                        size="sm" 
+                                                <div className="flex items-center text-xs text-gray-500">
+                                                    <EventRating
+                                                        rating={4.2}
+                                                        reviewCount={8}
+                                                        size="sm"
                                                         showCount={false}
-                                                        className="text-sm"
+                                                        className="text-xs"
                                                     />
                                                 </div>
                                             </div>
 
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center">
-                                                    <DollarSign className="h-4 w-4 text-[#6CDAEC] mr-1" />
-                                                    <span className="text-lg font-semibold text-gray-900">
+                                                    <DollarSign className="h-3 w-3 text-[#6CDAEC] mr-1" />
+                                                    <span className="text-base font-semibold text-gray-900">
                                                         {event.price === 0 ? 'Free' : `$${event.price}`}
                                                     </span>
                                                 </div>
-                                                
-                                                <div className="flex space-x-2">
+
+                                                <div className="flex space-x-1">
                                                     <Link href={`/events/${event.id}`}>
-                                                        <Button variant="outline" size="sm">
+                                                        <Button variant="outline" size="sm" className="text-xs px-2 py-1">
                                                             Details
                                                         </Button>
                                                     </Link>
                                                     {isBooked ? (
-                                                        <Button disabled size="sm" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                        <Button disabled size="sm" className="bg-green-100 text-green-800 hover:bg-green-100 text-xs px-2 py-1">
                                                             Booked
                                                         </Button>
                                                     ) : (
                                                         <Link href={`/customer/book-event/${event.id}`}>
-                                                            <Button size="sm" className="bg-[#6CDAEC] hover:bg-[#5BC8D9]">
+                                                            <Button size="sm" className="bg-[#6CDAEC] hover:bg-[#5BC8D9] text-xs px-2 py-1">
                                                                 Buy Ticket
                                                             </Button>
                                                         </Link>

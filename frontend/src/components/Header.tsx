@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { Button } from './ui/button'
 import { GradientButton } from './ui/gradient-button'
 import { GradientLink } from './ui/gradient-link'
@@ -9,7 +10,16 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrganizationData'
 import { HoverShadowEffect } from './ui/hover-shadow-effect'
-import { NotificationBell } from './NotificationBell'
+
+// Lazy load NotificationBell for better performance
+const NotificationBell = dynamic(() => import('./NotificationBell').then(mod => ({ default: mod.NotificationBell })), {
+  ssr: false,
+  loading: () => (
+    <div className="relative p-2">
+      <div className="w-5 h-5 bg-gray-300 rounded-full animate-pulse" />
+    </div>
+  )
+})
 // Icons as SVG components
 const ChevronDownIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -39,15 +49,35 @@ const CogIcon = () => (
 interface HeaderProps {
     onRegisterClick?: () => void
     onLoginClick?: () => void
+    user?: {
+        role: 'ADMIN' | 'USER' | 'customer' | string
+        id?: string
+        email?: string
+        username?: string
+        first_name?: string
+        last_name?: string
+        contact_number?: string
+        city?: string
+        pincode?: string
+        street_address?: string
+        created_at?: string
+        organization_id?: string
+        role_in_org?: 'OWNER' | 'ADMIN' | 'USER'
+        is_org_admin?: boolean
+        joined_at?: string
+    } | null
 }
 
-export default function Header({ onRegisterClick, onLoginClick }: HeaderProps) {
+export default function Header({ onRegisterClick, onLoginClick, user: propUser }: HeaderProps) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false)
-    const { logout, user } = useAuth()
+    const { logout, user: authUser } = useAuth()
     const { organization, orgLoading } = useOrganizationData()
     const { isOwner, isAdmin, canManageMembers, canManageEventSpaces } = useOrganizationPermissions()
+
+    // Use the passed user prop if available, otherwise use the auth context user
+    const user = propUser !== undefined ? propUser : authUser
     const orgDropdownRef = useRef<HTMLDivElement>(null)
 
     // Close dropdown when clicking outside
@@ -270,7 +300,7 @@ export default function Header({ onRegisterClick, onLoginClick }: HeaderProps) {
                         </div>
                     )}
 
-                    {user?.role === 'customer' && (
+                    {user?.role === 'customer' || user?.role === 'USER' && (
                         <div className="flex items-center space-x-3 flex-wrap">
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
@@ -456,7 +486,7 @@ export default function Header({ onRegisterClick, onLoginClick }: HeaderProps) {
                             </>
                         )}
 
-                        {user?.role === 'customer' && (
+                        {user?.role === 'customer' || user?.role === 'USER' && (
                             <>
                                 <Link 
                                     href="/customer/dashboard" 

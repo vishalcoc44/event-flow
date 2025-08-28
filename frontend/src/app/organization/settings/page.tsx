@@ -19,8 +19,10 @@ import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { organizationAPI } from '@/lib/api';
 import { motion } from 'motion/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Icons
 const BuildingOfficeIcon = ({ className }: { className?: string }) => (
@@ -60,12 +62,19 @@ const UsersIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+
 export default function OrganizationSettings() {
   const { organization, orgLoading, updateOrganization } = useOrganizationData();
-  const { isOwner } = useOrganizationPermissions();
-  const { user } = useAuth();
+  const { isOwner, isAdmin, isUser } = useOrganizationPermissions();
+  const { user, refreshAuth } = useAuth();
+  
+  // Restrict access to admins and owners only
+  const canAccessSettings = isOwner || isAdmin;
+  
+
   const { loadOrganization } = useOrganization();
   const { toast } = useToast();
+  const router = useRouter();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -96,6 +105,7 @@ export default function OrganizationSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [memberCount, setMemberCount] = useState(0);
   const [eventCount, setEventCount] = useState(0);
+  
 
   useEffect(() => {
     console.log('Settings page effect - organization:', !!organization, 'orgLoading:', orgLoading);
@@ -175,6 +185,8 @@ export default function OrganizationSettings() {
       loadOrganization(user.id);
     }
   };
+
+
 
   const handleSave = async () => {
     if (!organization) return;
@@ -311,7 +323,7 @@ export default function OrganizationSettings() {
     );
   }
 
-  if (!isOwner) {
+  if (!canAccessSettings) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
         <div className="max-w-2xl mx-auto mt-16">
@@ -320,7 +332,7 @@ export default function OrganizationSettings() {
               <CardContent className="text-center py-12">
                 <ExclamationTriangleIcon className="mx-auto h-16 w-16 text-yellow-500 mb-4" />
                 <h2 className="text-2xl font-semibold text-gray-900 mb-2">Access Denied</h2>
-                <p className="text-gray-600 mb-8">You don't have permission to manage organization settings.</p>
+                <p className="text-gray-600 mb-8">Only organization owners and administrators can manage organization settings.</p>
                 <GradientButton href="/organization/dashboard" variant="outline">
                   Back to Dashboard
                 </GradientButton>
@@ -668,11 +680,15 @@ export default function OrganizationSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <h3 className="font-medium text-red-900 mb-2">Delete Organization</h3>
-                <p className="text-sm text-red-700 mb-4">
-                  This action cannot be undone. This will permanently delete your organization and all associated data including events, bookings, and member information.
-                </p>
+
+
+              {/* Delete Organization Section - For owners only */}
+              {isOwner && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <h3 className="font-medium text-red-900 mb-2">Delete Organization</h3>
+                  <p className="text-sm text-red-700 mb-4">
+                    This action cannot be undone. This will permanently delete your organization and all associated data including events, bookings, and member information.
+                  </p>
                 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -719,12 +735,13 @@ export default function OrganizationSettings() {
                   </Dialog>
                 </div>
               </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
-          </Tabs>
+      </Tabs>
 
-          {/* Save Button */}
+      {/* Save Button */}
           <div className="mt-8 flex justify-end">
             <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
               <Button onClick={handleSave} disabled={isSaving} className="px-8 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white border-0">

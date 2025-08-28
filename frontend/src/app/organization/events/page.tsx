@@ -13,26 +13,26 @@ import { Plus, Search, Filter, Calendar, MapPin, Users, Eye, EyeOff, Clock, Chec
 import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrganizationData'
 import { useCategories } from '@/contexts/CategoryContext'
 import { supabase } from '@/lib/supabase'
+import { EventListSkeleton } from '@/components/ui/loading-skeleton'
 
 interface OrganizationEvent {
-  event_id: string      // Matches what database actually returns
+  id: string      // Matches what database actually returns
   title: string
   description: string
-  event_date: string    // Matches what database actually returns
-  event_time: string    // Matches what database actually returns
+  date: string    // Matches what database actually returns
+  time: string    // Matches what database actually returns
   location: string
   price: number
   image_url: string | null
   is_public: boolean
   is_approved: boolean
   requires_approval: boolean
-  max_attendees: number | null
-  registration_deadline: string | null
   category_name: string | null
   event_space_name: string | null
   creator_name: string
   total_bookings: number
   average_rating: number | null
+  max_attendees?: number | null // Add max_attendees property
   created_at: string
 }
 
@@ -57,19 +57,58 @@ export default function OrganizationEvents() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
-  // Fetch organization events
+  // Fetch organization events with optimization
   useEffect(() => {
     const fetchEvents = async () => {
       if (!organization?.id) return
 
       try {
         setIsLoading(true)
-        const { data, error } = await supabase.rpc('get_organization_events', {
-          p_organization_id: organization.id
-        })
+
+        // Use optimized query instead of RPC for better performance
+        const { data, error } = await supabase
+          .from('events')
+          .select(`
+            id,
+            title,
+            description,
+            date,
+            time,
+            location,
+            price,
+            image_url,
+            is_public,
+            is_approved,
+            requires_approval,
+            created_at,
+            categories:category_id(name),
+            event_spaces:event_space_id(name),
+            creator:created_by(
+              first_name,
+              last_name,
+              username
+            )
+          `)
+          .eq('organization_id', organization.id)
+          .order('date', { ascending: true })
+          .limit(50) // Limit initial load for better performance
 
         if (error) throw error
-        setEvents(data || [])
+
+        // Transform data to match our interface
+        const transformedEvents = (data || []).map(event => ({
+          ...event,
+          creator_name: event.creator
+            ? `${event.creator.first_name} ${event.creator.last_name}`.trim()
+            : 'Unknown',
+          total_bookings: event._count?.[0]?.count || 0,
+          category_name: event.categories?.name || null,
+          event_space_name: event.event_spaces?.name || null,
+          average_rating: null, // Add missing average_rating property
+          max_attendees: null // Add max_attendees property
+        }))
+
+        setEvents(transformedEvents)
       } catch (error) {
         console.error('Error fetching events:', error)
         toast({
@@ -303,9 +342,7 @@ export default function OrganizationEvents() {
         {/* Events Grid */}
         {isLoading ? (
           <React.Fragment key="loading">
-            <div className="flex justify-center items-center h-64">
-              <div className="w-8 h-8 border-4 border-t-primary rounded-full animate-spin"></div>
-            </div>
+            <EventListSkeleton count={6} />
           </React.Fragment>
         ) : filteredEvents.length === 0 ? (
           <React.Fragment key="empty">
@@ -333,26 +370,26 @@ export default function OrganizationEvents() {
           </React.Fragment>
         ) : (
           <React.Fragment key="events">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {filteredEvents.map((event) => {
               const status = getEventStatus(event)
               
               return (
-                <HoverShadowEffect key={event.event_id}>
+                <HoverShadowEffect key={event.id}>
                   <Card className="overflow-hidden cursor-pointer h-full"
-                        onClick={() => router.push(`/events/${event.event_id}`)}>
+                        onClick={() => router.push(`/events/${event.id}`)}>
                     {/* Event Image */}
-                    <div className="relative h-48 bg-gray-200">
+                    <div className="relative h-32 bg-gray-200">
                       {event.image_url ? (
                         <img
-                          key={`img-${event.event_id}`}
+                          key={`img-${event.id}`}
                           src={event.image_url}
                           alt={event.title}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div key={`placeholder-${event.event_id}`} className="w-full h-full flex items-center justify-center">
-                          <Calendar className="w-16 h-16 text-gray-400" />
+                        <div key={`placeholder-${event.id}`} className="w-full h-full flex items-center justify-center">
+                          <Calendar className="w-12 h-12 text-gray-400" />
                         </div>
                       )}
                       
@@ -373,59 +410,59 @@ export default function OrganizationEvents() {
                       {/* Privacy Indicator */}
                       <div className="absolute top-3 left-3">
                         {event.is_public ? (
-                          <Eye key={`eye-${event.event_id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
+                          <Eye key={`eye-${event.id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
                         ) : (
-                          <EyeOff key={`eye-off-${event.event_id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
+                          <EyeOff key={`eye-off-${event.id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
                         )}
                       </div>
                     </div>
 
-                    <CardContent className="p-6">
+                    <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                        <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
                           {event.title}
                         </h3>
                         {event.requires_approval && (
-                          <Clock key={`clock-${event.event_id}`} className="w-4 h-4 text-yellow-500 ml-2 flex-shrink-0" />
+                          <Clock key={`clock-${event.id}`} className="w-3 h-3 text-yellow-500 ml-2 flex-shrink-0" />
                         )}
                       </div>
-                      
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+
+                      <p className="text-gray-600 text-xs mb-3 line-clamp-2">
                         {event.description}
                       </p>
 
                       {/* Event Details */}
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {formatDate(event.event_date)} at {formatTime(event.event_time)}
+                      <div className="space-y-1 mb-3">
+                        <div className="flex items-center text-xs text-gray-600">
+                          <Calendar className="w-3 h-3 mr-2" />
+                          {formatDate(event.date)} at {formatTime(event.time)}
                         </div>
-                        
-                        <div className="flex items-center text-sm text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2" />
+
+                        <div className="flex items-center text-xs text-gray-600">
+                          <MapPin className="w-3 h-3 mr-2" />
                           {event.location}
                         </div>
 
                         {event.total_bookings > 0 && (
-                          <div key={`bookings-${event.event_id}`} className="flex items-center text-sm text-gray-600">
-                            <Users className="w-4 h-4 mr-2" />
+                          <div key={`bookings-${event.id}`} className="flex items-center text-xs text-gray-600">
+                            <Users className="w-3 h-3 mr-2" />
                             {event.total_bookings} registered
                             {event.max_attendees && (
-                              <span key={`max-attendees-${event.event_id}`}> / {event.max_attendees} max</span>
+                              <span key={`max-attendees-${event.id}`}> / {event.max_attendees} max</span>
                             )}
                           </div>
                         )}
                       </div>
 
                       {/* Event Meta */}
-                      <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                        <div className="text-sm text-gray-500">
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                        <div className="text-xs text-gray-500">
                           {event.event_space_name && (
-                            <span key={`space-${event.event_id}`}>In {event.event_space_name}</span>
+                            <span key={`space-${event.id}`}>In {event.event_space_name}</span>
                           )}
                         </div>
-                        
-                        <div className="text-lg font-semibold text-gray-900">
+
+                        <div className="text-base font-semibold text-gray-900">
                           {event.price > 0 ? `$${event.price}` : 'Free'}
                         </div>
                       </div>
