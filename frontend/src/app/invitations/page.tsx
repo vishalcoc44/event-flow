@@ -38,7 +38,33 @@ export default function InvitationsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // DIRECT QUERY ONLY - No RPC functions to avoid permission issues
+      // Try RPC function first (preferred method)
+      try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_user_organization_invitations');
+
+        if (!rpcError && rpcData) {
+          // Use RPC function result if successful
+          const invitationsWithDetails = (rpcData || []).map((invitation: any) => ({
+            id: invitation.id,
+            organization_id: invitation.organization_id,
+            organization_name: invitation.organization_name || 'Unknown Organization',
+            role: invitation.role,
+            invited_by_name: invitation.invited_by_name || 'Organization Admin',
+            message: invitation.message,
+            invitation_token: invitation.invitation_token,
+            expires_at: invitation.expires_at,
+            created_at: invitation.created_at
+          }));
+
+          setInvitations(invitationsWithDetails);
+          setLoading(false);
+          return;
+        }
+      } catch (rpcError) {
+        console.warn('RPC function failed, falling back to direct query:', rpcError);
+      }
+
+      // Fallback: DIRECT QUERY ONLY - No RPC functions to avoid permission issues
       const { data: directData, error: directError } = await supabase
         .from('organization_invitations')
         .select(`
@@ -59,7 +85,10 @@ export default function InvitationsPage() {
 
       if (directError) {
         console.error('Direct query failed:', directError);
-        throw directError;
+        // If both RPC and direct query fail, show empty state instead of error
+        setInvitations([]);
+        setLoading(false);
+        return;
       }
 
       // Use generic inviter information - completely avoid users table

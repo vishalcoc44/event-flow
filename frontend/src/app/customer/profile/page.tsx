@@ -155,7 +155,7 @@ export default function CustomerProfile() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-background">
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             <main className="flex-grow container mx-auto px-4 py-8">
@@ -171,8 +171,8 @@ export default function CustomerProfile() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-                        <p className="text-gray-600">Manage your account information and preferences</p>
+                        <h1 className="text-3xl font-bold text-foreground">Profile</h1>
+                        <p className="text-muted-foreground">Manage your account information and preferences</p>
                     </motion.div>
 
                     <motion.div 
@@ -190,7 +190,7 @@ export default function CustomerProfile() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.1 }}
                         >
-                            <HoverShadowEffect className="border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <HoverShadowEffect className="border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                 <Card className="border-0 shadow-none">
                                 <CardHeader className="text-center pb-4">
                                     <div className="flex justify-center mb-4">
@@ -200,19 +200,19 @@ export default function CustomerProfile() {
                                             </AvatarFallback>
                                         </Avatar>
                                     </div>
-                                    <CardTitle className="text-xl font-semibold text-gray-900">
+                                    <CardTitle className="text-xl font-semibold text-foreground">
                                         {user?.first_name} {user?.last_name || ''}
                                         {(!user?.first_name && !user?.last_name) && (user?.username || user?.email?.split('@')[0])}
                                     </CardTitle>
-                                    <p className="text-sm text-gray-500">{user?.email}</p>
+                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-3">
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Calendar className="h-4 w-4" />
                                             <span>Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <User className="h-4 w-4" />
                                             <span>Role: {user?.role === 'USER' ? 'Customer' : user?.role}</span>
                                         </div>
@@ -230,10 +230,10 @@ export default function CustomerProfile() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.2 }}
                         >
-                            <HoverShadowEffect className="border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                            <HoverShadowEffect className="border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                 <Card className="border-0 shadow-none">
                                 <CardHeader className="flex flex-row items-center justify-between">
-                                    <CardTitle className="text-xl font-semibold text-gray-900">Personal Information</CardTitle>
+                                    <CardTitle className="text-xl font-semibold text-foreground">Personal Information</CardTitle>
                                     <div className="flex gap-2">
                                         {isEditing ? (
                                             <>

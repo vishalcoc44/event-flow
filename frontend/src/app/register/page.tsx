@@ -95,7 +95,7 @@ export default function Register() {
     }
     
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-background">
             <Header />
             
             <main className="flex-grow py-12">
@@ -131,10 +131,10 @@ export default function Register() {
                         </div>
                         
                         {/* Right side - Form */}
-                        <div className="md:w-1/2 bg-white p-8 md:p-12">
+                        <div className="md:w-1/2 bg-card p-8 md:p-12 border border-border">
                             <div className="max-w-md mx-auto">
-                                <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your EventFlow Account</h1>
-                                <p className="text-gray-600 mb-8">Join EventFlow and start managing your events seamlessly.</p>
+                                <h1 className="text-3xl font-bold text-foreground mb-2">Create Your EventFlow Account</h1>
+                                <p className="text-muted-foreground mb-8">Join EventFlow and start managing your events seamlessly.</p>
                                 
                                 {error && (
                                     <div className="bg-red-50 text-red-600 p-3 rounded-md mb-6">
@@ -145,12 +145,12 @@ export default function Register() {
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-1">
                                                 First Name
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
@@ -168,12 +168,12 @@ export default function Register() {
                                         </div>
                                         
                                         <div>
-                                            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-1">
                                                 Last Name
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
@@ -192,12 +192,12 @@ export default function Register() {
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label htmlFor="contactNumber" className="block text-sm font-medium text-foreground mb-1">
                                             Contact Number
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                                 </svg>
                                             </div>
@@ -216,12 +216,12 @@ export default function Register() {
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="city" className="block text-sm font-medium text-foreground mb-1">
                                                 City
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
@@ -239,12 +239,12 @@ export default function Register() {
                                         </div>
                                         
                                         <div>
-                                            <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="pincode" className="block text-sm font-medium text-foreground mb-1">
                                                 Pincode
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
@@ -263,12 +263,12 @@ export default function Register() {
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="streetAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label htmlFor="streetAddress" className="block text-sm font-medium text-foreground mb-1">
                                             Street Address
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
@@ -286,12 +286,12 @@ export default function Register() {
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
                                             Email
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                                 </svg>
@@ -310,12 +310,12 @@ export default function Register() {
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
                                             Password
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
@@ -338,12 +338,12 @@ export default function Register() {
                                                 tabIndex={-1}
                                             >
                                                 {showPassword ? (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground hover:text-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 10.605 10.605 0 00-2.387-4.612l-1.611-1.612zm-1.61 6.61c.406.375.856.729 1.31 1.046l-4.273 4.273a10.029 10.029 0 01-3.3-4.38 10.605 10.605 0 012.387-4.612L5.19 6.22a10.029 10.029 0 013.3 4.38zm7.43 7.44l-4.274-4.274a3.75 3.75 0 01-1.31 1.046l1.745 1.745a10.029 10.029 0 004.38 3.3 10.605 10.605 0 004.612 2.387l-1.612-1.612zm-8.61-8.61l4.273 4.273a3.75 3.75 0 00-1.31-1.046L8.48 3.69a10.029 10.029 0 00-4.38-3.3 10.605 10.605 0 00-4.612-2.387l1.612 1.612z" clipRule="evenodd" />
                                                         <path d="m13.879 9.879-4 4a.75.75 0 01-1.06-1.06l4-4a.75.75 0 011.06 1.06z" />
                                                     </svg>
                                                 ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground hover:text-foreground" viewBox="0 0 20 20" fill="currentColor">
                                                         <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
                                                         <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                                                     </svg>
@@ -362,7 +362,7 @@ export default function Register() {
                                             onChange={e => setIsAdmin(e.target.checked)}
                                             className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                                         />
-                                        <label htmlFor="isAdmin" className="ml-2 block text-sm text-gray-700">
+                                        <label htmlFor="isAdmin" className="ml-2 block text-sm text-foreground">
                                             Register as Admin
                                         </label>
                                     </div>
@@ -378,7 +378,7 @@ export default function Register() {
                                     </HoverShadowEffect>
                                     
                                     <div className="text-center">
-                                        <p className="text-sm text-gray-600">
+                                        <p className="text-sm text-muted-foreground">
                                             Already have an account?{' '}
                                             <Link href="/login" className="text-primary font-medium hover:underline">
                                                 Login

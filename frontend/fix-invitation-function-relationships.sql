@@ -147,6 +147,81 @@ BEGIN
 END;
 $function$;
 
+-- Fix Row Level Security (RLS) Policies for organization_invitations table
+-- This will allow proper access to invitation data
+
+-- Enable RLS on the table (if not already enabled)
+ALTER TABLE public.organization_invitations ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (to avoid conflicts)
+DROP POLICY IF EXISTS "Users can view their own invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Organization admins can manage invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Organization members can view invitations" ON public.organization_invitations;
+
+-- Create RLS policies for organization_invitations table
+
+-- Policy 1: Users can view their own pending invitations
+CREATE POLICY "Users can view their own invitations"
+ON public.organization_invitations
+FOR SELECT
+USING (
+  auth.email() = email
+  AND status = 'PENDING'
+  AND expires_at > NOW()
+);
+
+-- Policy 2: Organization owners and admins can view all invitations for their organization
+CREATE POLICY "Organization admins can view invitations"
+ON public.organization_invitations
+FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.id = auth.uid()
+    AND users.organization_id = organization_invitations.organization_id
+    AND users.role_in_org IN ('OWNER', 'ADMIN')
+  )
+);
+
+-- Policy 3: Organization owners and admins can create invitations
+CREATE POLICY "Organization admins can create invitations"
+ON public.organization_invitations
+FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.id = auth.uid()
+    AND users.organization_id = organization_invitations.organization_id
+    AND users.role_in_org IN ('OWNER', 'ADMIN')
+  )
+);
+
+-- Policy 4: Organization owners and admins can update invitations
+CREATE POLICY "Organization admins can update invitations"
+ON public.organization_invitations
+FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.id = auth.uid()
+    AND users.organization_id = organization_invitations.organization_id
+    AND users.role_in_org IN ('OWNER', 'ADMIN')
+  )
+);
+
+-- Policy 5: Organization owners and admins can delete invitations
+CREATE POLICY "Organization admins can delete invitations"
+ON public.organization_invitations
+FOR DELETE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.id = auth.uid()
+    AND users.organization_id = organization_invitations.organization_id
+    AND users.role_in_org IN ('OWNER', 'ADMIN')
+  )
+);
+
 -- Also ensure that the foreign key constraints are set up correctly
 -- The organization_invitations.invited_by should reference the same table as users.id
 -- This might require checking the actual constraint and potentially recreating it

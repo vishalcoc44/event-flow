@@ -160,8 +160,8 @@ export default function AdminDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                    <p className="text-gray-600">Overview of your event management system</p>
+                    <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+                    <p className="text-muted-foreground">Overview of your event management system</p>
                 </motion.div>
                 
                 {/* Stats Cards */}
@@ -261,13 +261,13 @@ export default function AdminDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <h2 className="text-xl font-semibold mb-4 text-gray-900">Recent Activity</h2>
-                        <HoverShadowEffect className="overflow-hidden bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <h2 className="text-xl font-semibold mb-4 text-foreground">Recent Activity</h2>
+                        <HoverShadowEffect className="overflow-hidden bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="overflow-hidden border-0 shadow-none">
                             {loading ? (
                                 <div className="p-4 text-center">Loading activity data...</div>
                             ) : dashboardStats.recentActivity.length === 0 ? (
-                                <div className="p-4 text-center text-gray-500">No recent activity</div>
+                                <div className="p-4 text-center text-muted-foreground">No recent activity</div>
                             ) : (
                             <div className="divide-y divide-gray-200">
                                 {dashboardStats.recentActivity.map((activity, index) => (
@@ -322,8 +322,8 @@ export default function AdminDashboard() {
                                             )}
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm text-gray-800">{activity.title}</p>
-                                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                            <p className="text-sm text-foreground">{activity.title}</p>
+                                            <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -341,42 +341,42 @@ export default function AdminDashboard() {
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-semibold text-gray-900">Recent Event Bookings</h2>
+                            <h2 className="text-xl font-semibold text-foreground">Recent Event Bookings</h2>
                             <Link href="/admin/bookings">
                             <Button variant="outline" size="sm">
                                     View All
                             </Button>
                             </Link>
                         </div>
-                        <HoverShadowEffect className="overflow-hidden bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="overflow-hidden bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="overflow-hidden border-0 shadow-none">
                             {loading ? (
                                 <div className="p-4 text-center">Loading booking data...</div>
                             ) : dashboardStats.recentBookings.length === 0 ? (
-                                <div className="p-4 text-center text-gray-500">No bookings found</div>
+                                <div className="p-4 text-center text-muted-foreground">No bookings found</div>
                             ) : (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 Booking ID
                                             </th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 Event Name
                                             </th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 User
                                             </th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 Date
                                             </th>
-                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 Status
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody className="bg-card divide-y divide-gray-200">
                                         {dashboardStats.recentBookings.map((booking, index) => (
                                             <motion.tr 
                                                 key={booking.id}
@@ -390,16 +390,16 @@ export default function AdminDashboard() {
                                                     transition: { duration: 0.2 }
                                                 }}
                                             >
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                                                         {booking.id.substring(0, 8)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                                     {booking.eventName}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                                     {booking.user}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                                         {new Date(booking.date).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">

@@ -67,7 +67,9 @@ module.exports = {
         sm: "0.25rem",
       },
       fontFamily: {
-        sans: ["Inter", "var(--font-geist-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-josefin-sans)", "system-ui", "sans-serif"],
+        subtext: ["var(--font-josefin-sans)", "system-ui", "sans-serif"],
+        heading: ["var(--font-open-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
       },
       boxShadow: {

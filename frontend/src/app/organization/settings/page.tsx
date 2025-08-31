@@ -375,13 +375,15 @@ export default function OrganizationSettings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-white border-gray-200 p-1 rounded-xl">
-              <TabsTrigger value="general" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white">General</TabsTrigger>
-              <TabsTrigger value="settings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white">Settings</TabsTrigger>
-              <TabsTrigger value="appearance" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white">Appearance</TabsTrigger>
-              <TabsTrigger value="danger" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">Danger Zone</TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="general">
+            <div className="flex justify-start">
+              <TabsList className="flex gap-2 bg-white border-gray-200 p-2 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                <TabsTrigger value="general" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white hover:bg-gray-50 transition-all duration-200">General</TabsTrigger>
+                <TabsTrigger value="settings" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white hover:bg-gray-50 transition-all duration-200">Settings</TabsTrigger>
+                <TabsTrigger value="appearance" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white hover:bg-gray-50 transition-all duration-200">Appearance</TabsTrigger>
+                <TabsTrigger value="danger" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white hover:bg-red-50 transition-all duration-200">Danger Zone</TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* General Information */}
             <TabsContent value="general" className="mt-6">

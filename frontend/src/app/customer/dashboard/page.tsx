@@ -161,7 +161,7 @@ export default function CustomerDashboard() {
             case 'CANCELLED':
                 return 'bg-red-100 text-red-800'
             default:
-                return 'bg-gray-100 text-gray-800'
+                return 'bg-muted text-gray-800'
         }
     }
 
@@ -189,7 +189,7 @@ export default function CustomerDashboard() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-background">
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             <main className="flex-grow container mx-auto px-4 py-8">
@@ -201,10 +201,10 @@ export default function CustomerDashboard() {
                             </AvatarFallback>
                         </Avatar>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">
+                            <h1 className="text-2xl font-bold text-foreground">
                                 Welcome, {user?.first_name || user?.username || user?.email?.split('@')[0]}!
                             </h1>
-                            <p className="text-sm text-gray-600">{user?.email}</p>
+                            <p className="text-sm text-muted-foreground">{user?.email}</p>
                         </div>
                     </div>
                     <div className="flex space-x-2">
@@ -245,19 +245,19 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                             <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-gray-500">Total Bookings</h2>
+                                <h2 className="text-sm font-medium text-muted-foreground">Total Bookings</h2>
                                 <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
                                         <Calendar className="h-5 w-5 text-[#6CDAEC]" />
                                     </div>
                             </div>
                             <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-gray-900">
+                                    <span className="text-3xl font-bold text-foreground">
                                         {bookingsLoading ? '...' : dashboardStats.totalBookings}
                                     </span>
-                                    <span className="text-xs text-gray-500 mt-1">Total bookings made</span>
+                                    <span className="text-xs text-muted-foreground mt-1">Total bookings made</span>
                             </div>
                             </Card>
                         </HoverShadowEffect>
@@ -269,19 +269,19 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                             <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-gray-500">Upcoming Events</h2>
+                                <h2 className="text-sm font-medium text-muted-foreground">Upcoming Events</h2>
                                     <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
                                         <Clock className="h-5 w-5 text-green-600" />
                                     </div>
                             </div>
                             <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-gray-900">
+                                    <span className="text-3xl font-bold text-foreground">
                                         {bookingsLoading ? '...' : dashboardStats.upcomingEvents}
                                     </span>
-                                    <span className="text-xs text-gray-500 mt-1">Events in the next month</span>
+                                    <span className="text-xs text-muted-foreground mt-1">Events in the next month</span>
                             </div>
                             </Card>
                         </HoverShadowEffect>
@@ -293,19 +293,19 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.3 }}
                     >
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                             <div className="flex items-center justify-between mb-2">
-                                    <h2 className="text-sm font-medium text-gray-500">Total Spent</h2>
+                                    <h2 className="text-sm font-medium text-muted-foreground">Total Spent</h2>
                                     <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
                                         <DollarSign className="h-5 w-5 text-purple-600" />
                                     </div>
                             </div>
                             <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-gray-900">
+                                    <span className="text-3xl font-bold text-foreground">
                                         ${bookingsLoading ? '...' : dashboardStats.totalSpent.toFixed(2)}
                                     </span>
-                                    <span className="text-xs text-gray-500 mt-1">Total amount spent on events</span>
+                                    <span className="text-xs text-muted-foreground mt-1">Total amount spent on events</span>
                             </div>
                             </Card>
                         </HoverShadowEffect>
@@ -317,19 +317,19 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.4 }}
                     >
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                             <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-gray-500">Attended Events</h2>
+                                <h2 className="text-sm font-medium text-muted-foreground">Attended Events</h2>
                                     <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
                                         <CheckCircle className="h-5 w-5 text-green-600" />
                                     </div>
                             </div>
                             <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-gray-900">
+                                    <span className="text-3xl font-bold text-foreground">
                                         {bookingsLoading ? '...' : dashboardStats.attendedEvents}
                                     </span>
-                                    <span className="text-xs text-gray-500 mt-1">Events you've attended</span>
+                                    <span className="text-xs text-muted-foreground mt-1">Events you've attended</span>
                             </div>
                             </Card>
                         </HoverShadowEffect>
@@ -351,7 +351,7 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4 md:mb-0">Social Features</h2>
+                        <h2 className="text-xl font-semibold text-foreground mb-4 md:mb-0">Social Features</h2>
                         <Link href="/social">
                             <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -369,7 +369,7 @@ export default function CustomerDashboard() {
                         viewport={{ once: true, margin: "-50px" }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -378,8 +378,8 @@ export default function CustomerDashboard() {
                                         </svg>
                                     </div>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Users</h3>
-                                <p className="text-gray-600 text-sm mb-4">Connect with other event enthusiasts and organizers</p>
+                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Users</h3>
+                                <p className="text-muted-foreground text-sm mb-4">Connect with other event enthusiasts and organizers</p>
                                 <Link href="/social">
                                     <Button variant="outline" size="sm" className="w-full">
                                         Connect
@@ -388,15 +388,15 @@ export default function CustomerDashboard() {
                             </Card>
                         </HoverShadowEffect>
                         
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                                         <Calendar className="w-6 h-6 text-blue-600" />
                                     </div>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Events</h3>
-                                <p className="text-gray-600 text-sm mb-4">Stay updated on your favorite events and get notifications</p>
+                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Events</h3>
+                                <p className="text-muted-foreground text-sm mb-4">Stay updated on your favorite events and get notifications</p>
                                 <Link href="/social">
                                     <Button variant="outline" size="sm" className="w-full">
                                         Follow Events
@@ -405,7 +405,7 @@ export default function CustomerDashboard() {
                             </Card>
                         </HoverShadowEffect>
                         
-                        <HoverShadowEffect className="bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                             <Card className="p-6 border-0 shadow-none">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -414,8 +414,8 @@ export default function CustomerDashboard() {
                                         </svg>
                                     </div>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Follow Categories</h3>
-                                <p className="text-gray-600 text-sm mb-4">Discover events in your favorite categories</p>
+                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Categories</h3>
+                                <p className="text-muted-foreground text-sm mb-4">Discover events in your favorite categories</p>
                                 <Link href="/social">
                                     <Button variant="outline" size="sm" className="w-full">
                                         Explore Categories
@@ -441,7 +441,7 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4 md:mb-0">Your Recent Bookings</h2>
+                        <h2 className="text-xl font-semibold text-foreground mb-4 md:mb-0">Your Recent Bookings</h2>
                         <div className="w-full md:w-auto flex items-center">
                             <div className="relative flex-grow md:w-64">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -473,8 +473,8 @@ export default function CustomerDashboard() {
                             <div className="text-gray-400 mb-4">
                                 <Calendar className="h-12 w-12 mx-auto" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
-                            <p className="text-gray-500 mb-6">
+                            <h3 className="text-lg font-medium text-foreground mb-2">No bookings found</h3>
+                            <p className="text-muted-foreground mb-6">
                                 {searchTerm ? "We couldn't find any bookings matching your search." : "You haven't made any bookings yet."}
                             </p>
                             {searchTerm ? (
@@ -505,7 +505,7 @@ export default function CustomerDashboard() {
                                         transition: { duration: 0.2 }
                                     }}
                                 >
-                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                    <HoverShadowEffect className="overflow-hidden border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                         <Card className="overflow-hidden border-0 shadow-none">
                                 <div className="relative h-48">
                                     <img 
@@ -530,8 +530,8 @@ export default function CustomerDashboard() {
                                             )}
                                 </div>
                                 <div className="p-4">
-                                            <h3 className="text-lg font-semibold mb-2 text-gray-900">{bookingGroup.event?.title}</h3>
-                                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                                            <h3 className="text-lg font-semibold mb-2 text-foreground">{bookingGroup.event?.title}</h3>
+                                    <div className="flex items-center text-sm text-muted-foreground mb-2">
                                                 <Calendar className="h-4 w-4 mr-1" />
                                                 <span>{bookingGroup.event?.date ? new Date(bookingGroup.event.date).toLocaleDateString('en-US', { 
                                             year: 'numeric', 
@@ -539,21 +539,21 @@ export default function CustomerDashboard() {
                                             day: 'numeric' 
                                                 }) : 'N/A'}</span>
                                             </div>
-                                            <div className="flex items-center text-sm text-gray-500 mb-2">
+                                            <div className="flex items-center text-sm text-muted-foreground mb-2">
                                                 <Clock className="h-4 w-4 mr-1" />
                                                 <span>{bookingGroup.event?.time || 'N/A'}</span>
                                     </div>
-                                    <div className="flex items-center text-sm text-gray-500 mb-4">
+                                    <div className="flex items-center text-sm text-muted-foreground mb-4">
                                                 <MapPin className="h-4 w-4 mr-1" />
                                                 <span>{bookingGroup.event?.location || 'N/A'}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-gray-900">
+                                                    <span className="text-sm font-medium text-foreground">
                                                         ${bookingGroup.totalPrice.toFixed(2)}
                                                     </span>
                                                     {bookingGroup.quantity > 1 && (
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-xs text-muted-foreground">
                                                             {bookingGroup.quantity} tickets
                                                         </span>
                                                     )}
@@ -586,7 +586,7 @@ export default function CustomerDashboard() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                     >
-                        <h2 className="text-xl font-semibold text-gray-900">Recommended For You</h2>
+                        <h2 className="text-xl font-semibold text-foreground">Recommended For You</h2>
                             <Link href="/events" className="text-[#6CDAEC] hover:underline text-sm font-medium">
                             Discover More
                         </Link>
@@ -611,7 +611,7 @@ export default function CustomerDashboard() {
                                         transition: { duration: 0.2 }
                                     }}
                                 >
-                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                    <HoverShadowEffect className="overflow-hidden border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                         <Card className="overflow-hidden border-0 shadow-none">
                                 <div className="relative h-32">
                                     <img
@@ -624,8 +624,8 @@ export default function CustomerDashboard() {
                                     />
                                 </div>
                                 <div className="p-3">
-                                            <h3 className="text-base font-semibold mb-2 text-gray-900 line-clamp-2">{event.title}</h3>
-                                    <div className="flex items-center text-xs text-gray-500 mb-1">
+                                            <h3 className="text-base font-semibold mb-2 text-foreground line-clamp-2">{event.title}</h3>
+                                    <div className="flex items-center text-xs text-muted-foreground mb-1">
                                                 <Calendar className="h-3 w-3 mr-1" />
                                                 <span>{event.date ? new Date(event.date).toLocaleDateString('en-US', {
                                             year: 'numeric',
@@ -633,12 +633,12 @@ export default function CustomerDashboard() {
                                             day: 'numeric'
                                                 }) : 'N/A'}</span>
                                     </div>
-                                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                                    <div className="flex items-center text-xs text-muted-foreground mb-3">
                                                 <MapPin className="h-3 w-3 mr-1" />
                                                 <span>{event.location || 'N/A'}</span>
                                     </div>
                                             <div className="flex justify-between items-center">
-                                                <span className="text-xs font-medium text-gray-900">
+                                                <span className="text-xs font-medium text-foreground">
                                                     ${event.price || 0}
                                                 </span>
                                                 <div className="flex space-x-1">

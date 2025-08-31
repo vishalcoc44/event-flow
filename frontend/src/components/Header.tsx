@@ -103,7 +103,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
     }
 
     return (
-        <header className="bg-white border-b border-gray-100 py-3">
+        <header className="bg-background border-b border-border py-3">
             <div className="container mx-auto px-2 flex items-center">
                 {/* Logo - Moved further left with reduced padding */}
                 <Link href="/" className="flex items-center flex-shrink-0 mr-6">
@@ -113,7 +113,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" />
                         </svg>
                     </div>
-                    <span className="text-lg font-semibold text-gray-900">EventFlow</span>
+                    <span className="text-lg font-semibold text-foreground">EventFlow</span>
                 </Link>
 
                 {/* Organization Dropdown */}
@@ -121,7 +121,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     <div className="hidden md:block relative mr-4" ref={orgDropdownRef}>
                         <button
                             onClick={() => setIsOrgDropdownOpen(!isOrgDropdownOpen)}
-                            className="flex items-center space-x-2 px-2 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                            className="flex items-center space-x-2 px-2 py-1.5 text-sm font-medium text-foreground bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                         >
                             <BuildingOfficeIcon />
                             <span className="max-w-[120px] truncate">{organization.name}</span>
@@ -129,13 +129,13 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                         </button>
                         
                         {isOrgDropdownOpen && (
-                            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                                <div className="p-4 border-b border-gray-100">
+                            <div className="absolute top-full left-0 mt-1 w-64 bg-background border border-border rounded-lg shadow-lg z-50">
+                                <div className="p-4 border-b border-border">
                                     <div className="flex items-center space-x-2">
                                         <BuildingOfficeIcon />
                                         <div>
-                                            <p className="font-medium text-gray-900">{organization.name}</p>
-                                            <p className="text-xs text-gray-500">{organization.subscription_plan} Plan</p>
+                                            <p className="font-medium text-foreground">{organization.name}</p>
+                                            <p className="text-xs text-muted-foreground">{organization.subscription_plan} Plan</p>
                                         </div>
                                     </div>
                                 </div>
@@ -143,7 +143,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                 <div className="p-2">
                                     <Link
                                         href="/organization/dashboard"
-                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                         onClick={() => setIsOrgDropdownOpen(false)}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -155,7 +155,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     
                                     <Link
                                         href="/organization/events"
-                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                         onClick={() => setIsOrgDropdownOpen(false)}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -167,7 +167,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     {canManageMembers && (
                                         <Link
                                             href="/organization/members"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                             onClick={() => setIsOrgDropdownOpen(false)}
                                         >
                                             <UserGroupIcon />
@@ -178,7 +178,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     {canManageEventSpaces && (
                                         <Link
                                             href="/organization/spaces"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                             onClick={() => setIsOrgDropdownOpen(false)}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -191,7 +191,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     {isOwner && (
                                         <Link
                                             href="/organization/plans"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                             onClick={() => setIsOrgDropdownOpen(false)}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -204,7 +204,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     {isOwner && (
                                         <Link
                                             href="/organization/settings"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                             onClick={() => setIsOrgDropdownOpen(false)}
                                         >
                                             <CogIcon />
@@ -214,7 +214,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     {isOwner && (
                                         <Link
                                             href="/organization/onboarding"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
                                             onClick={() => setIsOrgDropdownOpen(false)}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -236,7 +236,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
                                 <Link 
                                     href="/admin/dashboard" 
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
+                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                 >
                                     Dashboard
                                 </Link>
@@ -445,19 +445,19 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
 
             {/* Mobile menu */}
             {isMobileMenuOpen && (
-                <div className="md:hidden bg-white border-t border-gray-100 py-3">
+                <div className="md:hidden bg-background border-t border-border py-3">
                     <div className="container mx-auto px-2 flex flex-col space-y-3">
                         {(user?.role === 'ADMIN' || user?.is_org_admin) && (
                             <>
                                 <Link 
                                     href="/admin/dashboard" 
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname?.includes('/admin/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname?.includes('/admin/dashboard') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Dashboard
                                 </Link>
                                 <Link 
                                     href="/admin/event" 
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/event') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname.includes('/admin/event') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Add Event
                                 </Link>
@@ -586,7 +586,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             <>
                                 <Link 
                                     href="/" 
-                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname === '/' ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
+                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-muted ${pathname === '/' ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Home
                                 </Link>

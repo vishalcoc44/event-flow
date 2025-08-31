@@ -131,7 +131,7 @@ export default function AllEvents() {
             >
                 <div className="flex justify-between items-center mb-8">
                     <motion.h1
-                        className="text-3xl font-bold text-gray-900"
+                        className="text-3xl font-bold text-foreground"
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
@@ -158,8 +158,8 @@ export default function AllEvents() {
                     </div>
                 ) : events.length === 0 ? (
                     <div className="text-center py-12">
-                        <h3 className="text-xl font-medium text-gray-600 mb-4">No events found</h3>
-                        <p className="text-gray-500 mb-6">Get started by creating your first event</p>
+                        <h3 className="text-xl font-medium text-muted-foreground mb-4">No events found</h3>
+                        <p className="text-muted-foreground mb-6">Get started by creating your first event</p>
                         <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
                             <Link href="/admin/event">
                                 <Button>
@@ -179,25 +179,25 @@ export default function AllEvents() {
                                             <CardTitle className="text-lg font-bold text-white">{event.title}</CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-3 space-y-1 flex-grow">
-                                            <p className="text-sm text-gray-700 line-clamp-2">{event.description}</p>
+                                            <p className="text-sm text-foreground line-clamp-2">{event.description}</p>
                                             <div className="text-xs space-y-1">
-                                                <p className="text-gray-700">
+                                                <p className="text-foreground">
                                                     <span className="font-medium">Category:</span> {event.categories?.name || 'Uncategorized'}
                                                 </p>
-                                                <p className="text-gray-700">
+                                                <p className="text-foreground">
                                                     <span className="font-medium">Location:</span> {event.location}
                                                 </p>
-                                                <p className="text-gray-700">
+                                                <p className="text-foreground">
                                                     <span className="font-medium">Price:</span> ${event.price}
                                                 </p>
-                                                <p className="text-gray-700">
+                                                <p className="text-foreground">
                                                     <span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()}
                                                 </p>
-                                                <p className="text-gray-700">
+                                                <p className="text-foreground">
                                                     <span className="font-medium">Time:</span> {event.time}
                                                 </p>
                                             </div>
-                                            <div className="text-xs text-gray-700">
+                                            <div className="text-xs text-foreground">
                                                 <span className="font-medium">Rating:</span>
                                                 <EventRating
                                                     rating={4.2}

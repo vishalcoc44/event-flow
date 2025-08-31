@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Josefin_Sans, Open_Sans } from "next/font/google";
 import "./globals.css";
 
 // Optimize font loading for better performance
-const inter = Inter({
+const josefinSans = Josefin_Sans({
     subsets: ["latin"],
-    variable: "--font-inter",
+    variable: "--font-josefin-sans",
+    display: 'swap', // Prevents layout shift
+    preload: true,
+});
+
+const openSans = Open_Sans({
+    subsets: ["latin"],
+    variable: "--font-open-sans",
     display: 'swap', // Prevents layout shift
     preload: true,
 });
 
 // Import core components
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { Toaster } from "@/components/ui/toaster";
 import ClientProviders from '@/components/ClientProviders';
 
@@ -55,16 +63,19 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className={inter.variable}>
-            <body className="min-h-screen bg-background font-sans antialiased">
-                {/* Core authentication provider - always loaded */}
-                <AuthProvider>
-                    {/* Client-side providers and page transition */}
-                    <ClientProviders>
-                        {children}
-                    </ClientProviders>
-                    <Toaster />
-                </AuthProvider>
+        <html lang="en" className={`${josefinSans.variable} ${openSans.variable}`} suppressHydrationWarning>
+            <body className="min-h-screen bg-background font-subtext antialiased">
+                {/* Theme provider - wraps all other providers */}
+                <ThemeProvider>
+                    {/* Core authentication provider - always loaded */}
+                    <AuthProvider>
+                        {/* Client-side providers and page transition */}
+                        <ClientProviders>
+                            {children}
+                        </ClientProviders>
+                        <Toaster />
+                    </AuthProvider>
+                </ThemeProvider>
             </body>
         </html>
     )

@@ -85,7 +85,7 @@ export default function EventsPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-background">
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             <main className="flex-grow container mx-auto px-4 py-8">
@@ -96,8 +96,8 @@ export default function EventsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover Events</h1>
-                    <p className="text-gray-600">Find and book amazing events happening around you</p>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">Discover Events</h1>
+                    <p className="text-muted-foreground">Find and book amazing events happening around you</p>
                 </motion.div>
 
                 {/* Search and Filters */}
@@ -112,7 +112,7 @@ export default function EventsPage() {
                         {/* Search */}
                         <div className="md:col-span-2">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     type="text"
                                     placeholder="Search events by title, description, or location..."
@@ -128,7 +128,7 @@ export default function EventsPage() {
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6CDAEC] focus:border-transparent"
+                                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#6CDAEC] focus:border-transparent"
                             >
                                 <option value="all">All Categories</option>
                                 {categories.map(category => (
@@ -142,7 +142,7 @@ export default function EventsPage() {
                             <select
                                 value={priceRange}
                                 onChange={(e) => setPriceRange(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6CDAEC] focus:border-transparent"
+                                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#6CDAEC] focus:border-transparent"
                             >
                                 <option value="all">All Prices</option>
                                 <option value="free">Free</option>
@@ -178,10 +178,10 @@ export default function EventsPage() {
                     </div>
                 ) : filteredEvents.length === 0 ? (
                     <div className="text-center py-12">
-                        <div className="text-gray-400 mb-4">
+                        <div className="text-muted-foreground mb-4">
                             <Calendar className="h-12 w-12 mx-auto" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                        <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
                         <p className="text-gray-500 mb-6">
                             {searchTerm || selectedCategory !== 'all' || priceRange !== 'all' 
                                 ? "Try adjusting your search criteria or filters." 
@@ -247,7 +247,7 @@ export default function EventsPage() {
                                             )}
                                         </div>
                                         <div className="p-3">
-                                            <h3 className="text-base font-semibold mb-2 text-gray-900 line-clamp-2">
+                                            <h3 className="text-base font-semibold mb-2 text-foreground line-clamp-2">
                                                 {event.title}
                                             </h3>
 
@@ -282,7 +282,7 @@ export default function EventsPage() {
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center">
                                                     <DollarSign className="h-3 w-3 text-[#6CDAEC] mr-1" />
-                                                    <span className="text-base font-semibold text-gray-900">
+                                                    <span className="text-base font-semibold text-foreground">
                                                         {event.price === 0 ? 'Free' : `$${event.price}`}
                                                     </span>
                                                 </div>

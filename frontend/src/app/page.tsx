@@ -7,7 +7,6 @@ import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { FeatureCard } from '@/components/ui/feature-card'
-import { TestimonialCard } from '@/components/ui/testimonial-card'
 import { GradientButton } from '@/components/ui/gradient-button'
 import { motion } from 'motion/react'
 
@@ -17,17 +16,17 @@ export default function Home() {
     // Show loading state while auth is being determined
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-background">
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
             
             {/* Hero Section */}
@@ -108,7 +107,7 @@ export default function Home() {
             <section className="py-20 bg-gradient-to-br from-gray-50 to-white shadow-[0_8_32px_rgba(59,130,246,0.2),0_16_64px_rgba(0,0,0,0.1)] border border-blue-100/50 rounded-3xl mx-4 my-8">
                 <div className="container mx-auto px-4">
                     <motion.h2 
-                        className="text-3xl font-bold text-center text-gray-900 mb-12"
+                        className="text-3xl font-bold text-center text-foreground mb-12"
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-100px" }}
@@ -204,7 +203,7 @@ export default function Home() {
             >
                 <div className="container mx-auto px-4 text-center">
                     <motion.h2 
-                        className="text-3xl font-bold text-gray-900 mb-6"
+                        className="text-3xl font-bold text-foreground mb-6"
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -213,7 +212,7 @@ export default function Home() {
                         Ready to Host Your Next Unforgettable Event?
                     </motion.h2>
                     <motion.p 
-                        className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto"
+                        className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto"
                         initial={{ opacity: 0, y: 25 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -235,145 +234,6 @@ export default function Home() {
                         >
                             Join EventFlow Today
                         </GradientButton>
-                    </motion.div>
-                </div>
-            </motion.section>
-
-            {/* Testimonials Section */}
-            <motion.section 
-                className="py-20 bg-gradient-to-br from-purple-50 to-pink-50 shadow-[0_8_32px_rgba(168,85,247,0.2),0_16_64px_rgba(0,0,0,0.1)] border border-purple-200/50 rounded-3xl mx-4 my-8"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-                <div className="container mx-auto px-4">
-                    <motion.h2 
-                        className="text-3xl font-bold text-center text-gray-900 mb-12"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    >
-                        What Our Users Are Saying
-                    </motion.h2>
-                    <motion.div 
-                        className="grid grid-cols-1 md:grid-cols-3 gap-8"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.1 }}
-                        >
-                            <TestimonialCard
-                                quote="EventFlow transformed our annual conference management! The intuitive interface and powerful features saved us countless hours and ensured a smooth experience for our attendees."
-                                author="Sarah Chen"
-                                position="Marketing Director, TechSummit Inc"
-                            />
-                        </motion.div>
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                        >
-                            <TestimonialCard
-                                quote="As a small business owner, I needed a simple yet effective way to manage my workshops. EventFlow delivered beyond expectations, making registration and promotion a breeze."
-                                author="David Lee"
-                                position="Founder, Creative Workshops"
-                            />
-                        </motion.div>
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                        >
-                            <TestimonialCard
-                                quote="The real-time analytics provided by EventFlow are invaluable. We can make data-driven decisions on the fly, significantly improving our event outcomes."
-                                author="Maria Garcia"
-                                position="Event Strategist, Global Events Co."
-                            />
-                        </motion.div>
-                    </motion.div>
-                </div>
-            </motion.section>
-
-            {/* Trusted By Section */}
-            <motion.section 
-                className="py-12 bg-gradient-to-br from-gray-50 to-slate-100 shadow-[0_6_24px_rgba(100,116,139,0.2),0_12_48px_rgba(0,0,0,0.1)] border border-slate-200/60 rounded-3xl mx-4 my-6"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-                <div className="container mx-auto px-4">
-                    <motion.h2 
-                        className="text-xl font-semibold text-center text-gray-900 mb-8"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                    >
-                        Trusted by Leading Organizations
-                    </motion.h2>
-                    <motion.div 
-                        className="flex flex-wrap justify-center items-center gap-12"
-                        initial={{ opacity: 0, y: 25 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    >
-                        {/* Replace with actual logos */}
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.1 }}
-                        ></motion.div>
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                        ></motion.div>
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                        ></motion.div>
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                        ></motion.div>
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.5 }}
-                        ></motion.div>
-                        <motion.div 
-                            className="w-32 h-12 bg-gray-100 rounded-md"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.6 }}
-                        ></motion.div>
                     </motion.div>
                 </div>
             </motion.section>

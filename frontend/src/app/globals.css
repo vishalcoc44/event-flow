@@ -4,31 +4,197 @@
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
+  --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
+  --popover-foreground: 222.2 84% 4.9%;
   --primary: 187 82% 68%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 94%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 187 82% 68%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 90%;
-  --input: 0 0% 96%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
   --ring: 187 82% 68%;
   --radius: 0.5rem;
+
+  /* Font definitions */
+  --font-subtext: var(--font-josefin-sans), system-ui, sans-serif;
+  --font-heading: var(--font-open-sans), system-ui, sans-serif;
+}
+
+.dark {
+  /* Full black background */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 95%;
+
+  /* Dark grey cards and surfaces */
+  --card: 0 0% 7%;
+  --card-foreground: 0 0% 95%;
+
+  /* Popover backgrounds */
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 95%;
+
+  /* Keep primary color vibrant */
+  --primary: 187 82% 68%;
+  --primary-foreground: 0 0% 0%;
+
+  /* Partial grey for secondary elements */
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 95%;
+
+  /* Muted grey elements */
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 75%;
+
+  /* Accent elements */
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 95%;
+
+  /* Error states */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 95%;
+
+  /* Subtle borders */
+  --border: 0 0% 20%;
+  --input: 0 0% 15%;
+
+  /* Primary color for focus rings */
+  --ring: 187 82% 68%;
 }
 
 body {
   @apply bg-background text-foreground;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-subtext);
 }
+
+/* Dark mode specific enhancements */
+.dark {
+  /* Ensure all text is highly visible */
+  color: hsl(var(--foreground));
+
+  /* Make sure all backgrounds are dark */
+  background-color: hsl(var(--background));
+}
+
+/* Dark mode shadows and effects */
+.dark .shadow-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow-button {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure input backgrounds are dark */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--input)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Dark mode gradients */
+.dark .bg-gradient-to-r {
+  background: linear-gradient(to right, hsl(var(--background)), hsl(var(--muted)));
+}
+
+/* Make sure all cards have proper dark backgrounds */
+.dark .card {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Ensure hero images have proper overlays in dark mode */
+.dark .hero-image-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+}
+
+/* Dark mode for form elements */
+.dark .form-input {
+  background-color: hsl(var(--input)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .form-input:focus {
+  border-color: hsl(var(--ring)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+}
+
+/* Dark mode for buttons */
+.dark .btn-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .btn-secondary {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+}
+
+/* Ensure all text is visible in dark mode */
+.dark * {
+  color: inherit;
+}
+
+/* Dark mode for navigation and links */
+.dark nav a {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark nav a:hover {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Dark mode for tables */
+.dark table {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark th {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark td {
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Dark mode for dialogs and modals */
+.dark .dialog-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark .dialog-content {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Heading styles - Main headings use Open Sans */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Additional heading styles for better typography */
+h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; }
+h2 { font-size: 2rem; font-weight: 600; line-height: 1.3; }
+h3 { font-size: 1.5rem; font-weight: 600; line-height: 1.4; }
+h4 { font-size: 1.25rem; font-weight: 500; line-height: 1.4; }
+h5 { font-size: 1.125rem; font-weight: 500; line-height: 1.4; }
+h6 { font-size: 1rem; font-weight: 500; line-height: 1.4; }
 
 @layer base {
   * {
