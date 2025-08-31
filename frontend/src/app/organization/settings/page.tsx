@@ -382,7 +382,7 @@ export default function OrganizationSettings() {
                 <TabsTrigger value="settings" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white hover:bg-gray-50 transition-all duration-200">Settings</TabsTrigger>
                 <TabsTrigger value="appearance" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-teal-500 data-[state=active]:text-white hover:bg-gray-50 transition-all duration-200">Appearance</TabsTrigger>
                 <TabsTrigger value="danger" className="px-4 py-2 text-sm rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white hover:bg-red-50 transition-all duration-200">Danger Zone</TabsTrigger>
-              </TabsList>
+            </TabsList>
             </div>
 
             {/* General Information */}

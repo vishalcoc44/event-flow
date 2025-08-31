@@ -78,11 +78,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         let isInitialized = false;
 
+        // Clean up: no browser event listeners needed
+
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event: any, session: any) => {
-                console.log('🔄 Auth state change:', event, !!session, window?.location?.pathname);
-                console.log('🔍 Session details:', session?.user?.email, session?.expires_at);
+                // Only redirect if we're on auth pages and this is a sign-in event
+                if (event === 'SIGNED_IN' && session && typeof window !== 'undefined') {
+                    const pathname = window.location.pathname;
+
+                    // Skip redirect if on auth pages or password reset flow
+                    const isAuthPage = pathname === '/reset-password' || pathname === '/login' || pathname === '/register';
+                    const isPasswordReset = window.location.search.includes('type=recovery') || window.location.search.includes('access_token');
+
+                    if (isAuthPage || isPasswordReset) {
+                        return;
+                    }
+
+                    // Only redirect if we're on the home page or an auth-related page
+                    if (pathname === '/' || isAuthPage) {
+                        setTimeout(() => {
+                            const role = (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER';
+                            router.push(role === 'ADMIN' ? '/admin/dashboard' : '/customer/dashboard');
+                        }, 100);
+                    }
+                    // If on any other page, stay there (this fixes the tab switching issue)
+                }
 
                 // Handle token refresh errors by checking session validity
                 if (event === 'TOKEN_REFRESHED' && !session) {
@@ -103,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (event === 'INITIAL_SESSION' && isInitialized) {
                     return;
                 }
-                
+
                 if (session && session.user) {
                     // Get user data including custom metadata
                     const userData = {
@@ -117,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         city: session.user.user_metadata.city,
                         pincode: session.user.user_metadata.pincode,
                         street_address: session.user.user_metadata.street_address,
+                        organization_id: undefined as string | undefined,
                         created_at: session.user.created_at
                     };
                     
@@ -192,15 +214,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             return;
                         }
                         
-                        // Normal login redirect - add delay to prevent fetch conflicts
-                        setTimeout(() => {
-                            const role = userData.role;
-                            if (role === 'ADMIN') {
-                                router.push('/admin/dashboard');
-                            } else {
-                                router.push('/customer/dashboard');
-                            }
-                        }, 100);
+                        // Only redirect if we're on the home page or auth pages
+                        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+                        if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
+                            setTimeout(() => {
+                                const role = userData.role;
+                                if (role === 'ADMIN') {
+                                    router.push('/admin/dashboard');
+                                } else {
+                                    router.push('/customer/dashboard');
+                                }
+                            }, 100);
+                        }
+                        // If on any other page, stay there (fixes tab switching issue)
                     }
                 } else {
                     setUser(null);
@@ -260,6 +286,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         city: authResult.session.user.user_metadata.city,
                         pincode: authResult.session.user.user_metadata.pincode,
                         street_address: authResult.session.user.user_metadata.street_address,
+                        organization_id: undefined as string | undefined,
                         created_at: authResult.session.user.created_at
                     };
 
