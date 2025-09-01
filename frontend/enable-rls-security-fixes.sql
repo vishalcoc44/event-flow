@@ -48,3 +48,50 @@ WHERE schemaname = 'public'
         'users'
     )
 ORDER BY tablename;
+
+-- Fix RLS policies for organization_invitations table
+-- Drop existing restrictive policies that are causing 403 errors
+DROP POLICY IF EXISTS "Organization admins can view invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Users can view invitations sent to their email" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Users can view their own invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Organization admins can create invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Organization admins can delete invitations" ON public.organization_invitations;
+DROP POLICY IF EXISTS "Organization admins can update invitations" ON public.organization_invitations;
+
+-- Create permissive policies for organization members
+CREATE POLICY "Organization members can view invitations" ON public.organization_invitations
+FOR SELECT USING (
+  organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  )
+);
+
+CREATE POLICY "Organization members can create invitations" ON public.organization_invitations
+FOR INSERT WITH CHECK (
+  organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ) AND
+  invited_by = auth.uid()
+);
+
+CREATE POLICY "Organization members can update invitations" ON public.organization_invitations
+FOR UPDATE USING (
+  organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ) AND
+  invited_by = auth.uid()
+);
+
+CREATE POLICY "Organization members can delete invitations" ON public.organization_invitations
+FOR DELETE USING (
+  organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ) AND
+  invited_by = auth.uid()
+);
+
+-- Also allow users to view invitations sent to their email (for acceptance)
+CREATE POLICY "Users can view their own invitations by email" ON public.organization_invitations
+FOR SELECT USING (
+  email = (SELECT email FROM auth.users WHERE id = auth.uid())
+);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrganizationData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { HoverShadowEffect, CardHoverShadow } from '@/components/ui/hover-shadow-effect';
+
+import { CardHoverShadow } from '@/components/ui/hover-shadow-effect';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -17,6 +17,95 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+
+// Custom Dropdown Component
+const CustomDropdown = ({
+  value,
+  onValueChange,
+  options,
+  placeholder = "Select an option",
+  width = "w-40"
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+  placeholder?: string;
+  width?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const currentLabel = options.find(option => option.value === value)?.label || placeholder;
+
+  const handleSelect = (selectedValue: string) => {
+    try {
+      onValueChange(selectedValue);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error selecting dropdown option:', error);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`${width} bg-white border border-gray-200 rounded-md px-3 py-2 text-sm text-left flex items-center justify-between hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+      >
+        <span>{currentLabel}</span>
+        <svg
+          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSelect(option.value)}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 ${
+                  value === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// Role Filter Dropdown Component
+const RoleFilterDropdown = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
+  const options = [
+    { value: 'all', label: 'All Roles' },
+    { value: 'owner', label: 'Owner' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'user', label: 'User' }
+  ];
+
+  return (
+    <CustomDropdown
+      value={value}
+      onValueChange={onValueChange}
+      options={options}
+      placeholder="Filter by role"
+      width="w-40"
+    />
+  );
+};
 
 // Icons
 const UsersIcon = ({ className }: { className?: string }) => (
@@ -129,20 +218,27 @@ export default function OrganizationMembers() {
         .select('id, email, first_name, last_name, organization_id, role_in_org, is_org_admin, joined_at')
         .eq('organization_id', organization.id);
       if (error) throw error;
-      const membersData: Member[] = (data || []).map((user: any) => ({
-        id: user.id,
-        user_id: user.id,
-        organization_id: user.organization_id,
-        role: user.role_in_org ? user.role_in_org.toLowerCase() : 'user',
-        status: 'active',
-        joined_at: user.joined_at,
-        user: {
-          id: user.id,
-          email: user.email,
-          full_name: [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email,
-          avatar_url: undefined // You can add avatar support if you have it
+      const membersData: Member[] = (data || []).map((user: any) => {
+        try {
+          return {
+            id: user.id,
+            user_id: user.id,
+            organization_id: user.organization_id,
+            role: user.role_in_org ? user.role_in_org.toLowerCase() : 'user',
+            status: 'active',
+            joined_at: user.joined_at,
+            user: {
+              id: user.id,
+              email: user.email || '',
+              full_name: [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || 'Unknown User',
+              avatar_url: undefined // You can add avatar support if you have it
+            }
+          };
+        } catch (error) {
+          console.error('Error processing member data:', error, user);
+          return null;
         }
-      }));
+      }).filter(Boolean) as Member[];
       setMembers(membersData);
     } catch (error) {
       toast({
@@ -159,7 +255,7 @@ export default function OrganizationMembers() {
     if (!organization) return;
 
     try {
-      // Load organization invitations with a simple query to avoid permission issues
+      // Try to load organization invitations
       const { data, error } = await supabase
         .from('organization_invitations')
         .select(`
@@ -177,6 +273,13 @@ export default function OrganizationMembers() {
 
       if (error) {
         console.error('Error loading invitations:', error);
+        // If there's a permission error (403), try alternative approach
+        if (error.code === 'PGRST116' || error.message?.includes('permission') || error.message?.includes('RLS')) {
+          console.log('RLS policy preventing direct access to invitations. Using alternative approach.');
+          // For now, set empty array and show a message about invitations feature
+          setInvitations([]);
+          return;
+        }
         // If there's an error, set empty array instead of throwing
         setInvitations([]);
         return;
@@ -194,8 +297,14 @@ export default function OrganizationMembers() {
       }));
 
       setInvitations(invitationsWithGenericDetails);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading invitations:', error);
+      // If it's a permission/RSL error, handle it gracefully
+      if (error?.code === 'PGRST116' || error?.message?.includes('permission') || error?.message?.includes('RLS')) {
+        console.log('RLS policy issue detected. Invitations feature temporarily disabled.');
+        setInvitations([]);
+        return;
+      }
       // Don't show error toast for invitations, just log it
       // This prevents spam if invitations fail but other functionality works
     }
@@ -349,10 +458,23 @@ export default function OrganizationMembers() {
   };
 
   const filteredMembers = members.filter(member => {
-    const matchesSearch = member.user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
-    return matchesSearch && matchesRole;
+    try {
+      // Safe search matching with null checks
+      const fullName = member.user?.full_name || '';
+      const email = member.user?.email || '';
+      const memberRole = member.role || 'user';
+
+      const matchesSearch = !searchTerm ||
+        fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        email.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesRole = roleFilter === 'all' || memberRole === roleFilter;
+
+      return matchesSearch && matchesRole;
+    } catch (error) {
+      console.error('Error filtering member:', error, member);
+      return false;
+    }
   });
 
   const getRoleBadgeVariant = (role: string) => {
@@ -421,11 +543,13 @@ export default function OrganizationMembers() {
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">No Organization Found</h2>
                   <p className="text-gray-600 mb-8">You need to be part of an organization to access member management.</p>
-                  <HoverShadowEffect className="inline-block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                    <GradientButton href="/create-organization" variant="primary">
-                      Create Organization
-                    </GradientButton>
-                  </HoverShadowEffect>
+                  <GradientButton
+                    href="/create-organization"
+                    variant="primary"
+                    className="shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
+                  >
+                    Create Organization
+                  </GradientButton>
                 </CardContent>
               </Card>
             </CardHoverShadow>
@@ -457,11 +581,13 @@ export default function OrganizationMembers() {
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
                   <p className="text-gray-600 mb-8">You don't have permission to manage organization members.</p>
-                  <HoverShadowEffect className="inline-block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                    <GradientButton href="/organization/dashboard" variant="outline">
-                      Back to Dashboard
-                    </GradientButton>
-                  </HoverShadowEffect>
+                  <GradientButton
+                    href="/organization/dashboard"
+                    variant="outline"
+                    className="!bg-white/90 backdrop-blur-sm border-white/50 text-gray-700 hover:!bg-white/95 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    Back to Dashboard
+                  </GradientButton>
                 </CardContent>
               </Card>
             </CardHoverShadow>
@@ -507,27 +633,23 @@ export default function OrganizationMembers() {
           <div className="flex justify-center lg:justify-end mb-8">
             <div className="flex items-center gap-4">
               {canInviteUsers && (
-                <HoverShadowEffect className="inline-block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                  <GradientButton
-                    onClick={() => setShowInviteDialog(true)}
-                    variant="primary"
-                    className="flex items-center gap-2"
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                    Invite User
-                  </GradientButton>
-                </HoverShadowEffect>
+                <GradientButton
+                  onClick={() => setShowInviteDialog(true)}
+                  variant="primary"
+                  className="flex items-center gap-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  Invite User
+                </GradientButton>
               )}
 
-              <HoverShadowEffect className="inline-block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                <GradientButton
-                  href="/organization/dashboard"
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  ← Back to Dashboard
-                </GradientButton>
-              </HoverShadowEffect>
+              <GradientButton
+                href="/organization/dashboard"
+                variant="outline"
+                className="flex items-center gap-2 !bg-white/90 backdrop-blur-sm border-white/50 text-gray-700 hover:!bg-white/95 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                ← Back to Dashboard
+              </GradientButton>
             </div>
           </div>
         </motion.div>
@@ -551,8 +673,9 @@ export default function OrganizationMembers() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
+                className="flex justify-start"
               >
-                <CardHoverShadow theme="blue" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <CardHoverShadow theme="blue" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 max-w-4xl">
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-2">Team Members</h2>
@@ -567,17 +690,10 @@ export default function OrganizationMembers() {
                           className="bg-white border-gray-200"
                         />
                       </div>
-                      <Select value={roleFilter} onValueChange={setRoleFilter}>
-                        <SelectTrigger className="w-40 bg-white border-gray-200">
-                          <SelectValue placeholder="Filter by role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Roles</SelectItem>
-                          <SelectItem value="owner">Owner</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="user">User</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <RoleFilterDropdown
+                        value={roleFilter}
+                        onValueChange={setRoleFilter}
+                      />
                     </div>
                   </div>
 
@@ -687,8 +803,9 @@ export default function OrganizationMembers() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.5 }}
+                className="flex justify-start"
               >
-                <CardHoverShadow theme="green" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                <CardHoverShadow theme="green" className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 max-w-4xl">
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-2">Pending Invitations</h2>
@@ -763,7 +880,19 @@ export default function OrganizationMembers() {
                           <EnvelopeIcon className="w-8 h-8 text-green-600" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">No pending invitations</h3>
-                        <p className="text-gray-600">All sent invitations have been accepted or expired.</p>
+                        <p className="text-gray-600 mb-4">All sent invitations have been accepted or expired.</p>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                          <div className="flex items-start gap-3">
+                            <ExclamationTriangleIcon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                            <div className="text-left">
+                              <p className="text-sm font-medium text-blue-900 mb-1">Invitation System Status</p>
+                              <p className="text-sm text-blue-700">
+                                If you're experiencing issues with invitations, the system may need database policy updates.
+                                Contact your administrator to enable the invitations feature.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </motion.div>
                     )}
                   </div>
@@ -795,15 +924,16 @@ export default function OrganizationMembers() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="inviteRole">Role</Label>
-                <Select value={inviteRole} onValueChange={(value: 'admin' | 'user') => setInviteRole(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CustomDropdown
+                  value={inviteRole}
+                  onValueChange={(value) => setInviteRole(value as 'admin' | 'user')}
+                  options={[
+                    { value: 'user', label: 'User' },
+                    { value: 'admin', label: 'Admin' }
+                  ]}
+                  placeholder="Select role"
+                  width="w-full"
+                />
               </div>
             </div>
             <DialogFooter>
@@ -829,16 +959,17 @@ export default function OrganizationMembers() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="newRole">New Role</Label>
-                <Select value={newRole} onValueChange={setNewRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    {isOwner && <SelectItem value="owner">Owner</SelectItem>}
-                  </SelectContent>
-                </Select>
+                <CustomDropdown
+                  value={newRole}
+                  onValueChange={setNewRole}
+                  options={[
+                    { value: 'user', label: 'User' },
+                    { value: 'admin', label: 'Admin' },
+                    ...(isOwner ? [{ value: 'owner', label: 'Owner' }] : [])
+                  ]}
+                  placeholder="Select a role"
+                  width="w-full"
+                />
               </div>
             </div>
             <DialogFooter>

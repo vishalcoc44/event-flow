@@ -169,7 +169,7 @@ export default function EventsPage() {
 
                 {/* Events Grid */}
                 {eventsLoading ? (
-                    <div className="flex justify-center items-center h-64">
+                    <div key="events-loading" className="flex justify-center items-center h-64">
                         <motion.div
                             className="w-12 h-12 border-4 border-t-[#6CDAEC] rounded-full"
                             animate={{ rotate: 360 }}
@@ -177,7 +177,7 @@ export default function EventsPage() {
                         />
                     </div>
                 ) : filteredEvents.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div key="no-events" className="text-center py-12">
                         <div className="text-muted-foreground mb-4">
                             <Calendar className="h-12 w-12 mx-auto" />
                         </div>
@@ -199,6 +199,7 @@ export default function EventsPage() {
                     </div>
                 ) : (
                     <motion.div
+                        key="events-grid"
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -220,7 +221,7 @@ export default function EventsPage() {
                                         transition: { duration: 0.2 }
                                     }}
                                 >
-                                    <HoverShadowEffect className="overflow-hidden border border-gray-200 rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
+                                    <HoverShadowEffect className="overflow-hidden rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
                                         <Card className="overflow-hidden border-0 shadow-none">
                                         <div className="relative h-32">
                                             <img

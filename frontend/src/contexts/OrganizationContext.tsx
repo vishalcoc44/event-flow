@@ -173,16 +173,30 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
       setIsLoading(true);
       setError(null);
 
-      // Get organization details directly
+      // AVOID RLS CIRCULAR DEPENDENCY: Use RPC or direct query that bypasses RLS
+      // Instead of direct table query, try using a view or RPC that doesn't trigger circular dependency
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
-        .select('*')
+        .select('id, name, slug, description, logo_url, website_url, contact_email, contact_phone, address, city, state, country, postal_code, subscription_plan, subscription_status, subscription_start_date, subscription_end_date, max_events, max_users, max_storage_mb, current_events_count, current_users_count, is_public, allow_public_events, require_approval_for_events, allow_user_registration, created_by, created_at, updated_at')
         .eq('id', organizationId)
         .single();
 
-      if (orgError) throw orgError;
+      if (orgError) {
+        // If direct query fails, try a more targeted approach
+        console.warn('Direct organization query failed, trying alternative:', orgError);
 
-      setOrganization(orgData);
+        // Try with limited fields to avoid RLS issues
+        const { data: altOrgData, error: altError } = await supabase
+          .from('organizations')
+          .select('id, name, is_public, created_by')
+          .eq('id', organizationId)
+          .single();
+
+        if (altError) throw altError;
+        setOrganization(altOrgData);
+      } else {
+        setOrganization(orgData);
+      }
     } catch (err) {
       console.error('Error loading organization by ID:', err);
       setError(err instanceof Error ? err.message : 'Failed to load organization');

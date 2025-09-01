@@ -27,8 +27,8 @@ type EventContextType = {
     events: Event[]
     loading: boolean
     error: string | null
-    addEvent: (eventData: Omit<Event, 'id' | 'image_url'>) => Promise<Event | null>
-    updateEvent: (id: string, eventData: Partial<Event>) => Promise<Event | null>
+    addEvent: (eventData: Omit<Event, 'id'>) => Promise<Event | null>
+    updateEvent: (id: string, eventData: Partial<Event>) => Promise<any>
     deleteEvent: (id: string) => Promise<{ success: boolean; cancelledBookings?: number; error?: string }>
     fetchEvents: () => Promise<void>
 }
@@ -58,7 +58,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         fetchEvents()
     }, [])
 
-    const addEvent = async (eventData: Omit<Event, 'id' | 'image_url'>) => {
+    const addEvent = async (eventData: Omit<Event, 'id'>) => {
         try {
             setLoading(true)
             setError(null)
@@ -69,7 +69,13 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             return newEvent
         } catch (err: any) {
             console.error('Error adding event:', err)
-            setError(err.message || 'Failed to add event')
+            console.error('Error details:', {
+                message: err?.message,
+                name: err?.name,
+                stack: err?.stack,
+                originalError: err?.originalError
+            })
+            setError(err?.message || err?.originalError?.message || 'Failed to add event')
             return null
         } finally {
             setLoading(false)

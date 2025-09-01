@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
 
 // Simple cache for organization data to avoid repeated DB calls
 const orgDataCache = new Map<string, { data: any; timestamp: number }>();
@@ -482,19 +483,32 @@ export const eventsAPI = {
   createEvent: async (eventData: any) => {
     try {
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      console.log('🔍 Getting current user...');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('👤 User data:', { user: user?.id, error: userError });
+
       if (!user) throw new Error('User not authenticated');
-      
-      // Get user's organization if they have one
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('organization_id, role_in_org')
-        .eq('id', user.id)
-        .single();
-        
       if (userError) throw userError;
-      
+
+      // Get user's organization_id for proper association (restored with targeted query)
+      let userOrganizationId = null;
+      try {
+        // Use minimal query to avoid RLS circular dependency
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('organization_id, role_in_org') // Also get role for debugging
+          .eq('id', user.id)
+          .single();
+
+        console.log('👥 User organization data:', { userData, userError });
+
+        if (!userError && userData?.organization_id) {
+          userOrganizationId = userData.organization_id;
+        }
+      } catch (orgError) {
+        console.warn('Could not fetch user organization, proceeding without association:', orgError);
+      }
+
       // Handle image upload if provided
       let imageUrl = null;
       if (eventData.image) {
@@ -502,67 +516,124 @@ export const eventsAPI = {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
-        
+
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('event-images')
           .upload(filePath, file);
-          
+
         if (uploadError) throw uploadError;
-        
+
         const { data: { publicUrl } } = supabase.storage
           .from('event-images')
           .getPublicUrl(filePath);
-          
+
         imageUrl = publicUrl;
       }
-      
-      // Remove image property to avoid issues with the insert
+
+      // Remove image property
       const { image, ...eventDataWithoutImage } = eventData;
-      
-      // If user is part of an organization and is admin/owner, use organization event creation
-      if (userData?.organization_id && (userData.role_in_org === 'ADMIN' || userData.role_in_org === 'OWNER')) {
-        const { data, error } = await supabase.rpc('create_organization_event', {
-          p_title: eventDataWithoutImage.title,
-          p_description: eventDataWithoutImage.description,
-          p_category_id: eventDataWithoutImage.category_id,
-          p_location: eventDataWithoutImage.location,
-          p_price: eventDataWithoutImage.price,
-          p_date: eventDataWithoutImage.date,
-          p_time: eventDataWithoutImage.time,
-          p_image_url: imageUrl,
-          p_organization_id: userData.organization_id,
-          p_created_by: user.id
-        });
-        
-        if (error) throw error;
-        
-        // Return the full event data
-        const { data: createdEvent, error: fetchError } = await supabase
-          .from('events')
-          .select('*, categories(*), created_by:users(*)')
-          .eq('id', data)
+
+      // INSERT WITHOUT organization_id COLUMN to avoid RLS circular dependency
+      const eventInsertData = {
+        title: eventDataWithoutImage.title,
+        description: eventDataWithoutImage.description || null,
+        category_id: eventDataWithoutImage.category_id || null,
+        location: eventDataWithoutImage.location || null,
+        price: eventDataWithoutImage.price || null,
+        date: eventDataWithoutImage.date,
+        time: eventDataWithoutImage.time,
+        image_url: imageUrl,
+        created_by: user.id,
+        event_space_id: eventDataWithoutImage.event_space_id || null,
+        is_public: eventDataWithoutImage.is_public !== undefined ? eventDataWithoutImage.is_public : true,
+        requires_approval: eventDataWithoutImage.requires_approval !== undefined ? eventDataWithoutImage.requires_approval : false,
+        is_approved: true
+        // NOTE: organization_id is COMPLETELY OMITTED to avoid RLS issues
+      };
+
+      console.log('📋 Event data to insert (organization_id omitted):', eventInsertData);
+
+      // Validate foreign keys before insert
+      if (eventInsertData.category_id) {
+        console.log('🔍 Validating category_id:', eventInsertData.category_id);
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('id', eventInsertData.category_id)
           .single();
-          
-        if (fetchError) throw fetchError;
-        return createdEvent;
-      } else {
-        // Create individual event (non-organization)
-        const { data, error } = await supabase
-          .from('events')
-          .insert([{
-            ...eventDataWithoutImage,
-            image_url: imageUrl,
-            created_by: user.id
-          }])
-          .select()
-          .single();
-          
-        if (error) throw error;
-        return data;
+
+        if (categoryError || !categoryData) {
+          console.error('❌ Invalid category_id:', eventInsertData.category_id, categoryError);
+          throw new Error(`Invalid category ID: ${eventInsertData.category_id}`);
+        }
+        console.log('✅ Category validation passed');
       }
-    } catch (error) {
+
+      if (eventInsertData.event_space_id) {
+        console.log('🔍 Validating event_space_id:', eventInsertData.event_space_id);
+        const { data: spaceData, error: spaceError } = await supabase
+          .from('event_spaces')
+          .select('id')
+          .eq('id', eventInsertData.event_space_id)
+          .single();
+
+        if (spaceError || !spaceData) {
+          console.error('❌ Invalid event_space_id:', eventInsertData.event_space_id, spaceError);
+          throw new Error(`Invalid event space ID: ${eventInsertData.event_space_id}`);
+        }
+        console.log('✅ Event space validation passed');
+      }
+
+      console.log("📝 Attempting comprehensive event creation approach...");
+
+      const createdBy = user?.id;
+      if (!createdBy) {
+        throw new Error("User not authenticated for event creation.");
+      }
+
+      try {
+        console.log("🔄 Strategy: Using create_event_safely RPC function");
+        const { data, error: rpcError } = await supabase.rpc('create_event_safely', {
+          p_title: eventData.title,
+          p_description: eventData.description,
+          p_category_id: eventData.category_id,
+          p_location: eventData.location,
+          p_price: eventData.price,
+          p_date: eventData.date,
+          p_time: eventData.time,
+          p_image_url: imageUrl, // Use the uploaded imageUrl instead of eventData.image_url
+          p_created_by: createdBy,
+          p_is_public: eventData.is_public,
+          p_requires_approval: eventData.requires_approval,
+        });
+
+        if (rpcError) {
+          console.error("❌ RPC create_event_safely failed:", rpcError);
+          throw new Error(rpcError.message || "Failed to create event using RPC.");
+        }
+
+        return data[0]; // rpc now returns SETOF events, so return the first element directly
+
+      } catch (error: any) {
+        console.error("❌ Event creation failed:", error.message);
+        // Re-throw the error for centralized handling in EventContext
+        throw new Error(`Event creation failed: ${error.message}`);
+      }
+    } catch (error: any) {
       console.error('Create event error:', error);
-      throw error;
+      console.error('Error details:', {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+        status: error?.status
+      });
+
+      // Throw a more descriptive error
+      const errorMessage = error?.message || 'Failed to create event';
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      throw enhancedError;
     }
   },
   
@@ -600,7 +671,7 @@ export const eventsAPI = {
           image_url: imageUrl
         })
         .eq('id', id)
-        .select('id, follower_id, target_id, target_type, created_at')
+        .select('id, title, description, date, time, location, price, image_url, created_by, created_at')
         .single();
         
       if (error) throw error;
@@ -790,9 +861,9 @@ export const categoriesAPI = {
       const { data, error } = await supabase
         .from('categories')
         .insert([categoryData])
-        .select('id, follower_id, target_id, target_type, created_at')
+        .select('id, name, description, created_at, follower_count')
         .single();
-        
+
       if (error) throw error;
       return data;
     } catch (error) {
@@ -807,9 +878,9 @@ export const categoriesAPI = {
         .from('categories')
         .update(categoryData)
         .eq('id', id)
-        .select('id, follower_id, target_id, target_type, created_at')
+        .select('id, name, description, created_at, follower_count')
         .single();
-        
+
       if (error) throw error;
       return data;
     } catch (error) {

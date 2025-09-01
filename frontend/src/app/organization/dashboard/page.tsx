@@ -456,7 +456,7 @@ export default function OrganizationDashboard() {
           </div>
 
           {/* Second Row: Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
             {canCreateEvents && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -464,9 +464,9 @@ export default function OrganizationDashboard() {
                 transition={{ duration: 0.4, delay: 1.0 }}
               >
                 <CardContainer className="inter-var">
-                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto min-h-[280px] rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden flex flex-col">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <Link href="/organization/create-event" className="block relative z-10">
+                    <Link href="/organization/create-event" className="relative z-10 flex-1 flex flex-col">
                       <CardItem
                         translateZ="60"
                         className="w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
@@ -475,7 +475,7 @@ export default function OrganizationDashboard() {
                       </CardItem>
                       <CardItem
                         translateZ="70"
-                        className="text-center"
+                        className="text-center flex-1 flex flex-col justify-center"
                       >
                         <h3 className="text-xl font-bold text-gray-900 mb-3">Create Event</h3>
                         <p className="text-gray-600 leading-relaxed">Add a new event to your organization and start managing bookings</p>
@@ -498,9 +498,9 @@ export default function OrganizationDashboard() {
                 transition={{ duration: 0.4, delay: 1.1 }}
               >
                 <CardContainer className="inter-var">
-                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                  <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto min-h-[280px] rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden flex flex-col">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-green-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <Link href="/organization/members" className="block relative z-10">
+                    <Link href="/organization/members" className="relative z-10 flex-1 flex flex-col">
                       <CardItem
                         translateZ="60"
                         className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
@@ -509,7 +509,7 @@ export default function OrganizationDashboard() {
                       </CardItem>
                       <CardItem
                         translateZ="70"
-                        className="text-center"
+                        className="text-center flex-1 flex flex-col justify-center"
                       >
                         <h3 className="text-xl font-bold text-gray-900 mb-3">Invite User</h3>
                         <p className="text-gray-600 leading-relaxed">Invite new members to your organization and expand your team</p>
@@ -531,9 +531,9 @@ export default function OrganizationDashboard() {
               transition={{ duration: 0.4, delay: 1.2 }}
             >
               <CardContainer className="inter-var">
-                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto min-h-[280px] rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden flex flex-col">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-blue-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <Link href="/organization/events" className="block relative z-10">
+                  <Link href="/organization/events" className="relative z-10 flex-1 flex flex-col">
                     <CardItem
                       translateZ="60"
                       className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
@@ -563,9 +563,9 @@ export default function OrganizationDashboard() {
               transition={{ duration: 0.4, delay: 1.3 }}
             >
               <CardContainer className="inter-var">
-                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden">
+                <CardBody className="bg-white/80 backdrop-blur-sm relative group/card border border-gray-200/50 w-full h-auto min-h-[280px] rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden flex flex-col">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-purple-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <Link href="/admin/bookings" className="block relative z-10">
+                  <Link href="/admin/bookings" className="relative z-10 flex-1 flex flex-col">
                     <CardItem
                       translateZ="60"
                       className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300"
