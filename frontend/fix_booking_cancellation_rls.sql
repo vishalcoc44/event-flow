@@ -36,7 +36,6 @@ $$;
 
 -- Add RLS policies that allow admins to access any booking
 -- This is the recommended approach for admin access
-
 -- Allow admins to SELECT any booking
 CREATE POLICY "Admins can view any booking"
 ON bookings FOR SELECT

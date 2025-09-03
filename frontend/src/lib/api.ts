@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, handleAuthError } from './supabase';
 import { createClient } from '@supabase/supabase-js';
 
 // Simple cache for organization data to avoid repeated DB calls
@@ -149,6 +149,20 @@ export const authAPI = {
         console.log(`⚡ Auth check attempt ${attempt + 1} completed in ${(endTime - startTime).toFixed(2)}ms`);
 
         if (error) {
+          // Check if it's a refresh token error that should be handled specially
+          const authErrorResult = handleAuthError(error);
+          if (authErrorResult.shouldSignOut) {
+            console.log('🔄 Refresh token error detected during auth check, clearing session...');
+            // Clear the session and return unauthenticated
+            await supabase.auth.signOut();
+            return {
+              isAuthenticated: false,
+              user: null,
+              session: null,
+              error: authErrorResult.error
+            };
+          }
+
           // If it's the last attempt, throw the error
           if (attempt === maxRetries) {
             throw error;

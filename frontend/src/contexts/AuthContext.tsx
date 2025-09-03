@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { authAPI } from '@/lib/api'
 import { performanceUtils } from '@/lib/performance'
-import { supabase } from '@/lib/supabase'
+import { supabase, handleAuthError, recoverSession } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
 type User = {
