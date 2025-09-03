@@ -454,8 +454,9 @@ export const eventsAPI = {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)');
-        
+        .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)')
+        .or('organization_id.is.null,and(is_public.eq.true)'); // Only public events not associated with organizations
+
       if (error) throw error;
       return data;
     } catch (error) {
@@ -605,6 +606,8 @@ export const eventsAPI = {
           p_created_by: createdBy,
           p_is_public: eventData.is_public,
           p_requires_approval: eventData.requires_approval,
+          p_event_space_id: eventData.event_space_id,
+          p_organization_id: eventData.organization_id,
         });
 
         if (rpcError) {
@@ -810,18 +813,98 @@ export const bookingsAPI = {
   
   cancelBooking: async (id: string) => {
     try {
+      console.log('🔄 Attempting to cancel booking with ID:', id);
+
+      // First, let's check if the booking exists and get its current status
+      const { data: existingBooking, error: fetchError } = await supabase
+        .from('bookings')
+        .select('id, status, user_id')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        console.error('❌ Error fetching booking:', fetchError);
+        throw new Error(`Failed to find booking: ${fetchError.message}`);
+      }
+
+      if (!existingBooking) {
+        console.error('❌ Booking not found with ID:', id);
+        throw new Error('Booking not found');
+      }
+
+      console.log('📋 Current booking status:', existingBooking.status);
+
+      if (existingBooking.status === 'CANCELLED') {
+        console.log('⚠️ Booking is already cancelled');
+        return existingBooking;
+      }
+
+      // Try to call the Supabase Edge Function for admin booking cancellation
+      try {
+        console.log('🔄 Trying Edge Function approach for booking cancellation');
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          throw new Error('No authentication token available');
+        }
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
+        const response = await fetch(`${supabaseUrl}/functions/v1/cancel-booking-admin`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ booking_id: id }),
+        });
+
+        if (response.ok) {
+          const functionData = await response.json();
+          console.log('✅ Booking cancelled via Edge Function:', functionData);
+          return functionData;
+        } else {
+          const errorData = await response.json();
+          console.log('⚠️ Edge Function failed:', errorData);
+          throw new Error(errorData.error || 'Edge Function failed');
+        }
+      } catch (functionError: any) {
+        console.log('⚠️ Edge Function approach failed, using direct update:', functionError.message);
+      }
+
+      // Fallback to direct update (this might fail due to RLS)
       const { data, error } = await supabase
         .from('bookings')
         .update({ status: 'CANCELLED' })
         .eq('id', id)
-        .select('id, follower_id, target_id, target_type, created_at')
+        .select('id, event_id, user_id, booking_date, status, created_at')
         .single();
-        
-      if (error) throw error;
+
+      if (error) {
+        console.error('❌ Supabase update error:', error);
+
+        // If it's an RLS error, provide a more helpful message
+        if (error.message?.includes('policy') || error.code === 'PGRST116' || error.message?.includes('violates row level security policy')) {
+          console.error('🔒 RLS Policy Violation - Admin may not have proper permissions');
+          throw new Error('Permission denied: Admin permissions needed to cancel this booking. Please run the SQL migration in fix_booking_cancellation_rls.sql to add the necessary RLS policies.');
+        }
+
+        throw new Error(`Failed to cancel booking: ${error.message}`);
+      }
+
+      console.log('✅ Booking cancelled successfully:', data);
       return data;
-    } catch (error) {
-      console.error('Cancel booking error:', error);
-      throw error;
+    } catch (error: any) {
+      console.error('💥 Cancel booking error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        status: error.status
+      });
+
+      // Re-throw with more specific error message
+      const errorMessage = error.message || 'Unknown error occurred while cancelling booking';
+      throw new Error(errorMessage);
     }
   },
 };

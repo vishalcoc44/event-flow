@@ -195,13 +195,14 @@ export default function CreateOrganizationEvent() {
         description: formData.description,
         category_id: formData.category_id,
         location: formData.location,
-        price: parseFloat(formData.price),
+        price: parseFloat(formData.price) || 0,
         date: formData.date,
         time: formData.time,
         image_url: imageUrl,
         is_public: formData.is_public,
         requires_approval: formData.requires_approval,
         event_space_id: formData.event_space_id, // Restore event space association
+        organization_id: organization?.id, // Associate with organization
         // Note: max_attendees and registration_deadline are not supported in current schema
       }
 
@@ -212,7 +213,13 @@ export default function CreateOrganizationEvent() {
         description: "Event created successfully",
       })
 
-      router.push('/organization/events')
+      try {
+        router.push('/organization/events')
+      } catch (error) {
+        console.error('Error navigating after event creation:', error)
+        // Fallback navigation
+        window.location.href = '/organization/events'
+      }
     } catch (error: any) {
       console.error('Error creating event:', error)
       console.error('Error details:', {
@@ -310,18 +317,24 @@ export default function CreateOrganizationEvent() {
                       </div>
                     ) : (
                       <Select
-                        value={formData.category_id || ''}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value || null }))}
+                        value={formData.category_id || undefined}
+                        onValueChange={(value) => {
+                          try {
+                            setFormData(prev => ({ ...prev, category_id: value || null }))
+                          } catch (error) {
+                            console.error('Error updating category:', error)
+                          }
+                        }}
                       >
                         <SelectTrigger id="category_id" className="bg-white">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories?.map((category) => (
+                          {(categories && Array.isArray(categories)) ? categories.filter(category => category && typeof category === 'object' && category.id && category.name).map((category) => (
                             <SelectItem key={category.id} value={category.id}>
                               {category.name}
                             </SelectItem>
-                          ))}
+                          )) : null}
                         </SelectContent>
                       </Select>
                     )}
@@ -340,13 +353,19 @@ export default function CreateOrganizationEvent() {
                     ) : (
                       <Select
                         value={formData.event_space_id || undefined}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, event_space_id: value || null }))}
+                        onValueChange={(value) => {
+                          try {
+                            setFormData(prev => ({ ...prev, event_space_id: value || null }))
+                          } catch (error) {
+                            console.error('Error updating event space:', error)
+                          }
+                        }}
                       >
                         <SelectTrigger id="event_space_id" className="bg-white">
                           <SelectValue placeholder="Choose event space (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          {eventSpaces.map((space) => (
+                          {(eventSpaces && Array.isArray(eventSpaces)) ? eventSpaces.filter(space => space && typeof space === 'object' && space.id && space.name).map((space) => (
                             <SelectItem key={space.id} value={space.id}>
                               <div>
                                 <div className="font-medium">{space.name}</div>
@@ -355,7 +374,7 @@ export default function CreateOrganizationEvent() {
                                 )}
                               </div>
                             </SelectItem>
-                          ))}
+                          )) : null}
                         </SelectContent>
                       </Select>
                     )}

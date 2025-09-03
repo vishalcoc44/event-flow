@@ -413,7 +413,7 @@ export default function SocialPage() {
                     No categories available
                   </p>
                 ) : (
-                  categories.map((category) => (
+                  categories?.filter(category => category && category.id && category.name).map((category) => (
                     <HoverShadowEffect key={category.id} className="border rounded-lg cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15}>
                       <div className="p-4 space-y-3">
                         <div>

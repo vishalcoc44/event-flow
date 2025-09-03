@@ -214,7 +214,7 @@ export default function OrganizationEvents() {
       }
       
       // Check if time is valid
-      if (isNaN(timeObj.getTime())) {
+      if(isNaN(timeObj.getTime())) {
         return 'Invalid Time';
       }
       
@@ -314,11 +314,11 @@ export default function OrganizationEvents() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories?.map(category => (
+                  {(categories && Array.isArray(categories)) ? categories.filter(category => category && typeof category === 'object' && category.id && category.name).map(category => (
                     <SelectItem key={category.id} value={category.name}>
                       {category.name}
                     </SelectItem>
-                  ))}
+                  )) : null}
                 </SelectContent>
               </Select>
 

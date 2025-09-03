@@ -92,7 +92,12 @@ export default function Footer() {
                 </div>
                 
                 <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
-                    <p className="text-muted-foreground text-sm mb-4 md:mb-0">© 2025 EventFlow. All rights reserved.</p>
+                    <div className="mb-4 md:mb-0">
+                        <p className="text-muted-foreground text-sm">© 2025 EventFlow. All rights reserved.</p>
+                        <p className="text-muted-foreground text-sm mt-1">
+                            Contact: <a href="mailto:vishalsatish44@gmail.com" className="text-primary hover:underline">vishalsatish44@gmail.com</a>
+                        </p>
+                    </div>
                     <div className="flex space-x-6">
                         <Link href="/terms" className="text-muted-foreground text-sm hover:text-primary">Terms</Link>
                         <Link href="/privacy" className="text-muted-foreground text-sm hover:text-primary">Privacy</Link>

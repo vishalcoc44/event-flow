@@ -36,30 +36,46 @@ export default function EventsPage() {
         }
     }, [user, bookings])
 
-    // Get unique categories
-    const categories = events ? [...new Set(events.map(event => event.categories?.name).filter(Boolean))] : []
+    // Get unique categories safely
+    const categories = events && Array.isArray(events)
+        ? [...new Set(
+            events
+                .filter(event => event && typeof event === 'object' && event.categories && event.categories.name)
+                .map(event => event.categories!.name)
+                .filter(Boolean)
+          )]
+        : []
 
     // Filter events based on search, category, and price
-    const filteredEvents = events?.filter(event => {
-        const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            event.location?.toLowerCase().includes(searchTerm.toLowerCase())
-        
-        const matchesCategory = selectedCategory === 'all' || event.categories?.name === selectedCategory
-        
-        let matchesPrice = true
-        if (priceRange === 'free') {
-            matchesPrice = event.price === 0
-        } else if (priceRange === 'low') {
-            matchesPrice = event.price > 0 && event.price <= 50
-        } else if (priceRange === 'medium') {
-            matchesPrice = event.price > 50 && event.price <= 200
-        } else if (priceRange === 'high') {
-            matchesPrice = event.price > 200
-        }
-        
-        return matchesSearch && matchesCategory && matchesPrice
-    }) || []
+    const filteredEvents = (events && Array.isArray(events))
+        ? events.filter(event => {
+            if (!event || typeof event !== 'object') return false
+
+            const title = event.title || ''
+            const description = event.description || ''
+            const location = event.location || ''
+            const price = event.price || 0
+
+            const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                location.toLowerCase().includes(searchTerm.toLowerCase())
+
+            const matchesCategory = selectedCategory === 'all' || event.categories?.name === selectedCategory
+
+            let matchesPrice = true
+            if (priceRange === 'free') {
+                matchesPrice = price === 0
+            } else if (priceRange === 'low') {
+                matchesPrice = price > 0 && price <= 50
+            } else if (priceRange === 'medium') {
+                matchesPrice = price > 50 && price <= 200
+            } else if (priceRange === 'high') {
+                matchesPrice = price > 200
+            }
+
+            return matchesSearch && matchesCategory && matchesPrice
+        })
+        : []
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -131,9 +147,9 @@ export default function EventsPage() {
                                 className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-[#6CDAEC] focus:border-transparent"
                             >
                                 <option value="all">All Categories</option>
-                                {categories.map(category => (
+                                {(categories && Array.isArray(categories)) ? categories.filter(category => category && typeof category === 'string').map(category => (
                                     <option key={category} value={category}>{category}</option>
-                                ))}
+                                )) : null}
                             </select>
                         </div>
 
@@ -207,10 +223,12 @@ export default function EventsPage() {
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
                         {filteredEvents.map((event, index) => {
+                            if (!event || typeof event !== 'object' || !event.id) return null
+
                             const isBooked = userBookedEvents.includes(event.id)
-                            
+
                             return (
-                                <motion.div 
+                                <motion.div
                                     key={event.id} 
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -226,7 +244,7 @@ export default function EventsPage() {
                                         <div className="relative h-32">
                                             <img
                                                 src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'}
-                                                alt={event.title}
+                                                alt={event.title || 'Event'}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                     e.currentTarget.src = 'https://via.placeholder.com/400x200?text=Event';
@@ -249,21 +267,21 @@ export default function EventsPage() {
                                         </div>
                                         <div className="p-3">
                                             <h3 className="text-base font-semibold mb-2 text-foreground line-clamp-2">
-                                                {event.title}
+                                                {event.title || 'Untitled Event'}
                                             </h3>
 
                                             <div className="space-y-1 mb-3">
                                                 <div className="flex items-center text-xs text-gray-500">
                                                     <Calendar className="h-3 w-3 mr-2" />
-                                                    <span>{new Date(event.date).toLocaleDateString('en-US', {
+                                                    <span>{event.date ? new Date(event.date).toLocaleDateString('en-US', {
                                                         year: 'numeric',
                                                         month: 'short',
                                                         day: 'numeric'
-                                                    })}</span>
+                                                    }) : 'Date TBD'}</span>
                                                 </div>
                                                 <div className="flex items-center text-xs text-gray-500">
                                                     <Clock className="h-3 w-3 mr-2" />
-                                                    <span>{event.time}</span>
+                                                    <span>{event.time || 'Time TBD'}</span>
                                                 </div>
                                                 <div className="flex items-center text-xs text-gray-500">
                                                     <MapPin className="h-3 w-3 mr-2" />
@@ -284,7 +302,7 @@ export default function EventsPage() {
                                                 <div className="flex items-center">
                                                     <DollarSign className="h-3 w-3 text-[#6CDAEC] mr-1" />
                                                     <span className="text-base font-semibold text-foreground">
-                                                        {event.price === 0 ? 'Free' : `$${event.price}`}
+                                                        {event.price === 0 || !event.price ? 'Free' : `$${event.price}`}
                                                     </span>
                                                 </div>
 

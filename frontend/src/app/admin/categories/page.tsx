@@ -30,7 +30,7 @@ export default function AllCategories() {
     return (
         <div className="space-y-4">
             <h1 className="text-2xl font-bold text-white mb-4">All Categories</h1>
-            {categories.map((category) => (
+            {categories?.filter(category => category && category.id).map((category) => (
                 <Card key={category.id} className="bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg">
                     <CardContent className="p-4">
                         {editingId === category.id ? (

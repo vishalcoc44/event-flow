@@ -193,7 +193,7 @@ export default function AddCategory() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <AnimatePresence>
-                                    {categories.map((cat) => (
+                                    {categories?.filter(cat => cat && cat.id).map((cat) => (
                                         <motion.div 
                                             key={cat.id} 
                                             variants={itemVariants}
