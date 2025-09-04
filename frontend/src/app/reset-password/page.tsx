@@ -475,8 +475,7 @@ function ResetPasswordForm() {
   const isExpiredLink = searchParams?.get('error') === 'access_denied' &&
                        searchParams?.get('error_code') === 'otp_expired'
 
-  // Check configuration status (this will be available through our validation function)
-  const configValidation = validateSupabaseConfig()
+  // Use the configValidation that's already declared above
   const isServiceRoleMissing = !configValidation.config.serviceRoleKey || configValidation.config.serviceRoleKey === 'Missing'
 
   // If we have some tokens but they don't meet validation criteria, show a warning
