@@ -42,6 +42,9 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
     setLoading(true)
 
     try {
+      console.log('=== PASSWORD UPDATE ATTEMPT ===')
+      console.log('Available tokens:', { accessToken: !!accessToken, refreshToken: !!refreshToken, code: !!code })
+
       // Clear any existing session first to prevent automatic login
       if (typeof window !== 'undefined') {
         localStorage.removeItem('supabase.auth.token')
@@ -55,6 +58,8 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
         })
       }
 
+      let sessionEstablished = false
+
       // Try to set the session with the tokens first (required for password update)
       if (accessToken && refreshToken) {
         console.log('Setting session with access/refresh tokens...')
@@ -65,7 +70,9 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
 
         if (sessionError) {
           console.warn('Failed to set session with tokens:', sessionError)
-          // Continue anyway - some password reset flows might work without explicit session setting
+        } else {
+          sessionEstablished = true
+          console.log('Session established successfully')
         }
       } else if (code) {
         console.log('Exchanging code for session...')
@@ -73,18 +80,36 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
 
         if (codeError) {
           console.warn('Failed to exchange code for session:', codeError)
-          // Continue anyway - some flows might work without session exchange
+        } else {
+          sessionEstablished = true
+          console.log('Session established from code successfully')
         }
       }
 
-      // Try to update password using Supabase auth
-      console.log('Updating password...')
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password
-      })
+      // If session was established, try the standard updateUser method first
+      if (sessionEstablished) {
+        console.log('Attempting password update with established session...')
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password
+        })
 
-      if (updateError) {
-        throw updateError
+        if (!updateError) {
+          console.log('Password updated successfully with session method')
+          setSuccess(true)
+          toast({
+            title: 'Password updated successfully!',
+            description: 'You can now sign in with your new password.',
+          })
+
+          // Clear tokens and redirect
+          cleanupAndRedirect()
+          return
+        } else {
+          console.warn('Session method failed, trying direct API:', updateError)
+          // Fall through to direct API method
+        }
+      } else {
+        console.log('No session established, trying direct API method')
       }
 
       setSuccess(true)
@@ -116,15 +141,21 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
     } catch (err: any) {
       console.error('Password update error:', err)
 
-      // Try direct API call as fallback
+      // Try direct API fallback method
       try {
         console.log('Trying direct API method...')
+        const tokenToUse = accessToken || code
+
+        if (!tokenToUse) {
+          throw new Error('No valid authentication token available for password update')
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${tokenToUse}`
           },
           body: JSON.stringify({
             password: password
@@ -132,38 +163,57 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
         })
 
         if (response.ok) {
+          console.log('Password updated successfully with direct API')
           setSuccess(true)
           toast({
             title: 'Password updated successfully!',
             description: 'You can now sign in with your new password.',
           })
 
-          // Clear tokens and redirect
-          if (typeof window !== 'undefined') {
-            window.history.replaceState({}, document.title, window.location.pathname)
-            Object.keys(localStorage).forEach(key => {
-              if (key.startsWith('supabase.auth.')) {
-                localStorage.removeItem(key)
-              }
-            })
-            sessionStorage.clear()
-          }
-
-          setTimeout(() => {
-            router.push('/login')
-          }, 2000)
+          cleanupAndRedirect()
           return
         } else {
           const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error_description || 'Failed to update password')
+          console.error('Direct API failed:', errorData)
+          throw new Error(errorData.error_description || errorData.msg || 'Failed to update password')
         }
       } catch (fallbackErr: any) {
-        console.error('Fallback method also failed:', fallbackErr)
-        setError(`Password update failed: ${err.message || fallbackErr.message}`)
+        console.error('Direct API method also failed:', fallbackErr)
+
+        // Check if this is a session-related error
+        if (err.message?.includes('session') || err.message?.includes('Auth session missing') ||
+            fallbackErr.message?.includes('session') || fallbackErr.message?.includes('Auth session missing')) {
+          setError('Authentication session expired. Please request a new password reset link.')
+        } else {
+          setError(`Password update failed: ${err.message || fallbackErr.message || 'Unknown error'}`)
+        }
       }
     } finally {
       setLoading(false)
     }
+  }
+
+  const cleanupAndRedirect = () => {
+    // Clear tokens and redirect
+    if (typeof window !== 'undefined') {
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname)
+
+      // Clear all auth-related storage to prevent auto-login
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          localStorage.removeItem(key)
+        }
+      })
+
+      // Clear session storage
+      sessionStorage.clear()
+    }
+
+    // Redirect to login after 2 seconds
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
   }
 
   if (success) {
@@ -422,6 +472,18 @@ function ResetPasswordForm() {
     )
   }
 
+  // If we have some tokens but they don't meet validation criteria, show a warning
+  const hasAnyTokens = accessToken || refreshToken || code
+  if (hasAnyTokens && !hasValidTokens) {
+    console.warn('Tokens present but not valid according to validation criteria:', {
+      accessToken: !!accessToken,
+      refreshToken: !!refreshToken,
+      code: !!code,
+      type,
+      hasValidTokens
+    })
+  }
+
   // If no valid tokens, show error message with instructions
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -444,7 +506,11 @@ function ResetPasswordForm() {
               <p>Code: {code ? `${code.substring(0, 20)}... (${code.length} chars)` : 'Missing'}</p>
               <p>Type: {type || 'Not set'}</p>
               <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
-              <p className="mt-2 text-gray-600">Check browser console for detailed logs</p>
+              <p className="mt-2 text-gray-600">
+                Check browser console for detailed logs.
+                <br />
+                Try: <code className="bg-gray-200 px-1 rounded">console.log(window.passwordResetDebug)</code>
+              </p>
             </div>
 
             <div className="space-y-3">
