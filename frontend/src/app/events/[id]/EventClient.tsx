@@ -171,8 +171,8 @@ export default function EventClient() {
                             id: simpleEvent.id,
                             title: simpleEvent.title || 'Untitled Event',
                             description: simpleEvent.description || '',
-                            date: simpleEvent.event_date || '',
-                            time: simpleEvent.event_time || '',
+                            date: simpleEvent.date || '',
+                            time: simpleEvent.time || '',
                             location: simpleEvent.location || '',
                             price: simpleEvent.price || 0,
                             image_url: simpleEvent.image_url,
@@ -192,8 +192,8 @@ export default function EventClient() {
                         id: directEvent.id,
                         title: directEvent.title,
                         description: directEvent.description,
-                        date: directEvent.event_date,
-                        time: directEvent.event_time,
+                        date: directEvent.date,
+                        time: directEvent.time,
                         location: directEvent.location,
                         price: directEvent.price,
                         image_url: directEvent.image_url,
@@ -259,31 +259,44 @@ export default function EventClient() {
                 <Header />
                 <main className="flex-grow container mx-auto px-4 py-8">
                     <div className="text-center py-12">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                            {loadingDirect ? 'Loading Event...' : 'Event Not Found'}
+                        </h1>
                         <p className="text-gray-600 mb-4">
-                            The event you're looking for doesn't exist, has been removed, or couldn't be loaded from the database.
+                            {loadingDirect
+                                ? 'Please wait while we load the event details...'
+                                : 'The event you\'re looking for doesn\'t exist, has been removed, or couldn\'t be loaded from the database.'
+                            }
                         </p>
 
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
-                            <div className="flex items-center mb-2">
-                                <span className="text-yellow-800 font-medium">Troubleshooting:</span>
+                        {loadingDirect && (
+                            <div className="flex justify-center mb-6">
+                                <div className="w-12 h-12 border-4 border-t-[#6CDAEC] rounded-full animate-spin"></div>
                             </div>
-                            <ul className="text-sm text-yellow-700 space-y-1 text-left">
-                                <li>• Check if the event ID is correct</li>
-                                <li>• Try refreshing the organization events page first</li>
-                                <li>• Ensure your database connection is working</li>
+                        )}
+
+                        {!loadingDirect && (
+                                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                            <div className="flex items-center mb-2">
+                                <span className="text-blue-800 font-medium">ℹ️ Event Loading:</span>
+                            </div>
+                            <ul className="text-sm text-blue-700 space-y-1 text-left">
+                                <li>• This event was created recently and may need a moment to load</li>
+                                <li>• The system will automatically fetch the event data</li>
+                                <li>• If this persists, try refreshing the page</li>
                                 <li>• Check browser console for detailed error logs</li>
                             </ul>
                         </div>
+                        )}
 
                         <div className="space-y-3">
                             <div className="flex gap-3 justify-center">
-                        <Link href="/events">
+                                <Link href="/events">
                                     <Button>Browse All Events</Button>
                                 </Link>
                                 <Link href="/organization/events">
                                     <Button variant="outline">Organization Events</Button>
-                        </Link>
+                                </Link>
                             </div>
                             <div className="text-sm text-gray-500 mt-4 space-y-1">
                                 <p>Event ID: <code className="bg-gray-100 px-1 rounded">{params.id}</code></p>
@@ -325,12 +338,19 @@ export default function EventClient() {
                     >
                         <Card className="overflow-hidden border border-gray-200 shadow-sm">
                             <div className="relative h-96">
-                                <img 
-                                    src={event.image_url || 'https://via.placeholder.com/800x400?text=Event'} 
+                                <img
+                                    src={event.image_url || `https://via.placeholder.com/800x400?text=${encodeURIComponent(event.title || 'Event')}`}
                                     alt={event.title}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                        e.currentTarget.src = 'https://via.placeholder.com/800x400?text=Event';
+                                        console.log('Image failed to load, using fallback:', event.image_url);
+                                        const fallbackSrc = `https://via.placeholder.com/800x400?text=${encodeURIComponent(event.title || 'Event')}&bg=f3f4f6&color=374151`;
+                                        if (e.currentTarget.src !== fallbackSrc) {
+                                            e.currentTarget.src = fallbackSrc;
+                                        }
+                                    }}
+                                    onLoad={(e) => {
+                                        console.log('Image loaded successfully:', event.image_url || 'fallback image');
                                     }}
                                 />
                                 {event.categories && (

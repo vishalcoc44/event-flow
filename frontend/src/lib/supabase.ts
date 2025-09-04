@@ -149,7 +149,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-
+  
   signIn: async (email: string, password: string) => {
     try {
       const result = await supabase.auth.signInWithPassword({ email, password });
@@ -162,7 +162,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-
+  
   signOut: async () => {
     try {
       // Clear all auth-related storage before signing out
@@ -182,7 +182,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-
+  
   getUser: async () => {
     try {
       const result = await supabase.auth.getUser();

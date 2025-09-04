@@ -466,10 +466,12 @@ export const organizationAPI = {
 export const eventsAPI = {
   getAllEvents: async () => {
     try {
+      // Let RLS policies handle the visibility - don't add restrictive filters
+      // RLS will ensure users only see events they're allowed to see
       const { data, error } = await supabase
         .from('events')
         .select('*, categories(*), created_by:users(id, email, first_name, last_name, role, created_at, follower_count)')
-        .or('organization_id.is.null,and(is_public.eq.true)'); // Only public events not associated with organizations
+        .order('created_at', { ascending: false }); // Show newest events first
 
       if (error) throw error;
       return data;

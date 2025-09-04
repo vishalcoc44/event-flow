@@ -129,10 +129,6 @@ event-management-system/
 
 ## 🚀 **Quick Start**
 
-### **Prerequisites**
-- Node.js 18.0.0 or higher
-- npm 8.0.0 or higher
-- A Supabase account
 
 ### **1. Clone and Install**
 
@@ -154,142 +150,30 @@ npm install
    - Note your project URL and API keys (Settings > API)
 
 2. **Configure Environment Variables**
-
-   Create a `.env.local` file in the `frontend` directory:
-
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
-   NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+   - Create a `.env.local` file in the frontend directory
+   - Add your Supabase URL and API keys:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
    ```
 
 3. **Set Up Database Schema**
+   - Run the database migrations in Supabase SQL Editor
+   - Apply the schema files from the `database schema/` directory
+   - Enable Row Level Security (RLS) policies
 
-   Run the following SQL in the Supabase SQL Editor to create the required tables:
+4. **Configure Authentication**
+   - Set up authentication providers in Supabase Dashboard
+   - Configure redirect URLs for your application
+   - Set up email templates and SMTP settings
 
-   ```sql
-   -- Users table
-   CREATE TABLE users (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       email VARCHAR(255) UNIQUE NOT NULL,
-       username VARCHAR(255),
-       first_name VARCHAR(255),
-       last_name VARCHAR(255),
-       role VARCHAR(50) DEFAULT 'USER',
-       contact_number VARCHAR(20),
-       city VARCHAR(255),
-       pincode VARCHAR(10),
-       street_address TEXT,
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-   );
+5. **Set Up Storage**
+   - Create storage buckets for event images
+   - Configure storage policies for file uploads
+   - Set up CDN for optimized image delivery
 
-   -- Organizations table
-   CREATE TABLE organizations (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       name VARCHAR(255) NOT NULL,
-       description TEXT,
-       subscription_plan VARCHAR(50) DEFAULT 'FREE',
-       created_by UUID REFERENCES users(id),
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-   );
-
-   -- Categories table
-   CREATE TABLE categories (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       name VARCHAR(255) NOT NULL,
-       description TEXT,
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-   );
-
-   -- Events table
-   CREATE TABLE events (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       title VARCHAR(255) NOT NULL,
-       description TEXT,
-       date DATE NOT NULL,
-       time TIME NOT NULL,
-       location VARCHAR(255),
-       price DECIMAL(10,2),
-       image_url TEXT,
-       category_id UUID REFERENCES categories(id),
-       organization_id UUID REFERENCES organizations(id),
-       created_by UUID REFERENCES users(id),
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-   );
-
-   -- Bookings table
-   CREATE TABLE bookings (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       event_id UUID REFERENCES events(id),
-       user_id UUID REFERENCES users(id),
-       booking_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-       status VARCHAR(50) DEFAULT 'CONFIRMED',
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-   );
-
-   -- Follows table for social features
-   CREATE TABLE follows (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       follower_id UUID REFERENCES users(id),
-       following_id UUID REFERENCES users(id),
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-       UNIQUE(follower_id, following_id)
-   );
-   ```
-
-### **4. Configure Row Level Security (RLS)**
-
-Enable RLS and create security policies in Supabase SQL Editor:
-
-```sql
--- Enable RLS on all tables
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
-
--- Users can view and edit their own profiles
-CREATE POLICY "Users can view own profile" ON users
-    FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON users
-    FOR UPDATE USING (auth.uid() = id);
-
--- Public read access for categories and events
-CREATE POLICY "Categories are public" ON categories FOR SELECT USING (true);
-CREATE POLICY "Events are public" ON events FOR SELECT USING (true);
-
--- Authenticated users can create bookings
-CREATE POLICY "Users can create bookings" ON bookings
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can view own bookings" ON bookings
-    FOR SELECT USING (auth.uid() = user_id);
-```
-
-### **5. Set Up Storage**
-
-1. **Create Storage Bucket**
-   - Go to Storage in Supabase Dashboard
-   - Create a bucket named `event-images`
-   - Set it to public
-
-2. **Configure Storage Policies**
-   ```sql
-   -- Allow public access to event images
-   CREATE POLICY "Event images are publicly accessible"
-   ON storage.objects FOR SELECT
-   USING (bucket_id = 'event-images');
-
-   -- Allow authenticated users to upload images
-   CREATE POLICY "Users can upload event images"
-   ON storage.objects FOR INSERT
-   WITH CHECK (bucket_id = 'event-images' AND auth.role() = 'authenticated');
-   ```
-
-### **6. Run the Development Server**
+### **3. Run the Development Server**
 
 ```bash
 cd frontend
@@ -352,14 +236,6 @@ npm run build:static
 - **AWS S3 + CloudFront**
 - **Any static hosting service**
 
-### **Environment Variables for Production**
-
-Set these environment variables in your hosting platform:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
 
 ## 🤝 **Contributing**
 
@@ -419,9 +295,6 @@ We welcome contributions! Here's how you can help:
 - **Input Validation**: Client and server-side validation
 - **HTTPS**: SSL encryption in production
 
-## 📝 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙋‍♂️ **Support**
 
@@ -439,6 +312,3 @@ If you need help or have questions:
 - **shadcn/ui** for the beautiful component library
 - **All Contributors** who help make this project better
 
----
-
-**Built with ❤️ using modern web technologies** 

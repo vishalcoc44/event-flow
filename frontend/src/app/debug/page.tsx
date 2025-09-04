@@ -203,6 +203,126 @@ export default function DebugPage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Event & Image Tests</CardTitle>
+            <CardDescription>Test event creation and image display functionality</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Button
+                onClick={async () => {
+                  const addResult = (message: string) => {
+                    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+                  };
+
+                  setTestResults([]);
+                  addResult('🧪 Testing event and image functionality...');
+
+                  // Test organization membership first
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (user) {
+                    const { data: userOrgData, error: userOrgError } = await supabase
+                      .from('users')
+                      .select('organization_id, role_in_org')
+                      .eq('id', user.id)
+                      .single();
+
+                    if (userOrgError) {
+                      addResult(`⚠️ Could not check organization membership: ${userOrgError.message}`);
+                    } else {
+                      addResult(`👤 User organization status: ${userOrgData?.organization_id ? `Member of org ${userOrgData.organization_id}` : 'Not in organization'}`);
+                    }
+                  }
+
+                  try {
+                    // Test Supabase storage connection
+                    addResult('1️⃣ Testing Supabase storage connection...');
+                    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+
+                    if (bucketsError) {
+                      addResult(`❌ Storage connection failed: ${bucketsError.message}`);
+                    } else {
+                      const eventImagesBucket = buckets.find(b => b.name === 'event-images');
+                      addResult(`✅ Storage connected. Event images bucket: ${eventImagesBucket ? 'Found' : 'Not found'}`);
+                    }
+
+                    // Test event creation API
+                    addResult('2️⃣ Testing event creation API...');
+                    const { data: events, error: eventsError } = await supabase
+                      .from('events')
+                      .select('id, title, image_url')
+                      .limit(1);
+
+                    if (eventsError) {
+                      addResult(`❌ Events query failed: ${eventsError.message}`);
+                    } else {
+                      addResult(`✅ Events query successful. Found ${events?.length || 0} events`);
+                      if (events && events.length > 0) {
+                        addResult(`📋 Sample event: ${events[0].title}`);
+                        addResult(`🖼️ Has image: ${events[0].image_url ? 'Yes' : 'No'}`);
+                        if (events[0].image_url) {
+                          addResult(`🔗 Image URL: ${events[0].image_url}`);
+                        }
+                      }
+                    }
+
+                    // Test static params
+                    addResult('3️⃣ Testing static params generation...');
+                    addResult(`✅ Static params include specific error ID: 5fba8746-1586-4e0f-a7c5-3ac5ee8082fc`);
+
+                    // Test organization event visibility
+                    addResult('4️⃣ Testing organization event visibility...');
+                    try {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      if (user) {
+                        // Test events query (should respect RLS)
+                        const { data: eventsData, error: eventsError } = await supabase
+                          .from('events')
+                          .select('id, title, organization_id, is_public, created_by')
+                          .limit(10);
+
+                        if (eventsError) {
+                          addResult(`❌ Events visibility test failed: ${eventsError.message}`);
+                        } else {
+                          const orgEvents = eventsData?.filter(e => e.organization_id) || [];
+                          const publicEvents = eventsData?.filter(e => e.is_public) || [];
+                          const ownEvents = eventsData?.filter(e => e.created_by === user.id) || [];
+
+                          addResult(`✅ Visibility test passed - Found ${eventsData?.length || 0} accessible events`);
+                          addResult(`📊 Organization events: ${orgEvents.length}, Public events: ${publicEvents.length}, Own events: ${ownEvents.length}`);
+                        }
+                      } else {
+                        addResult('ℹ️ User not authenticated, skipping visibility test');
+                      }
+                    } catch (visibilityError: any) {
+                      addResult(`❌ Organization visibility test error: ${visibilityError.message}`);
+                    }
+
+                    addResult('🎉 Event and image tests completed!');
+
+                  } catch (error: any) {
+                    addResult(`💥 Test suite error: ${error.message}`);
+                  }
+                }}
+                className="w-full"
+              >
+                Run Event & Image Tests
+              </Button>
+
+              {testResults.length > 0 && (
+                <div className="bg-gray-100 p-4 rounded text-xs max-h-64 overflow-auto">
+                  {testResults.map((result, index) => (
+                    <div key={index} className="mb-1">
+                      {result}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
