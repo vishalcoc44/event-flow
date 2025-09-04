@@ -22,6 +22,18 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
+      // Check if service role key is configured (required for password reset)
+      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.error('SUPABASE_SERVICE_ROLE_KEY is missing from environment variables')
+        setError('Password reset is not properly configured. Please contact support.')
+        toast({
+          title: 'Configuration Error',
+          description: 'Password reset service is not available. Please try again later.',
+          variant: 'destructive'
+        })
+        return
+      }
+
       // Call Supabase to send a password reset email, include redirectTo so user lands on our reset page
       const redirectTo = `${window.location.origin}/reset-password`
       console.log('=== PASSWORD RESET EMAIL DEBUG ===')
@@ -29,9 +41,10 @@ export default function ForgotPasswordPage() {
       console.log('Redirect URL:', redirectTo)
       console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
       console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      console.log('Service Role Key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
       console.log('Window location origin:', window.location.origin)
 
-      // Supabase v2 method
+      // Supabase v2 method - requires SUPABASE_SERVICE_ROLE_KEY for proper functionality
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       })
@@ -86,8 +99,9 @@ export default function ForgotPasswordPage() {
                 <p className="text-gray-600 mb-4">No worries — we'll send a link to reset it.</p>
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-6">
                   <p className="text-sm text-blue-700">
-                    <strong>Note:</strong> Password reset emails require Supabase Auth configuration.
-                    Make sure email templates are enabled in your Supabase dashboard.
+                    <strong>Note:</strong> Password reset emails require proper Supabase configuration.
+                    Ensure your <code className="bg-blue-100 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> is set in environment variables
+                    and email templates are enabled in your Supabase dashboard.
                   </p>
                 </div>
 

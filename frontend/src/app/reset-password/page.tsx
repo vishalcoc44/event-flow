@@ -475,6 +475,10 @@ function ResetPasswordForm() {
   const isExpiredLink = searchParams?.get('error') === 'access_denied' &&
                        searchParams?.get('error_code') === 'otp_expired'
 
+  // Check configuration status (this will be available through our validation function)
+  const configValidation = validateSupabaseConfig()
+  const isServiceRoleMissing = !configValidation.config.serviceRoleKey || configValidation.config.serviceRoleKey === 'Missing'
+
   // If we have some tokens but they don't meet validation criteria, show a warning
   const hasAnyTokens = accessToken || refreshToken || code
   if (hasAnyTokens && !hasValidTokens) {
@@ -500,10 +504,13 @@ function ResetPasswordForm() {
               </svg>
             </div>
             <h1 className="text-2xl font-semibold text-red-800 mb-2">
-              {isExpiredLink ? 'Reset Link Expired' : 'Invalid Reset Link'}
+              {isServiceRoleMissing ? 'Configuration Error' :
+               isExpiredLink ? 'Reset Link Expired' : 'Invalid Reset Link'}
             </h1>
             <p className="text-red-700 mb-4">
-              {isExpiredLink
+              {isServiceRoleMissing
+                ? 'Password reset is not properly configured. The service role key is missing from server configuration.'
+                : isExpiredLink
                 ? 'This password reset link has expired. Password reset links are valid for 1 hour for security reasons.'
                 : 'This password reset link is invalid or missing required authentication tokens.'
               }
@@ -535,7 +542,7 @@ function ResetPasswordForm() {
                 }}
                 className="block w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
-                Request New Password Reset
+                {isServiceRoleMissing ? 'Contact Support' : 'Request New Password Reset'}
               </button>
               <button
                 onClick={() => {
