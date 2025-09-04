@@ -14,6 +14,8 @@ import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrga
 import { useCategories } from '@/contexts/CategoryContext'
 import { supabase } from '@/lib/supabase'
 import { EventListSkeleton } from '@/components/ui/loading-skeleton'
+import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface OrganizationEvent {
   id: string      // Matches what database actually returns
@@ -48,6 +50,7 @@ export default function OrganizationEvents() {
   const { canCreateEvents, isLoadingPermissions } = useOrganizationPermissions()
   const { categories } = useCategories()
   const { toast } = useToast()
+  const { user } = useAuth()
 
   const [events, setEvents] = useState<OrganizationEvent[]>([])
   const [eventSpaces, setEventSpaces] = useState<EventSpace[]>([])
@@ -256,6 +259,9 @@ export default function OrganizationEvents() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

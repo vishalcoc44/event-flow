@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { supabase } from '@/lib/supabase'
 
-// Simplified password reset component that bypasses session setup
-function SimplifiedPasswordReset({ accessToken, refreshToken, type }: {
+// Simplified password reset component that handles different token formats
+function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
   accessToken: string
   refreshToken: string
   type: string
+  code?: string
 }) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -41,61 +42,124 @@ function SimplifiedPasswordReset({ accessToken, refreshToken, type }: {
     setLoading(true)
 
     try {
-      // Try direct password update with the access token
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-          password: password
+      // Clear any existing session first to prevent automatic login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase.auth.token')
+        sessionStorage.clear()
+
+        // Clear any Supabase-related localStorage items
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.')) {
+            localStorage.removeItem(key)
+          }
         })
+      }
+
+      // Try to set the session with the tokens first (required for password update)
+      if (accessToken && refreshToken) {
+        console.log('Setting session with access/refresh tokens...')
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        })
+
+        if (sessionError) {
+          console.warn('Failed to set session with tokens:', sessionError)
+          // Continue anyway - some password reset flows might work without explicit session setting
+        }
+      } else if (code) {
+        console.log('Exchanging code for session...')
+        const { error: codeError } = await supabase.auth.exchangeCodeForSession(code)
+
+        if (codeError) {
+          console.warn('Failed to exchange code for session:', codeError)
+          // Continue anyway - some flows might work without session exchange
+        }
+      }
+
+      // Try to update password using Supabase auth
+      console.log('Updating password...')
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password
       })
 
-      if (response.ok) {
-        setSuccess(true)
-        toast({
-          title: 'Password updated successfully!',
-          description: 'You can now sign in with your new password.',
+      if (updateError) {
+        throw updateError
+      }
+
+      setSuccess(true)
+      toast({
+        title: 'Password updated successfully!',
+        description: 'You can now sign in with your new password.',
+      })
+
+      // Clear any tokens from URL and local storage
+      if (typeof window !== 'undefined') {
+        // Clear URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname)
+
+        // Clear all auth-related storage to prevent auto-login
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.')) {
+            localStorage.removeItem(key)
+          }
         })
 
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error_description || 'Failed to update password')
+        // Clear session storage
+        sessionStorage.clear()
       }
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
     } catch (err: any) {
       console.error('Password update error:', err)
-      setError(err.message || 'Failed to update password. Please try again.')
 
-      // If direct method fails, try with Supabase client
+      // Try direct API call as fallback
       try {
-        console.log('Trying Supabase client method...')
-        const { error: supabaseError } = await supabase.auth.updateUser({
-          password: password
+        console.log('Trying direct API method...')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            password: password
+          })
         })
 
-        if (supabaseError) {
-          throw supabaseError
+        if (response.ok) {
+          setSuccess(true)
+          toast({
+            title: 'Password updated successfully!',
+            description: 'You can now sign in with your new password.',
+          })
+
+          // Clear tokens and redirect
+          if (typeof window !== 'undefined') {
+            window.history.replaceState({}, document.title, window.location.pathname)
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('supabase.auth.')) {
+                localStorage.removeItem(key)
+              }
+            })
+            sessionStorage.clear()
+          }
+
+          setTimeout(() => {
+            router.push('/login')
+          }, 2000)
+          return
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error_description || 'Failed to update password')
         }
-
-        setSuccess(true)
-        toast({
-          title: 'Password updated successfully!',
-          description: 'You can now sign in with your new password.',
-        })
-
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
-      } catch (supabaseErr: any) {
-        console.error('Supabase method also failed:', supabaseErr)
-        setError(`Both methods failed: ${supabaseErr.message}`)
+      } catch (fallbackErr: any) {
+        console.error('Fallback method also failed:', fallbackErr)
+        setError(`Password update failed: ${err.message || fallbackErr.message}`)
       }
     } finally {
       setLoading(false)
@@ -231,28 +295,120 @@ function ResetPasswordForm() {
   const router = useRouter()
   const { toast } = useToast()
 
-  // Extract tokens from URL
+  // Extract tokens from URL - comprehensive approach
   let hashParams = new URLSearchParams()
   if (typeof window !== 'undefined') {
     const urlObj = new URL(window.location.href)
-    hashParams = urlObj.hash ? new URLSearchParams(urlObj.hash.substring(1)) : new URLSearchParams()
+    // Try different hash formats
+    if (urlObj.hash) {
+      const hashContent = urlObj.hash.substring(1) // Remove the #
+      if (hashContent.includes('=')) {
+        // Standard format: #access_token=...&refresh_token=...
+        hashParams = new URLSearchParams(hashContent)
+      } else {
+        // Try to parse as JSON or other format
+        try {
+          const hashData = JSON.parse(decodeURIComponent(hashContent))
+          if (hashData.access_token) hashParams.set('access_token', hashData.access_token)
+          if (hashData.refresh_token) hashParams.set('refresh_token', hashData.refresh_token)
+          if (hashData.type) hashParams.set('type', hashData.type)
+        } catch (e) {
+          // Not JSON, try other formats
+        }
+      }
+    }
   }
 
-  const accessToken = searchParams?.get('access_token') || hashParams.get('access_token') || ''
-  const refreshToken = searchParams?.get('refresh_token') || hashParams.get('refresh_token') || ''
-  const type = searchParams?.get('type') || hashParams.get('type') || ''
-  const mode = searchParams?.get('mode') || ''
+  // Try multiple parameter names and formats
+  const accessToken =
+    searchParams?.get('access_token') ||
+    hashParams.get('access_token') ||
+    searchParams?.get('token') ||
+    hashParams.get('token') ||
+    ''
 
-  // Check if we have valid tokens
-  const hasValidTokens = accessToken && accessToken.length > 10 && type === 'recovery'
+  const refreshToken =
+    searchParams?.get('refresh_token') ||
+    hashParams.get('refresh_token') ||
+    searchParams?.get('refreshToken') ||
+    hashParams.get('refreshToken') ||
+    ''
+
+  const type =
+    searchParams?.get('type') ||
+    hashParams.get('type') ||
+    searchParams?.get('mode') ||
+    hashParams.get('mode') ||
+    ''
+
+  const code = searchParams?.get('code') || hashParams.get('code') || ''
+
+  // More comprehensive token validation
+  const hasValidTokens = (
+    (accessToken && accessToken.length > 20) ||
+    (code && code.length > 10)
+  ) && (
+    type === 'recovery' ||
+    type === 'resetPassword' ||
+    type === 'signup' ||
+    !type // Some flows don't include type
+  )
 
   console.log('=== PASSWORD RESET DEBUG ===')
   console.log('Full URL:', typeof window !== 'undefined' ? window.location.href : 'undefined')
-  console.log('Access Token length:', accessToken?.length || 0)
-  console.log('Refresh Token length:', refreshToken?.length || 0)
+  console.log('Search params keys:', Array.from(searchParams?.keys() || []))
+  console.log('Hash content:', typeof window !== 'undefined' ? window.location.hash : 'undefined')
+  console.log('Hash params keys:', Array.from(hashParams.keys()))
+
+  // Log all search params for debugging
+  console.log('All search params:')
+  searchParams?.forEach((value, key) => {
+    console.log(`  ${key}: ${value.substring(0, 20)}${value.length > 20 ? '...' : ''}`)
+  })
+
+  // Log all hash params for debugging
+  console.log('All hash params:')
+  hashParams.forEach((value, key) => {
+    console.log(`  ${key}: ${value.substring(0, 20)}${value.length > 20 ? '...' : ''}`)
+  })
+
+  console.log('--- TOKEN EXTRACTION ---')
+  console.log('Access Token (search):', searchParams?.get('access_token') ? `${searchParams.get('access_token')?.substring(0, 10)}...` : 'null')
+  console.log('Access Token (hash):', hashParams.get('access_token') ? `${hashParams.get('access_token')?.substring(0, 10)}...` : 'null')
+  console.log('Access Token (final):', accessToken ? `${accessToken.substring(0, 10)}... (${accessToken.length} chars)` : 'null')
+  console.log('Refresh Token (final):', refreshToken ? `${refreshToken.substring(0, 10)}... (${refreshToken.length} chars)` : 'null')
   console.log('Type:', type)
-  console.log('Mode:', mode)
+  console.log('Code:', code ? `${code.substring(0, 10)}...` : 'null')
   console.log('Has Valid Tokens:', hasValidTokens)
+
+  // Store debug info in window for easier access
+  if (typeof window !== 'undefined') {
+    (window as any).passwordResetDebug = {
+      fullUrl: window.location.href,
+      searchParams: Object.fromEntries(searchParams?.entries() || []),
+      hash: window.location.hash,
+      hashParams: Object.fromEntries(hashParams.entries()),
+      extracted: { accessToken, refreshToken, type, code, hasValidTokens },
+      supabaseConfig: {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Present' : 'Missing',
+        serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Present' : 'Missing'
+      }
+    }
+
+    // Add a test function to check Supabase connection
+    ;(window as any).testSupabaseConnection = async () => {
+      try {
+        console.log('Testing Supabase connection...')
+        const { data, error } = await supabase.auth.getSession()
+        console.log('Supabase connection test result:', { data, error })
+        return { success: !error, data, error }
+      } catch (err) {
+        console.error('Supabase connection test failed:', err)
+        return { success: false, error: err }
+      }
+    }
+  }
 
   // If we have valid tokens, show the simplified password reset form
   if (hasValidTokens) {
@@ -261,6 +417,7 @@ function ResetPasswordForm() {
         accessToken={accessToken}
         refreshToken={refreshToken}
         type={type}
+        code={code}
       />
     )
   }
@@ -284,19 +441,35 @@ function ResetPasswordForm() {
               <p><strong>Debug Info:</strong></p>
               <p>Access Token: {accessToken ? `${accessToken.substring(0, 20)}... (${accessToken.length} chars)` : 'Missing'}</p>
               <p>Refresh Token: {refreshToken ? `${refreshToken.substring(0, 20)}... (${refreshToken.length} chars)` : 'Missing'}</p>
+              <p>Code: {code ? `${code.substring(0, 20)}... (${code.length} chars)` : 'Missing'}</p>
               <p>Type: {type || 'Not set'}</p>
               <p>Has Valid Tokens: {hasValidTokens ? 'Yes' : 'No'}</p>
+              <p className="mt-2 text-gray-600">Check browser console for detailed logs</p>
             </div>
 
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/forgot-password')}
+                onClick={() => {
+                  // Clear any cached data and redirect
+                  if (typeof window !== 'undefined') {
+                    localStorage.clear()
+                    sessionStorage.clear()
+                  }
+                  router.push('/forgot-password')
+                }}
                 className="block w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
                 Request New Password Reset
               </button>
               <button
-                onClick={() => router.push('/login')}
+                onClick={() => {
+                  // Clear any cached data and redirect
+                  if (typeof window !== 'undefined') {
+                    localStorage.clear()
+                    sessionStorage.clear()
+                  }
+                  router.push('/login')
+                }}
                 className="block w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
               >
                 Back to Login
@@ -306,9 +479,24 @@ function ResetPasswordForm() {
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-left">
               <p className="text-sm text-yellow-800 font-medium mb-2">🔧 Having issues with password reset?</p>
               <ul className="text-xs text-yellow-700 space-y-1">
-                <li>• Check that your Supabase Site URL is set to: <code className="bg-yellow-100 px-1 rounded">https://eventflownow.netlify.app</code></li>
-                <li>• Verify redirect URLs include the reset-password path</li>
-                <li>• Ensure email templates use <code className="bg-yellow-100 px-1 rounded">&#123;&#123; .ConfirmationURL &#125;&#125;</code></li>
+                <li>• <strong>Supabase Dashboard → Authentication → Settings:</strong></li>
+                <ul className="ml-4 space-y-1">
+                  <li>• Site URL: <code className="bg-yellow-100 px-1 rounded">https://eventflownow.netlify.app</code></li>
+                  <li>• Redirect URLs: Add <code className="bg-yellow-100 px-1 rounded">https://eventflownow.netlify.app/reset-password</code></li>
+                </ul>
+                <li>• <strong>Email Templates:</strong></li>
+                <ul className="ml-4 space-y-1">
+                  <li>• Use <code className="bg-yellow-100 px-1 rounded">&#123;&#123; .ConfirmationURL &#125;&#125;</code> for reset links</li>
+                  <li>• Subject: "Reset your password for EventFlow"</li>
+                  <li>• Include proper token parameters in the URL</li>
+                </ul>
+                <li>• <strong>Test the flow:</strong></li>
+                <ul className="ml-4 space-y-1">
+                  <li>• Open browser console when clicking reset link</li>
+                  <li>• Check if tokens appear in URL or hash fragment</li>
+                  <li>• Verify the reset link format matches expected parameters</li>
+                <li>• <strong>Browser Console Test:</strong> Run <code className="bg-yellow-100 px-1 rounded">console.log(window.passwordResetDebug)</code> after clicking reset link</li>
+                </ul>
               </ul>
             </div>
           </div>

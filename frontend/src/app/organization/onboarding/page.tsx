@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { HoverShadowEffect } from "@/components/ui/hover-shadow-effect";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import { useAuth } from "@/contexts/AuthContext";
 
 const steps = [
   "Welcome",
@@ -23,6 +25,7 @@ export default function OrganizationOnboardingPage() {
   const [space, setSpace] = useState({ name: "", description: "" });
   const [completed, setCompleted] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   // Checklist state
   const checklist = [
@@ -50,6 +53,9 @@ export default function OrganizationOnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
       <main className="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
         <div className="w-full max-w-xl mx-auto">
           <Card className="shadow-sm border border-gray-200">

@@ -15,8 +15,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     // Persist session in localStorage
     persistSession: true,
-    // Detect session in URL for password recovery flows
-    detectSessionInUrl: true,
+    // Disable automatic session detection for security (we handle password reset manually)
+    detectSessionInUrl: false,
     // Storage key for session persistence
     storageKey: 'supabase.auth.token',
     // Flow type for better token handling

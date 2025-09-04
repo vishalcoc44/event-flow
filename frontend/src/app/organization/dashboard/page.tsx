@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { organizationAPI, authAPI } from '@/lib/api';
+import Header from '@/components/Header';
 
 // Icons
 const BuildingOfficeIcon = ({ className }: { className?: string }) => (
@@ -255,6 +256,9 @@ export default function OrganizationDashboard() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-pink-200/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Default Organization Banner - Extreme Top */}

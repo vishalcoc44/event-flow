@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Custom Dropdown Component
 const CustomDropdown = ({
@@ -180,6 +182,7 @@ export default function OrganizationMembers() {
   const { organization, orgLoading } = useOrganizationData();
   const { canManageMembers, canInviteUsers, isOwner } = useOrganizationPermissions();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [members, setMembers] = useState<Member[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -605,6 +608,9 @@ export default function OrganizationMembers() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-200/10 to-pink-200/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}

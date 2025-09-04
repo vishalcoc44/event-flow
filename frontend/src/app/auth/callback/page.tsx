@@ -23,13 +23,17 @@ function AuthCallbackContent() {
 
         // Handle different auth flows
         if (type === 'recovery' && accessToken && refreshToken) {
-          // Password reset flow
-          console.log('Redirecting to password reset with tokens')
+          // Password reset flow - redirect with tokens but don't create session
+          console.log('Redirecting to password reset with tokens (no auto-login)')
           const resetUrl = new URL('/reset-password', window.location.origin)
           resetUrl.searchParams.set('type', type)
           resetUrl.searchParams.set('access_token', accessToken)
           resetUrl.searchParams.set('refresh_token', refreshToken)
-          
+
+          // Clear any existing session to prevent auto-login
+          localStorage.removeItem('supabase.auth.token')
+          sessionStorage.clear()
+
           window.location.href = resetUrl.toString()
           return
         } else if (code) {

@@ -24,15 +24,19 @@ export default function ForgotPasswordPage() {
     try {
       // Call Supabase to send a password reset email, include redirectTo so user lands on our reset page
       const redirectTo = `${window.location.origin}/reset-password`
+      console.log('=== PASSWORD RESET EMAIL DEBUG ===')
       console.log('Sending password reset email to:', email)
       console.log('Redirect URL:', redirectTo)
       console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
       console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      console.log('Window location origin:', window.location.origin)
 
       // Supabase v2 method
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       })
+
+      console.log('Supabase resetPasswordForEmail response:', { data, error })
 
       if (error) {
         console.error('Password reset error:', error)

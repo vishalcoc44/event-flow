@@ -83,12 +83,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event: any, session: any) => {
+                // Skip all auth state changes on password reset page
+                if (typeof window !== 'undefined' && window.location.pathname === '/reset-password') {
+                    console.log('Skipping auth state change on password reset page');
+                    return;
+                }
+
                 // Only redirect if we're on auth pages and this is a sign-in event
                 if (event === 'SIGNED_IN' && session && typeof window !== 'undefined') {
                     const pathname = window.location.pathname;
 
                     // Skip redirect if on auth pages or password reset flow
-                    const isAuthPage = pathname === '/reset-password' || pathname === '/login' || pathname === '/register';
+                    const isAuthPage = pathname === '/login' || pathname === '/register';
                     const isPasswordReset = window.location.search.includes('type=recovery') || window.location.search.includes('access_token');
 
                     if (isAuthPage || isPasswordReset) {

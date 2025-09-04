@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Icons
 const BuildingOfficeIcon = ({ className }: { className?: string }) => (
@@ -58,6 +60,7 @@ export default function OrganizationSpaces() {
   const { organization, orgLoading } = useOrganizationData();
   const { canManageEventSpaces, isOwner, isLoadingPermissions } = useOrganizationPermissions();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [spaces, setSpaces] = useState<EventSpace[]>([]);
   const [loading, setLoading] = useState(false);
@@ -348,6 +351,9 @@ export default function OrganizationSpaces() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HoverShadowEffect } from "@/components/ui/hover-shadow-effect";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import { useAuth } from "@/contexts/AuthContext";
 
 const plans = [
   {
@@ -49,6 +51,7 @@ const allFeatures = Array.from(
 export default function OrganizationPlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const router = useRouter();
+  const { user } = useAuth();
 
   // Placeholder: Replace with real org plan from context/API
   const currentPlan = "FREE";
@@ -63,6 +66,9 @@ export default function OrganizationPlansPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Header with Organization Dropdown */}
+      <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Compare Subscription Plans</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
