@@ -263,4 +263,48 @@ export const supabaseDB = {
   },
 };
 
+// Configuration validation function
+export const validateSupabaseConfig = () => {
+  const config = {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  };
+
+  const issues = [];
+
+  if (!config.url) {
+    issues.push('NEXT_PUBLIC_SUPABASE_URL is missing');
+  } else if (!config.url.includes('supabase.co')) {
+    issues.push('NEXT_PUBLIC_SUPABASE_URL appears to be invalid');
+  }
+
+  if (!config.anonKey) {
+    issues.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing');
+  } else if (config.anonKey.length < 50) {
+    issues.push('NEXT_PUBLIC_SUPABASE_ANON_KEY appears to be invalid (too short)');
+  }
+
+  if (!config.serviceRoleKey) {
+    issues.push('SUPABASE_SERVICE_ROLE_KEY is missing (required for password reset)');
+  } else if (config.serviceRoleKey.length < 50) {
+    issues.push('SUPABASE_SERVICE_ROLE_KEY appears to be invalid (too short)');
+  }
+
+  return {
+    isValid: issues.length === 0,
+    config: {
+      url: config.url ? 'Present' : 'Missing',
+      anonKey: config.anonKey ? 'Present' : 'Missing',
+      serviceRoleKey: config.serviceRoleKey ? 'Present' : 'Missing',
+    },
+    issues,
+  };
+};
+
+// Make validation available globally for debugging
+if (typeof window !== 'undefined') {
+  (window as any).validateSupabaseConfig = validateSupabaseConfig;
+}
+
 export default supabase; 

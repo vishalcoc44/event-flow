@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import { supabase } from '@/lib/supabase'
+import { supabase, validateSupabaseConfig } from '@/lib/supabase'
 
 // Simplified password reset component that handles different token formats
 function SimplifiedPasswordReset({ accessToken, refreshToken, type, code }: {
@@ -432,6 +432,7 @@ function ResetPasswordForm() {
   console.log('Has Valid Tokens:', hasValidTokens)
 
   // Store debug info in window for easier access
+  const configValidation = validateSupabaseConfig()
   if (typeof window !== 'undefined') {
     (window as any).passwordResetDebug = {
       fullUrl: window.location.href,
@@ -439,11 +440,9 @@ function ResetPasswordForm() {
       hash: window.location.hash,
       hashParams: Object.fromEntries(hashParams.entries()),
       extracted: { accessToken, refreshToken, type, code, hasValidTokens },
-      supabaseConfig: {
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Present' : 'Missing',
-        serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Present' : 'Missing'
-      }
+      supabaseConfig: configValidation.config,
+      configIssues: configValidation.issues,
+      configValid: configValidation.isValid,
     }
 
     // Add a test function to check Supabase connection
@@ -472,6 +471,10 @@ function ResetPasswordForm() {
     )
   }
 
+  // Check if this is an expired link
+  const isExpiredLink = searchParams?.get('error') === 'access_denied' &&
+                       searchParams?.get('error_code') === 'otp_expired'
+
   // If we have some tokens but they don't meet validation criteria, show a warning
   const hasAnyTokens = accessToken || refreshToken || code
   if (hasAnyTokens && !hasValidTokens) {
@@ -496,8 +499,15 @@ function ResetPasswordForm() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-semibold text-red-800 mb-2">Invalid Reset Link</h1>
-            <p className="text-red-700 mb-4">This password reset link is invalid or missing required authentication tokens.</p>
+            <h1 className="text-2xl font-semibold text-red-800 mb-2">
+              {isExpiredLink ? 'Reset Link Expired' : 'Invalid Reset Link'}
+            </h1>
+            <p className="text-red-700 mb-4">
+              {isExpiredLink
+                ? 'This password reset link has expired. Password reset links are valid for 1 hour for security reasons.'
+                : 'This password reset link is invalid or missing required authentication tokens.'
+              }
+            </p>
 
             <div className="text-left text-xs bg-red-50 p-3 rounded mb-4">
               <p><strong>Debug Info:</strong></p>
@@ -545,6 +555,12 @@ function ResetPasswordForm() {
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-left">
               <p className="text-sm text-yellow-800 font-medium mb-2">🔧 Having issues with password reset?</p>
               <ul className="text-xs text-yellow-700 space-y-1">
+                <li>• <strong>CRITICAL: Environment Configuration</strong></li>
+                <ul className="ml-4 space-y-1">
+                  <li>• <strong>Add to .env.local:</strong> <code className="bg-yellow-100 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY=your_service_role_key</code></li>
+                  <li>• Get service role key from Supabase Dashboard → Settings → API</li>
+                  <li>• Password reset requires this key to function properly</li>
+                </ul>
                 <li>• <strong>Supabase Dashboard → Authentication → Settings:</strong></li>
                 <ul className="ml-4 space-y-1">
                   <li>• Site URL: <code className="bg-yellow-100 px-1 rounded">https://eventflownow.netlify.app</code></li>
