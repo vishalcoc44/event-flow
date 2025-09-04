@@ -22,18 +22,6 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
-      // Check if service role key is configured (required for password reset)
-      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        console.error('SUPABASE_SERVICE_ROLE_KEY is missing from environment variables')
-        setError('Password reset is not properly configured. Please contact support.')
-        toast({
-          title: 'Configuration Error',
-          description: 'Password reset service is not available. Please try again later.',
-          variant: 'destructive'
-        })
-        return
-      }
-
       // Call Supabase to send a password reset email, include redirectTo so user lands on our reset page
       const redirectTo = `${window.location.origin}/reset-password`
       console.log('=== PASSWORD RESET EMAIL DEBUG ===')
@@ -41,7 +29,6 @@ export default function ForgotPasswordPage() {
       console.log('Redirect URL:', redirectTo)
       console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
       console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-      console.log('Service Role Key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
       console.log('Window location origin:', window.location.origin)
 
       // Supabase v2 method - requires SUPABASE_SERVICE_ROLE_KEY for proper functionality
@@ -53,10 +40,24 @@ export default function ForgotPasswordPage() {
 
       if (error) {
         console.error('Password reset error:', error)
-        setError(error.message || 'Unable to send reset email. Please try again.')
+
+        // Provide more specific error messages
+        let errorMessage = error.message || 'Unable to send reset email. Please try again.'
+        let toastDescription = error.message || 'Unable to send reset email'
+
+        // Check for common configuration errors
+        if (error.message?.includes('service_role') || error.message?.includes('permission') || error.message?.includes('unauthorized')) {
+          errorMessage = 'Password reset service is not properly configured. Please contact support.'
+          toastDescription = 'Password reset service configuration error'
+        } else if (error.message?.includes('email') && error.message?.includes('not found')) {
+          errorMessage = 'Email address not found. Please check and try again.'
+          toastDescription = 'Email address not found in our system'
+        }
+
+        setError(errorMessage)
         toast({
           title: 'Reset failed',
-          description: error.message || 'Unable to send reset email',
+          description: toastDescription,
           variant: 'destructive'
         })
       } else {
@@ -100,8 +101,7 @@ export default function ForgotPasswordPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-6">
                   <p className="text-sm text-blue-700">
                     <strong>Note:</strong> Password reset emails require proper Supabase configuration.
-                    Ensure your <code className="bg-blue-100 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> is set in environment variables
-                    and email templates are enabled in your Supabase dashboard.
+                    Make sure your Supabase project is set up with email templates enabled and all required environment variables are configured.
                   </p>
                 </div>
 
