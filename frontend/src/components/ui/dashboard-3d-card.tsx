@@ -28,10 +28,10 @@ export function Dashboard3DCard({
   onClick,
 }: Dashboard3DCardProps) {
   return (
-    <CardContainer 
+    <CardContainer
       className={cn("w-full h-full", containerClassName)}
     >
-      <CardBody 
+      <CardBody
         className={cn(
           "bg-white relative group/card border border-gray-200 w-full h-auto rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer",
           className
@@ -45,7 +45,7 @@ export function Dashboard3DCard({
             {title}
           </CardItem>
         )}
-        
+
         {icon && (
           <CardItem
             translateZ="40"
@@ -54,7 +54,7 @@ export function Dashboard3DCard({
             {icon}
           </CardItem>
         )}
-        
+
         {value && (
           <CardItem
             translateZ="50"
@@ -63,7 +63,7 @@ export function Dashboard3DCard({
             {value}
           </CardItem>
         )}
-        
+
         {description && (
           <CardItem
             translateZ="60"
@@ -72,7 +72,7 @@ export function Dashboard3DCard({
             {description}
           </CardItem>
         )}
-        
+
         {subtitle && (
           <CardItem
             translateZ="70"
@@ -81,7 +81,7 @@ export function Dashboard3DCard({
             {subtitle}
           </CardItem>
         )}
-        
+
         {children}
       </CardBody>
     </CardContainer>
@@ -106,7 +106,7 @@ export function Activity3DCard({
 }) {
   return (
     <CardContainer className="w-full">
-      <CardBody 
+      <CardBody
         className={cn(
           "bg-white relative group/card border border-gray-200 w-full h-auto rounded-xl p-4 hover:bg-gray-50 transition-all duration-200 cursor-pointer",
           className
@@ -115,28 +115,28 @@ export function Activity3DCard({
         <div className="flex items-start">
           <CardItem
             translateZ="20"
-            className="mr-4"
+            className="mr-3"
           >
             {icon}
           </CardItem>
-          
+
           <div className="flex-1">
             <CardItem
               translateZ="30"
-              className="text-sm text-gray-800"
+              className="text-sm text-gray-800 leading-tight"
             >
               {title}
             </CardItem>
-            
+
             <CardItem
               translateZ="40"
-              className="text-xs text-gray-500 mt-1"
+              className="text-xs text-gray-500 mt-0.5"
             >
               {time}
             </CardItem>
           </div>
         </div>
-        
+
         {children}
       </CardBody>
     </CardContainer>
@@ -153,7 +153,7 @@ export function TableRow3DCard({
 }) {
   return (
     <CardContainer className="w-full">
-      <CardBody 
+      <CardBody
         className={cn(
           "bg-white relative group/card border-b border-gray-200 w-full h-auto hover:bg-gray-50 transition-all duration-200",
           className

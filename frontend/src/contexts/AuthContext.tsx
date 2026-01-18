@@ -30,9 +30,9 @@ type AuthContextType = {
     user: User | null
     login: (email: string, password: string) => Promise<boolean>
     logout: () => void
-    register: (userData: { 
-        email: string, 
-        password: string, 
+    register: (userData: {
+        email: string,
+        password: string,
         username?: string,
         firstName?: string,
         lastName?: string,
@@ -147,13 +147,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         organization_id: undefined as string | undefined,
                         created_at: session.user.created_at
                     };
-                    
+
                     // Load organization data asynchronously (non-blocking) - prevent infinite loops
                     if (!isLoadingOrgData && !userData.organization_id) {
                         setIsLoadingOrgData(true);
                         Promise.race([
                             authAPI.getUserOrganizationData(session.user.id),
-                            new Promise((_, reject) => 
+                            new Promise((_, reject) =>
                                 setTimeout(() => reject(new Error('Organization data timeout')), 2000)
                             )
                         ])
@@ -182,10 +182,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 setIsLoadingOrgData(false);
                             });
                     }
-                    
+
                     setUser(userData);
                     isInitialized = true;
-                    
+
                     // Check if we should redirect after sign in
                     // Don't redirect during password reset flows or if already on auth pages
                     if (typeof window !== 'undefined' && event === 'SIGNED_IN') {
@@ -219,7 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             setIsLoading(false);
                             return;
                         }
-                        
+
                         // Only redirect if we're on the home page or auth pages
                         const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
                         if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
@@ -303,7 +303,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         setIsLoadingOrgData(true);
                         Promise.race([
                             authAPI.getUserOrganizationData(authResult.session.user.id),
-                            new Promise((_, reject) => 
+                            new Promise((_, reject) =>
                                 setTimeout(() => reject(new Error('Organization data timeout')), 2000)
                             )
                         ])
@@ -348,15 +348,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setLoadingStabilized(false);
             }
         };
-        
+
         initializeAuth();
-        
+
         // Safety timeout to prevent indefinite loading (reduced since we have individual timeouts)
         const loadingTimeout = setTimeout(() => {
             console.warn('Auth loading timeout reached, resetting loading state');
             setLoadingStabilized(false);
         }, 3000); // 3 seconds timeout to match our performance requirement
-        
+
         // Cleanup subscription and timeout
         return () => {
             subscription.unsubscribe();
@@ -483,7 +483,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (!loginResult.success) {
                 console.log('❌ Login API returned error:', loginResult.error);
                 // For invalid credentials, throw a specific error that the UI can catch
-                if (loginResult.error?.includes('Invalid login credentials') || 
+                if (loginResult.error?.includes('Invalid login credentials') ||
                     loginResult.error?.includes('invalid_credentials') ||
                     loginResult.error?.includes('Invalid email or password')) {
                     throw new Error('Invalid email or password. Please check your credentials and try again.');
@@ -500,10 +500,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = loginResult.data;
 
             console.log('✅ Supabase authentication successful');
-            
+
             // Get user role from metadata
             const role = data.user.user_metadata.role as 'ADMIN' | 'USER' || 'USER';
-            
+
             // Load organization data using optimized cached method
             const userData = {
                 id: data.user.id,
@@ -542,15 +542,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Set user data immediately
             setUser(userData);
-            
+
             // Set loading to false before redirect
             setLoadingStabilized(false);
-            
+
             // Don't auto-redirect if user is on password reset page
             if (typeof window !== 'undefined' && window.location.pathname === '/reset-password') {
                 return true;
             }
-            
+
             // Redirect based on role and organization - add delay to prevent fetch conflicts
             setTimeout(() => {
                 if (role === 'ADMIN') {
@@ -559,7 +559,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     router.push('/customer/dashboard');
                 }
             }, 100);
-            
+
             return true;
         } catch (error) {
             setLoadingStabilized(false);
@@ -579,7 +579,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 sessionStorage.removeItem('passwordResetMode');
             }
 
-            router.push('/login');
+            router.push('/auth');
         } catch (error) {
             // Logout error - silently handle
         }
@@ -616,9 +616,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const register = async (userData: { 
-        email: string, 
-        password: string, 
+    const register = async (userData: {
+        email: string,
+        password: string,
         username?: string,
         firstName?: string,
         lastName?: string,
@@ -631,7 +631,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }) => {
         try {
             setLoadingStabilized(true);
-            
+
             // Register the user with Supabase
             const { data, error } = await supabase.auth.signUp({
                 email: userData.email,
@@ -649,11 +649,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
             });
-            
+
             if (error) {
                 throw error;
             }
-            
+
             // If registration is successful and we have a user
             if (data.user) {
                 // If this is an admin request, create the request in the database
@@ -670,7 +670,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             p_experience_level: 'INTERMEDIATE',
                             p_intended_use: 'Event management and administration'
                         });
-                        
+
                         if (requestError) {
                             console.error('Error creating admin request:', requestError);
                             // Continue anyway as the user is registered
@@ -679,7 +679,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         console.error('Error creating admin request:', requestError);
                         // Continue anyway as the user is registered
                     }
-                    
+
                     // Don't sign in automatically for admin requests
                     // User will need to wait for approval
                     return true;
@@ -691,14 +691,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             email: userData.email,
                             password: userData.password
                         });
-                        
+
                         if (signInError) {
                             throw signInError;
                         }
-                        
+
                         // Determine where to redirect based on role
                         const role = userData.role || 'USER';
-                        
+
                         setTimeout(() => {
                             if (role === 'ADMIN') {
                                 router.push('/admin/dashboard');
@@ -712,7 +712,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
             }
-            
+
             return true;
         } catch (error) {
             // Registration error - silently handle

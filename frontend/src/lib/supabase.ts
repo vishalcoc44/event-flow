@@ -61,8 +61,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 // Utility function to handle token refresh errors
 export const handleAuthError = (error: any) => {
   if (error?.message?.includes('Invalid Refresh Token') ||
-      error?.message?.includes('Refresh Token Not Found') ||
-      error?.message?.includes('invalid_grant')) {
+    error?.message?.includes('Refresh Token Not Found') ||
+    error?.message?.includes('invalid_grant')) {
     console.log('🔄 Refresh token error detected, clearing session...');
 
     // Clear all auth-related storage
@@ -149,7 +149,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-  
+
   signIn: async (email: string, password: string) => {
     try {
       const result = await supabase.auth.signInWithPassword({ email, password });
@@ -162,7 +162,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-  
+
   signOut: async () => {
     try {
       // Clear all auth-related storage before signing out
@@ -182,7 +182,7 @@ export const supabaseAuth = {
       throw error;
     }
   },
-  
+
   getUser: async () => {
     try {
       const result = await supabase.auth.getUser();
@@ -207,57 +207,57 @@ export const supabaseDB = {
   getEvents: async () => {
     return await supabase.from('events').select('*');
   },
-  
+
   getEventById: async (id: string) => {
     return await supabase.from('events').select('*').eq('id', id).single();
   },
-  
+
   createEvent: async (eventData: any) => {
     return await supabase.from('events').insert(eventData);
   },
-  
+
   updateEvent: async (id: string, eventData: any) => {
     return await supabase.from('events').update(eventData).eq('id', id);
   },
-  
+
   deleteEvent: async (id: string) => {
     return await supabase.from('events').delete().eq('id', id);
   },
-  
+
   // Categories
   getCategories: async () => {
     return await supabase.from('categories').select('*');
   },
-  
+
   getCategoryById: async (id: string) => {
     return await supabase.from('categories').select('*').eq('id', id).single();
   },
-  
+
   createCategory: async (categoryData: any) => {
     return await supabase.from('categories').insert(categoryData);
   },
-  
+
   updateCategory: async (id: string, categoryData: any) => {
     return await supabase.from('categories').update(categoryData).eq('id', id);
   },
-  
+
   deleteCategory: async (id: string) => {
     return await supabase.from('categories').delete().eq('id', id);
   },
-  
+
   // Bookings
   getUserBookings: async (userId: string) => {
     return await supabase.from('bookings').select('*, events(*)').eq('user_id', userId);
   },
-  
+
   getAllBookings: async () => {
     return await supabase.from('bookings').select('*, events(*), users(*)');
   },
-  
+
   createBooking: async (bookingData: any) => {
     return await supabase.from('bookings').insert(bookingData);
   },
-  
+
   cancelBooking: async (id: string) => {
     return await supabase.from('bookings').update({ status: 'CANCELLED' }).eq('id', id);
   },
@@ -285,11 +285,13 @@ export const validateSupabaseConfig = () => {
     issues.push('NEXT_PUBLIC_SUPABASE_ANON_KEY appears to be invalid (too short)');
   }
 
-  if (!config.serviceRoleKey) {
-    issues.push('SUPABASE_SERVICE_ROLE_KEY is missing (required for password reset)');
-  } else if (config.serviceRoleKey.length < 50) {
-    issues.push('SUPABASE_SERVICE_ROLE_KEY appears to be invalid (too short)');
-  }
+  // Service Role Key is strictly for server-side operations and should NOT be exposed to client.
+  // It is NOT required for client-side password reset which uses the Anon key.
+  // if (!config.serviceRoleKey) {
+  //   issues.push('SUPABASE_SERVICE_ROLE_KEY is missing (required for password reset)');
+  // } else if (config.serviceRoleKey.length < 50) {
+  //   issues.push('SUPABASE_SERVICE_ROLE_KEY appears to be invalid (too short)');
+  // }
 
   return {
     isValid: issues.length === 0,

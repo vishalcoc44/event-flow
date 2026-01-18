@@ -13,37 +13,37 @@ import { HoverShadowEffect } from './ui/hover-shadow-effect'
 
 // Lazy load NotificationBell for better performance
 const NotificationBell = dynamic(() => import('./NotificationBell').then(mod => ({ default: mod.NotificationBell })), {
-  ssr: false,
-  loading: () => (
-    <div className="relative p-2">
-      <div className="w-5 h-5 bg-gray-300 rounded-full animate-pulse" />
-    </div>
-  )
+    ssr: false,
+    loading: () => (
+        <div className="relative p-2">
+            <div className="w-5 h-5 bg-gray-300 rounded-full animate-pulse" />
+        </div>
+    )
 })
 // Icons as SVG components
 const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
 );
 
 const BuildingOfficeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-  </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+    </svg>
 );
 
 const UserGroupIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-  </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
 );
 
 const CogIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
 );
 
 interface HeaderProps {
@@ -127,7 +127,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             <span className="max-w-[120px] truncate">{organization.name}</span>
                             <ChevronDownIcon />
                         </button>
-                        
+
                         {isOrgDropdownOpen && (
                             <div className="absolute top-full left-0 mt-1 w-64 bg-background border border-border rounded-lg shadow-lg z-50">
                                 <div className="p-4 border-b border-border">
@@ -139,7 +139,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="p-2">
                                     <Link
                                         href="/organization/dashboard"
@@ -152,7 +152,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                         </svg>
                                         <span>Dashboard</span>
                                     </Link>
-                                    
+
                                     <Link
                                         href="/organization/events"
                                         className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
@@ -163,7 +163,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                         </svg>
                                         <span>Events</span>
                                     </Link>
-                                    
+
                                     {canManageMembers && (
                                         <Link
                                             href="/organization/members"
@@ -174,7 +174,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                             <span>Members</span>
                                         </Link>
                                     )}
-                                    
+
                                     {canManageEventSpaces && (
                                         <Link
                                             href="/organization/spaces"
@@ -187,7 +187,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                             <span>Event Spaces</span>
                                         </Link>
                                     )}
-                                    
+
                                     {isOwner && (
                                         <Link
                                             href="/organization/plans"
@@ -200,7 +200,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                             <span>Plans & Pricing</span>
                                         </Link>
                                     )}
-                                    
+
                                     {isOwner && (
                                         <Link
                                             href="/organization/settings"
@@ -234,64 +234,64 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     {(user?.role === 'ADMIN' || user?.is_org_admin) && (
                         <div className="flex items-center space-x-3 flex-wrap">
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/dashboard" 
+                                <Link
+                                    href="/admin/dashboard"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                 >
                                     Dashboard
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/event" 
+                                <Link
+                                    href="/admin/event"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Add Event
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/category" 
+                                <Link
+                                    href="/admin/category"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Categories
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/events" 
+                                <Link
+                                    href="/admin/events"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Events
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/bookings" 
+                                <Link
+                                    href="/admin/bookings"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Bookings
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/customers" 
+                                <Link
+                                    href="/admin/customers"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Customers
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/admin-requests" 
+                                <Link
+                                    href="/admin/admin-requests"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/admin-requests') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Requests
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/admin/register" 
+                                <Link
+                                    href="/admin/register"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Register
@@ -303,56 +303,56 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     {user?.role === 'customer' || user?.role === 'USER' && (
                         <div className="flex items-center space-x-3 flex-wrap">
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/customer/dashboard" 
+                                <Link
+                                    href="/customer/dashboard"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Dashboard
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/events" 
+                                <Link
+                                    href="/events"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Events
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/social" 
+                                <Link
+                                    href="/social"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Social
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/customer/bookings" 
+                                <Link
+                                    href="/customer/bookings"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Bookings
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/customer/profile" 
+                                <Link
+                                    href="/customer/profile"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Profile
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/invitations" 
+                                <Link
+                                    href="/invitations"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/invitations') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Invitations
                                 </Link>
                             </HoverShadowEffect>
                             <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link 
-                                    href="/customer/admin-request-status" 
+                                <Link
+                                    href="/customer/admin-request-status"
                                     className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/admin-request-status') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
                                 >
                                     Admin Request
@@ -362,31 +362,27 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     )}
 
                     {!user && (
-                        <div className="flex items-center space-x-6">
-                            <GradientLink 
-                                href="/" 
-                                isActive={pathname === '/'}
-                            >
-                                Home
-                            </GradientLink>
-                            <GradientLink 
-                                href="/events" 
-                                isActive={pathname.includes('/events')}
-                            >
-                                Events
-                            </GradientLink>
-                            <GradientLink 
-                                href="/about" 
-                                isActive={pathname.includes('/about')}
-                            >
-                                About Us
-                            </GradientLink>
-                            <GradientLink 
-                                href="/contact" 
-                                isActive={pathname.includes('/contact')}
-                            >
-                                Contact
-                            </GradientLink>
+                        <div className="flex items-center space-x-4">
+                            <Link href="/">
+                                <Button variant="ghost" className={`rounded-full px-4 ${pathname === '/' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+                                    Home
+                                </Button>
+                            </Link>
+                            <Link href="/events">
+                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/events') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+                                    Events
+                                </Button>
+                            </Link>
+                            <Link href="/about">
+                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/about') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+                                    About Us
+                                </Button>
+                            </Link>
+                            <Link href="/contact">
+                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/contact') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+                                    Contact
+                                </Button>
+                            </Link>
                         </div>
                     )}
                 </nav>
@@ -396,11 +392,11 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                         <>
                             <NotificationBell />
                             <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                <Button 
-                                    variant="destructive" 
-                                    size="sm" 
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
                                     onClick={handleLogout}
-                                    className="px-3 py-1.5 text-sm"
+                                    className="px-4 py-1.5 text-sm rounded-full"
                                 >
                                     Logout
                                 </Button>
@@ -408,19 +404,21 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                         </>
                     ) : (
                         <>
-                            <GradientButton 
-                                href="/login"
+                            <GradientButton
+                                href="/auth"
                                 variant="outline"
                                 size="sm"
-                                className="px-3 py-1.5 text-sm"
+                                className="px-4 py-1.5 text-sm rounded-full"
+                                containerClassName="rounded-full"
                             >
                                 Login
                             </GradientButton>
-                            <GradientButton 
-                                href="/register"
+                            <GradientButton
+                                href="/auth"
                                 variant="primary"
                                 size="sm"
-                                className="px-3 py-1.5 text-sm"
+                                className="px-4 py-1.5 text-sm rounded-full"
+                                containerClassName="rounded-full"
                             >
                                 Sign Up
                             </GradientButton>
@@ -429,8 +427,8 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                 </div>
 
                 {/* Mobile menu button */}
-                <button 
-                    className="md:hidden flex items-center" 
+                <button
+                    className="md:hidden flex items-center"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
@@ -449,44 +447,44 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     <div className="container mx-auto px-2 flex flex-col space-y-3">
                         {(user?.role === 'ADMIN' || user?.is_org_admin) && (
                             <>
-                                <Link 
-                                    href="/admin/dashboard" 
+                                <Link
+                                    href="/admin/dashboard"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname?.includes('/admin/dashboard') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Dashboard
                                 </Link>
-                                <Link 
-                                    href="/admin/event" 
+                                <Link
+                                    href="/admin/event"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname.includes('/admin/event') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Add Event
                                 </Link>
-                                <Link 
-                                    href="/admin/category" 
+                                <Link
+                                    href="/admin/category"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/category') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Categories
                                 </Link>
-                                <Link 
-                                    href="/admin/events" 
+                                <Link
+                                    href="/admin/events"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Events
                                 </Link>
-                                <Link 
-                                    href="/admin/bookings" 
+                                <Link
+                                    href="/admin/bookings"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Bookings
                                 </Link>
-                                <Link 
-                                    href="/admin/customers" 
+                                <Link
+                                    href="/admin/customers"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/customers') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Customers
                                 </Link>
-                                <Link 
-                                    href="/admin/register" 
+                                <Link
+                                    href="/admin/register"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/register') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Register
@@ -496,38 +494,38 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
 
                         {user?.role === 'customer' || user?.role === 'USER' && (
                             <>
-                                <Link 
-                                    href="/customer/dashboard" 
+                                <Link
+                                    href="/customer/dashboard"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Dashboard
                                 </Link>
-                                <Link 
-                                    href="/events" 
+                                <Link
+                                    href="/events"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Events
                                 </Link>
-                                <Link 
-                                    href="/social" 
+                                <Link
+                                    href="/social"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/social') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Social
                                 </Link>
-                                <Link 
-                                    href="/customer/bookings" 
+                                <Link
+                                    href="/customer/bookings"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Bookings
                                 </Link>
-                                <Link 
-                                    href="/customer/profile" 
+                                <Link
+                                    href="/customer/profile"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/profile') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Profile
                                 </Link>
-                                <Link 
-                                    href="/invitations" 
+                                <Link
+                                    href="/invitations"
                                     className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/invitations') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Invitations
@@ -542,37 +540,37 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                     <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         Organization
                                     </div>
-                                    <Link 
-                                        href="/organization/dashboard" 
+                                    <Link
+                                        href="/organization/dashboard"
                                         className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname?.includes('/organization/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                     >
                                         Dashboard
                                     </Link>
-                                    <Link 
-                                        href="/organization/events" 
+                                    <Link
+                                        href="/organization/events"
                                         className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname?.includes('/organization/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                     >
                                         Events
                                     </Link>
                                     {canManageMembers && (
-                                        <Link 
-                                            href="/organization/members" 
+                                        <Link
+                                            href="/organization/members"
                                             className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/members') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                         >
                                             Members
                                         </Link>
                                     )}
                                     {canManageEventSpaces && (
-                                        <Link 
-                                            href="/organization/spaces" 
+                                        <Link
+                                            href="/organization/spaces"
                                             className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/spaces') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                         >
                                             Event Spaces
                                         </Link>
                                     )}
                                     {isOwner && (
-                                        <Link 
-                                            href="/organization/settings" 
+                                        <Link
+                                            href="/organization/settings"
                                             className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/settings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                         >
                                             Settings
@@ -584,26 +582,26 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
 
                         {!user && (
                             <>
-                                <Link 
-                                    href="/" 
+                                <Link
+                                    href="/"
                                     className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-muted ${pathname === '/' ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
                                 >
                                     Home
                                 </Link>
-                                <Link 
-                                    href="/events" 
+                                <Link
+                                    href="/events"
                                     className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Events
                                 </Link>
-                                <Link 
-                                    href="/about" 
+                                <Link
+                                    href="/about"
                                     className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/about') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     About Us
                                 </Link>
-                                <Link 
-                                    href="/contact" 
+                                <Link
+                                    href="/contact"
                                     className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/contact') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
                                 >
                                     Contact
@@ -613,30 +611,32 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
 
                         {user ? (
                             <HoverShadowEffect className="w-full mt-4 cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                <Button 
-                                    variant="destructive" 
-                                    size="sm" 
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
                                     onClick={handleLogout}
-                                    className="w-full mt-4"
+                                    className="w-full mt-4 rounded-full"
                                 >
                                     Logout
                                 </Button>
                             </HoverShadowEffect>
                         ) : (
                             <div className="flex flex-col space-y-2 mt-4">
-                                <GradientButton 
-                                    href="/login"
+                                <GradientButton
+                                    href="/auth"
                                     variant="outline"
                                     size="sm"
-                                    className="w-full"
+                                    className="w-full rounded-full"
+                                    containerClassName="rounded-full"
                                 >
                                     Login
                                 </GradientButton>
-                                <GradientButton 
-                                    href="/register"
+                                <GradientButton
+                                    href="/auth"
                                     variant="primary"
                                     size="sm"
-                                    className="w-full"
+                                    className="w-full rounded-full"
+                                    containerClassName="rounded-full"
                                 >
                                     Sign Up
                                 </GradientButton>

@@ -57,3 +57,5 @@ Thumbs.db
 # README files (ignore all except main README.md)
 README*
 !README.md
+ORGANIZATION_TODO.md
+ORGANIZATION_IMPLEMENTATION_STATUS.md

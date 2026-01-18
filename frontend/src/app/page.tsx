@@ -4,11 +4,18 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
-import { FeatureCard } from '@/components/ui/feature-card'
-import { GradientButton } from '@/components/ui/gradient-button'
-import { motion } from 'motion/react'
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import { Spotlight } from "@/components/ui/spotlight";
+import { GradientButton } from "@/components/ui/gradient-button";
+import { motion } from "framer-motion";
+
+
+
+import { Calendar, Users, Zap, Shield, BarChart3, Globe, Layout, UserPlus, Sparkles, Megaphone, Settings } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+import { ActivityDemo, BookingTableDemo, EventCardDemo, SocialDemo, SupportDemo, SecurityDemo, GlobalDemo, VenueDemo, TeamDemo } from '@/components/ui/feature-demos'
 
 export default function Home() {
     const { user, isLoading } = useAuth()
@@ -26,219 +33,225 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-background">
-            <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
-            
-            {/* Hero Section */}
-            <section className="relative py-20 overflow-hidden">
-                {/* Background Image */}
-                <motion.div 
-                    className="absolute inset-0"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                >
-                    <img 
-                        src="/hero-image.jpg" 
-                        alt="Event Management Background" 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/1920x800?text=Event+Management';
-                        }}
-                    />
-                    {/* Overlay for better text readability */}
-                    <motion.div 
-                        className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-600/50"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                    ></motion.div>
-                </motion.div>
-                
-                {/* Content */}
-                <div className="container mx-auto px-4 relative z-10">
-                    <div className="flex flex-col items-center justify-center text-center min-h-[600px]">
-                        <div className="max-w-4xl">
-                            <motion.h1 
-                                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                            >
-                                Your Events, Effortlessly Managed.
-                            </motion.h1>
-                            <motion.p 
-                                className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-                            >
-                                EventFlow empowers you to create, promote, and manage stunning events with ease. From intimate workshops to grand conferences, we streamline everything.
-                            </motion.p>
-                            <motion.div 
-                                className="flex flex-col sm:flex-row gap-4 justify-center"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
-                            >
-                                <GradientButton 
-                                    href="/events" 
-                                    size="lg" 
-                                    variant="primary"
-                                    className="w-full sm:w-auto"
-                                >
-                                    Browse Events
-                                </GradientButton>
-                                <GradientButton 
-                                    href="/register" 
-                                    size="lg" 
-                                    variant="outline"
-                                    className="w-full sm:w-auto"
-                                >
+        <div className="min-h-screen flex flex-col bg-background overflow-x-hidden relative w-full items-center rounded-md antialiased">
+            <BackgroundBeams className="fixed inset-0 z-0 opacity-20" />
+            <div className="relative z-10 w-full pt-0 pb-0">
+                <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+                <Spotlight
+                    className="-top-40 left-0 md:left-60 md:-top-20 opacity-20"
+                    fill="#3b82f6"
+                />
+                <div className="max-w-7xl mx-auto relative z-10 w-full pt-20 md:pt-32 px-4 md:px-8 text-center">
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        className="text-4xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 via-neutral-600 to-neutral-900 dark:from-neutral-50 dark:via-neutral-200 dark:to-neutral-50 bg-opacity-20 tracking-tight mb-6 pointer-events-auto animate-gradient-x bg-[length:200%_auto]">
+                        The Ultimate <br /> Event Management Platform
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                        className="mt-4 font-normal text-base md:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto pointer-events-auto">
+                        The Personal Event Managament Platform for Organizers without clutter
+                    </motion.p>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                        className="mt-10 flex flex-col md:flex-row gap-4 justify-center items-center pointer-events-auto">
+                        <Link href="/auth">
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <GradientButton variant="primary" size="lg" className="min-w-[160px] rounded-full" containerClassName="rounded-full">
                                     Get Started
                                 </GradientButton>
                             </motion.div>
-                        </div>
+                        </Link>
+                        <Link href="/features">
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <GradientButton variant="outline" size="lg" className="min-w-[160px] bg-transparent border-neutral-200 dark:border-white/20 text-neutral-600 dark:text-white hover:bg-neutral-100 dark:hover:bg-white/10 rounded-full" containerClassName="rounded-full">
+                                    Learn More
+                                </GradientButton>
+                            </motion.div>
+                        </Link>
+                    </motion.div>
+
+
+                </div>
+            </div>
+
+            <section className="py-20 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-neutral-800 via-neutral-600 to-neutral-800 dark:from-neutral-200 dark:via-neutral-400 dark:to-neutral-200 animate-gradient-x bg-[length:200%_auto] opacity-80">
+                    Everything you need to run your event.
+                </h2>
+                <div className="flex flex-col gap-16 md:gap-20">
+                    {features.map((feature, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ margin: "-100px" }}
+                            transition={{ duration: 0.7, ease: "easeOut" }}
+                            whileHover={{ y: -5 }}
+                            className={cn(
+                                "group relative overflow-hidden rounded-3xl bg-neutral-50/50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 p-8 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-900 shadow-sm hover:shadow-md",
+                                "flex flex-col md:flex-row gap-8 items-center"
+                            )}>
+                            <div className={cn("flex-1 space-y-4", idx % 2 === 1 ? "md:order-last" : "")}>
+                                <div className="inline-flex items-center justify-center p-2 rounded-xl bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 shadow-sm mb-2">
+                                    {feature.icon}
+                                </div>
+                                <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 via-neutral-600 to-neutral-900 dark:from-white dark:via-neutral-300 dark:to-white tracking-tight animate-gradient-x bg-[length:200%_auto] opacity-80 flex items-center gap-3">
+                                    {feature.title}
+                                    {feature.comingSoon && (
+                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                            Coming Soon
+                                        </span>
+                                    )}
+                                </h2>
+                                <div className="relative">
+                                    <div className="absolute -left-4 -top-4 w-8 h-8 bg-blue-500/5 rounded-full blur-xl animate-pulse" />
+                                    <p className="text-base md:text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-sm relative z-10 font-medium">
+                                        {feature.description}
+                                    </p>
+                                </div>
+
+                            </div>
+                            <div className="flex-1 w-full h-full min-h-[250px] relative flex items-center justify-center">
+                                {/* <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur-3xl -z-10 opacity-10" /> */}
+                                {feature.header}
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
+
+            <section className="py-24 relative w-full overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <h2 className="text-3xl md:text-5xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-neutral-800 via-neutral-600 to-neutral-800 dark:from-neutral-200 dark:via-neutral-400 dark:to-neutral-200 animate-gradient-x bg-[length:200%_auto] opacity-80">
+                        From Idea to Event in Minutes
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Step 1 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="group p-8 rounded-3xl bg-neutral-50/50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 hover:border-blue-500/30 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-800/50"
+                        >
+                            <div className="h-12 w-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                                <span className="text-xs font-mono px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">01</span>
+                                Create
+                            </h3>
+                            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
+                                Design stunning event pages with our drag-and-drop builder. No coding required—just pure creativity.
+                            </p>
+                        </motion.div>
+
+                        {/* Step 2 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="group p-8 rounded-3xl bg-neutral-50/50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 hover:border-purple-500/30 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-800/50"
+                        >
+                            <div className="h-12 w-12 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Megaphone className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                                <span className="text-xs font-mono px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">02</span>
+                                Promote
+                            </h3>
+                            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
+                                Reach your audience instantly with built-in social tools, email campaigns, and automated invites.
+                            </p>
+                        </motion.div>
+
+                        {/* Step 3 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="group p-8 rounded-3xl bg-neutral-50/50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 hover:border-green-500/30 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-800/50"
+                        >
+                            <div className="h-12 w-12 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Settings className="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                                <span className="text-xs font-mono px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">03</span>
+                                Manage
+                            </h3>
+                            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
+                                Track ticket sales, check in attendees with our app, and analyze real-time insights to grow.
+                            </p>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section className="py-20 bg-gradient-to-br from-gray-50 to-white shadow-[0_8_32px_rgba(59,130,246,0.2),0_16_64px_rgba(0,0,0,0.1)] border border-blue-100/50 rounded-3xl mx-4 my-8">
-                <div className="container mx-auto px-4">
-                    <motion.h2 
-                        className="text-3xl font-bold text-center text-foreground mb-12"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                    >
-                        Features Designed to Simplify Event Management
-                    </motion.h2>
-                    <motion.div 
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.1 }}
-                        >
-                            <FeatureCard
-                                title="Effortless Event Creation"
-                                description="Design and publish stunning event pages in minutes with our intuitive tools and integrated ticketing solutions."
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                }
-                            />
-                        </motion.div>
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                        >
-                            <FeatureCard
-                                title="Seamless Ticketing & Registration"
-                                description="Manage registrations effortlessly with customizable forms and automated confirmation emails."
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                    </svg>
-                                }
-                            />
-                        </motion.div>
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                        >
-                            <FeatureCard
-                                title="Insightful Analytics"
-                                description="Gain valuable insights into your event performance and attendee engagement with detailed reports."
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                }
-                            />
-                        </motion.div>
-                        
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.4 }}
-                        >
-                            <FeatureCard
-                                title="Engaged Community"
-                                description="Foster meaningful interactions between attendees with integrated networking features and discussion forums."
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                }
-                            />
-                        </motion.div>
-                    </motion.div>
-                </div>
-            </section>
 
-            {/* CTA Section */}
-            <motion.section 
-                className="bg-[#E8FBFD] py-16 shadow-[0_10_40px_rgba(6,182,212,0.25),0_20_80px_rgba(0,0,0,0.15)] border border-cyan-200/60 rounded-3xl mx-4 my-8"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-                <div className="container mx-auto px-4 text-center">
-                    <motion.h2 
-                        className="text-3xl font-bold text-foreground mb-6"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    >
-                        Ready to Host Your Next Unforgettable Event?
-                    </motion.h2>
-                    <motion.p 
-                        className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto"
-                        initial={{ opacity: 0, y: 25 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    >
-                        Join thousands of satisfied organizers who trust EventFlow for their event planning needs. Get started today and bring your vision to life.
-                    </motion.p>
-                    <motion.div
-                        initial={{ opacity: 0, y: 25 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-                    >
-                        <GradientButton 
-                            href="/register" 
-                            size="lg" 
-                            variant="cta"
-                            shineColor="#9CA3AF"
-                        >
-                            Join EventFlow Today
-                        </GradientButton>
-                    </motion.div>
-                </div>
-            </motion.section>
 
             <Footer />
-        </div>
+        </div >
     )
 }
+
+
+
+const features = [
+    {
+        title: "Event Planning",
+        description: "Streamline your event planning process with our intuitive tools.",
+        header: <EventCardDemo />,
+        icon: <Calendar className="h-4 w-4 text-neutral-500" />,
+    },
+    {
+        title: "Attendee Management",
+        description: "Keep track of all your attendees in one place.",
+        header: <BookingTableDemo />,
+        icon: <Users className="h-4 w-4 text-neutral-500" />,
+    },
+    {
+        title: "Instant Analytics",
+        description: "Real-time insights into your event performance.",
+        header: <ActivityDemo />,
+        icon: <Zap className="h-4 w-4 text-neutral-500" />,
+    },
+
+    {
+        title: "Marketing Tools",
+        description: "Promote your event to wider audiences effectively.",
+        header: <SocialDemo />,
+        icon: <BarChart3 className="h-4 w-4 text-neutral-500" />,
+        comingSoon: true,
+    },
+    {
+        title: "Venue Management",
+        description: "Manage multiple event spaces and layouts seamlessly.",
+        header: <VenueDemo />,
+        icon: <Layout className="h-4 w-4 text-neutral-500" />,
+    },
+    {
+        title: "Team Collaboration",
+        description: "Invite team members and assign granular roles.",
+        header: <TeamDemo />,
+        icon: <UserPlus className="h-4 w-4 text-neutral-500" />,
+    },
+    {
+        title: "Global Reach",
+        description: "Connect with attendees from all around the world.",
+        header: <GlobalDemo />,
+        icon: <Globe className="h-4 w-4 text-neutral-500" />,
+    },
+    {
+        title: "Custom Support",
+        description: "24/7 support for all your event query needs.",
+        header: <SupportDemo />,
+        icon: <Zap className="h-4 w-4 text-neutral-500" />,
+    },
+];

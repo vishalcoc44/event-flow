@@ -1,143 +1,184 @@
-"use client"
+'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
 import { Input } from '@/components/ui/input'
-import { useToast } from '@/components/ui/use-toast'
-import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Loader2, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { BackgroundBeams } from "@/components/ui/background-beams";
 import { supabase } from '@/lib/supabase'
 
 export default function ForgotPasswordPage() {
-  const { toast } = useToast()
   const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [succeeded, setSucceeded] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setLoading(true)
+    setError('')
+    setIsLoading(true)
 
     try {
-      // Call Supabase to send a password reset email, include redirectTo so user lands on our reset page
-      const redirectTo = `${window.location.origin}/reset-password`
-      console.log('=== PASSWORD RESET EMAIL DEBUG ===')
-      console.log('Sending password reset email to:', email)
-      console.log('Redirect URL:', redirectTo)
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-      console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-      console.log('Window location origin:', window.location.origin)
-
-      // Supabase v2 method - requires SUPABASE_SERVICE_ROLE_KEY for proper functionality
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       })
 
-      console.log('Supabase resetPasswordForEmail response:', { data, error })
-
       if (error) {
-        console.error('Password reset error:', error)
-
-        // Provide more specific error messages
-        let errorMessage = error.message || 'Unable to send reset email. Please try again.'
-        let toastDescription = error.message || 'Unable to send reset email'
-
-        // Check for common configuration errors
-        if (error.message?.includes('service_role') || error.message?.includes('permission') || error.message?.includes('unauthorized')) {
-          errorMessage = 'Password reset service is not properly configured. Please contact support.'
-          toastDescription = 'Password reset service configuration error'
-        } else if (error.message?.includes('email') && error.message?.includes('not found')) {
-          errorMessage = 'Email address not found. Please check and try again.'
-          toastDescription = 'Email address not found in our system'
-        }
-
-        setError(errorMessage)
-        toast({
-          title: 'Reset failed',
-          description: toastDescription,
-          variant: 'destructive'
-        })
-      } else {
-        console.log('Password reset email sent successfully:', data)
-        toast({
-          title: 'Email sent',
-          description: 'If that email exists, a password reset link was sent. Please check your email (including spam folder). Note: You may need to configure Supabase Auth email templates for the reset link to work properly.',
-          duration: 8000
-        })
+        throw error
       }
+
+      setSucceeded(true)
     } catch (err: any) {
-      console.error('Forgot password error:', err)
-      const msg = err?.message || 'Failed to send password reset email.'
-      setError(msg)
-      toast({ title: 'Error', description: msg, variant: 'destructive' })
+      setError(err.message || 'Failed to send reset link')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Header />
+    <div className="min-h-screen w-full flex bg-white font-sans overflow-hidden selection:bg-blue-100 selection:text-blue-900">
+      <div className="absolute top-6 left-6 z-50">
+        <Link href="/auth" className="group flex items-center gap-2 text-sm font-medium text-neutral-500 hover:text-neutral-600 transition-colors">
+          <div className="p-1 rounded-full bg-neutral-100 group-hover:bg-neutral-200 transition-colors">
+            <ArrowRight className="h-4 w-4 rotate-180" />
+          </div>
+          Back to Sign In
+        </Link>
+      </div>
 
-      <main className="flex-grow py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row rounded-lg overflow-hidden shadow-lg max-w-4xl mx-auto">
-            <div className="md:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#6BDFEF] to-[#8FE9F5] hidden md:block">
-              <div className="relative z-10 h-full flex items-center justify-center p-8 pointer-events-none">
-                <div className="text-center text-white pointer-events-none">
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4">Reset your password</h2>
-                  <p className="text-lg text-white/90 max-w-md mx-auto leading-relaxed">Enter the email associated with your account and we'll send a secure link to reset your password.</p>
+      {/* Left Side - Visual */}
+      <div className="hidden lg:flex w-[45%] relative flex-col justify-center px-16 xl:px-24 overflow-hidden bg-neutral-950">
+        <BackgroundBeams className="opacity-20" />
+
+        {/* Decorative gradients */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-neutral-950 to-transparent z-10" />
+
+        <div className="relative z-10">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-3xl xl:text-4xl font-bold tracking-tight text-white mb-4 leading-tight"
+          >
+            Master Your <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700">
+              Event Experience.
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-base text-neutral-400 leading-relaxed mb-8 max-w-sm"
+          >
+            Everything you need to plan, promote, and manage your events in one unified platform.
+          </motion.p>
+
+          <div className="space-y-4">
+            {[
+              { title: "Real-time Analytics", desc: "Track performance instantly" },
+              { title: "Smart Organization", desc: "Manage teams and roles efficiently" },
+              { title: "Team Collaboration", desc: "Work together in real-time" }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + (i * 0.1) }}
+                className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all cursor-default"
+              >
+                <div className="h-8 w-8 shrink-0 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400" />
                 </div>
-              </div>
-            </div>
-
-            <div className="md:w-1/2 bg-white p-8 md:p-12">
-              <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Forgot password</h1>
-                <p className="text-gray-600 mb-4">No worries — we'll send a link to reset it.</p>
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-6">
-                  <p className="text-sm text-blue-700">
-                    <strong>Note:</strong> Password reset emails require proper Supabase configuration.
-                    Make sure your Supabase project is set up with email templates enabled and all required environment variables are configured.
-                  </p>
+                <div>
+                  <h3 className="font-semibold text-white">{item.title}</h3>
+                  <p className="text-sm text-neutral-500">{item.desc}</p>
                 </div>
-
-                {error && (
-                  <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">{error}</div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                      </div>
-                      <Input id="email" name="email" type="email" placeholder="your.email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required disabled={loading} />
-                    </div>
-                  </div>
-
-                  <HoverShadowEffect className="w-full cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                    <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Sending...' : 'Send reset link'}</Button>
-                  </HoverShadowEffect>
-
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">Remembered your password? <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link></p>
-                  </div>
-                </form>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </main>
+      </div>
 
-      <Footer />
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-[55%] flex items-center justify-center relative p-6 sm:p-12 lg:p-16 overflow-y-auto max-h-screen">
+        <div className="w-full max-w-[440px]">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold tracking-tight text-neutral-900 mb-2">
+              Reset Password
+            </h2>
+            <p className="text-neutral-500">
+              Enter your email and we'll send you a link to reset your password.
+            </p>
+          </div>
+
+          {succeeded ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-6 rounded-2xl bg-green-50 border border-green-100 text-center"
+            >
+              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-neutral-900 mb-2">Check your email</h3>
+              <p className="text-sm text-neutral-600 mb-6">
+                We've sent a password reset link to <span className="font-medium text-neutral-900">{email}</span>
+              </p>
+              <Button
+                variant="outline"
+                className="w-full h-11 border-green-200 text-green-700 hover:bg-green-100 hover:text-green-800"
+                onClick={() => { setSucceeded(false); setEmail(''); }}
+              >
+                Send another link
+              </Button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-11 bg-neutral-50 border-neutral-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium flex items-center gap-2"
+                >
+                  <div className="h-1.5 w-1.5 rounded-full bg-red-600" />
+                  {error}
+                </motion.div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold rounded-xl transition-all shadow-xl shadow-neutral-900/10 active:scale-[0.98]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                  "Send Reset Link"
+                )}
+              </Button>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
