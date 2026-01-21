@@ -24,6 +24,7 @@ type User = {
     role_in_org?: 'OWNER' | 'ADMIN' | 'USER'
     is_org_admin?: boolean
     joined_at?: string
+    onboarding_step?: number
 }
 
 type AuthContextType = {
@@ -42,7 +43,7 @@ type AuthContextType = {
         streetAddress?: string,
         role?: string,
         isAdminRequest?: boolean
-    }) => Promise<boolean>
+    }) => Promise<boolean | 'PENDING'>
     refreshAuth: () => Promise<void>
     clearInvalidSession: () => Promise<void>
     isLoading: boolean
@@ -101,8 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         return;
                     }
 
-                    // Only redirect if we're on the home page or an auth-related page
-                    if (pathname === '/' || isAuthPage) {
+                    // Only redirect if we're on an auth-related page
+                    if (isAuthPage) {
                         setTimeout(() => {
                             const role = (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER';
                             router.push(role === 'ADMIN' ? '/admin/dashboard' : '/customer/dashboard');
@@ -154,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         Promise.race([
                             authAPI.getUserOrganizationData(session.user.id),
                             new Promise((_, reject) =>
-                                setTimeout(() => reject(new Error('Organization data timeout')), 2000)
+                                setTimeout(() => reject(new Error('Organization data timeout')), 6000)
                             )
                         ])
                             .then((orgData: any) => {
@@ -167,7 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                                 organization_id: orgData.organization_id,
                                                 role_in_org: orgData.role_in_org,
                                                 is_org_admin: orgData.is_org_admin,
-                                                joined_at: orgData.joined_at
+                                                joined_at: orgData.joined_at,
+                                                onboarding_step: orgData.onboarding_step
                                             };
                                         }
                                         return prevUser;
@@ -220,9 +222,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             return;
                         }
 
-                        // Only redirect if we're on the home page or auth pages
+                        // Only redirect if we're on auth pages
                         const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-                        if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
+                        if (currentPath === '/login' || currentPath === '/register') {
                             setTimeout(() => {
                                 const role = userData.role;
                                 if (role === 'ADMIN') {
@@ -315,7 +317,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                         organization_id: orgData.organization_id,
                                         role_in_org: orgData.role_in_org,
                                         is_org_admin: orgData.is_org_admin,
-                                        joined_at: orgData.joined_at
+                                        joined_at: orgData.joined_at,
+                                        onboarding_step: orgData.onboarding_step,
+                                        role: orgData.role || userData.role
                                     };
                                     setUser(updatedUserData);
                                 }
@@ -355,7 +359,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const loadingTimeout = setTimeout(() => {
             console.warn('Auth loading timeout reached, resetting loading state');
             setLoadingStabilized(false);
-        }, 3000); // 3 seconds timeout to match our performance requirement
+        }, 2000); // 2 seconds timeout to match our performance requirement
 
         // Cleanup subscription and timeout
         return () => {
@@ -419,7 +423,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 organization_id: orgData.organization_id,
                                 role_in_org: orgData.role_in_org,
                                 is_org_admin: orgData.is_org_admin,
-                                joined_at: orgData.joined_at
+                                joined_at: orgData.joined_at,
+                                onboarding_step: orgData.onboarding_step,
+                                role: orgData.role || userData.role
                             };
                             setUser(updatedUserData);
                         }
@@ -501,10 +507,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             console.log('✅ Supabase authentication successful');
 
-            // Get user role from metadata
-            const role = data.user.user_metadata.role as 'ADMIN' | 'USER' || 'USER';
+            // Get user role from metadata - default fallback
+            let role = (data.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER';
 
-            // Load organization data using optimized cached method
+            // Base user data
             const userData = {
                 id: data.user.id,
                 email: data.user.email || '',
@@ -516,29 +522,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 city: data.user.user_metadata.city,
                 pincode: data.user.user_metadata.pincode,
                 street_address: data.user.user_metadata.street_address,
-                created_at: data.user.created_at
+                created_at: data.user.created_at,
+                // Optional fields to be filled
+                organization_id: undefined as string | undefined,
+                role_in_org: undefined as any,
+                is_org_admin: undefined as boolean | undefined,
+                joined_at: undefined as string | undefined,
+                onboarding_step: undefined as number | undefined
             };
 
-            // Load organization data asynchronously (non-blocking)
-            authAPI.getUserOrganizationData(data.user.id)
-                .then((orgData) => {
-                    if (orgData) {
-                        console.log('✅ Organization data loaded after login');
-                        const updatedUserData = {
-                            ...userData,
-                            organization_id: orgData.organization_id,
-                            role_in_org: orgData.role_in_org,
-                            is_org_admin: orgData.is_org_admin,
-                            joined_at: orgData.joined_at
-                        };
-                        setUser(updatedUserData);
+
+            // Load organization and role data from DB directly to ensure accuracy
+            // We await this to ensure the redirect is correct
+            try {
+                const orgData = await authAPI.getUserOrganizationData(data.user.id);
+                if (orgData) {
+                    console.log('✅ Organization & Role data loaded from DB');
+                    userData.organization_id = orgData.organization_id;
+                    userData.role_in_org = orgData.role_in_org;
+                    userData.is_org_admin = orgData.is_org_admin;
+                    userData.joined_at = orgData.joined_at;
+                    userData.onboarding_step = orgData.onboarding_step;
+
+                    // CRITICAL: Update role from DB if present
+                    if (orgData.role) {
+                        console.log('🔄 Updating role from DB:', orgData.role);
+                        role = orgData.role;
+                        userData.role = role;
                     }
-                })
-                .catch((error) => {
-                    console.log('⚠️ Organization data load failed after login:', error.message);
-                    // Continue with user data without organization info
-                    setUser(userData);
-                });
+                }
+            } catch (error: any) {
+                console.log('⚠️ Organization data load failed after login:', error.message);
+                // Continue with metadata role
+            }
 
             // Set user data immediately
             setUser(userData);
@@ -551,7 +567,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 return true;
             }
 
-            // Redirect based on role and organization - add delay to prevent fetch conflicts
+            // Redirect based on potentially updated role
             setTimeout(() => {
                 if (role === 'ADMIN') {
                     router.push('/admin/dashboard');
@@ -659,7 +675,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // If this is an admin request, create the request in the database
                 if (userData.isAdminRequest) {
                     try {
-                        const { error: requestError } = await supabase.rpc('create_admin_request', {
+                        // Small delay to allow the public.users trigger to finish
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+
+                        const { data: requestData, error: requestError } = await supabase.rpc('create_admin_request', {
                             p_user_id: data.user.id,
                             p_email: userData.email,
                             p_reason: 'Admin access requested during registration',
@@ -672,17 +691,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         });
 
                         if (requestError) {
-                            console.error('Error creating admin request:', requestError);
+                            console.error('❌ Error creating admin request:', JSON.stringify(requestError, null, 2));
                             // Continue anyway as the user is registered
+                        } else {
+                            console.log('✅ Admin request handled:', requestData);
+
+                            // Check if auto-approved (bootstrap case)
+                            if (requestData?.status === 'APPROVED') {
+                                console.log('🚀 Admin auto-approved! Signing in immediately...');
+                                try {
+                                    const { error: signInError } = await supabase.auth.signInWithPassword({
+                                        email: userData.email,
+                                        password: userData.password
+                                    });
+                                    if (!signInError) {
+                                        setTimeout(() => router.push('/admin/dashboard'), 100);
+                                        return true;
+                                    }
+                                } catch (err) {
+                                    console.error('Error auto-signing in:', err);
+                                }
+                            }
                         }
                     } catch (requestError) {
-                        console.error('Error creating admin request:', requestError);
+                        console.error('❌ Exception creating admin request:', requestError);
                         // Continue anyway as the user is registered
                     }
 
-                    // Don't sign in automatically for admin requests
-                    // User will need to wait for approval
-                    return true;
+                    // For non-auto-approved admin requests, show pending status
+                    return 'PENDING';
                 } else {
                     // Regular user registration - sign in immediately
                     try {

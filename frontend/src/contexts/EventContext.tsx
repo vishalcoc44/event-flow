@@ -88,7 +88,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setError(null)
             const updatedEvent = await eventsAPI.updateEvent(id, eventData)
             if (updatedEvent) {
-                setEvents(prev => prev.map(event => 
+                setEvents(prev => prev.map(event =>
                     event.id === id ? { ...event, ...updatedEvent } : event
                 ))
             }
@@ -126,12 +126,12 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     return (
-        <EventContext.Provider value={{ 
-            events, 
-            loading, 
+        <EventContext.Provider value={{
+            events,
+            loading,
             error,
-            addEvent, 
-            updateEvent, 
+            addEvent,
+            updateEvent,
             deleteEvent,
             fetchEvents
         }}>

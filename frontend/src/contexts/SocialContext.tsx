@@ -32,7 +32,7 @@ interface SocialContextType {
   userFollows: Follow[];
   userFollowers: Follow[];
   isLoading: boolean;
-  
+
   // Follow actions
   followUser: (targetUserId: string) => Promise<void>;
   unfollowUser: (targetUserId: string) => Promise<void>;
@@ -40,15 +40,15 @@ interface SocialContextType {
   unfollowEvent: (eventId: string) => Promise<void>;
   followCategory: (categoryId: string) => Promise<void>;
   unfollowCategory: (categoryId: string) => Promise<void>;
-  
+
   // Check follow status
   isFollowing: (targetId: string, targetType: 'USER' | 'EVENT' | 'CATEGORY') => Promise<boolean>;
-  
+
   // Get data
-  getUserFollows: (targetType?: 'USER' | 'EVENT' | 'CATEGORY') => Promise<Follow[]>;
+  getUserFollows: (userId?: string, targetType?: 'USER' | 'EVENT' | 'CATEGORY') => Promise<Follow[]>;
   getUserFollowers: (userId: string) => Promise<Follow[]>;
   getUserProfile: (userId: string) => Promise<UserProfile>;
-  
+
   // Real-time subscriptions
   subscribeToFollows: () => void;
   unsubscribeFromFollows: () => void;
@@ -97,7 +97,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const loadUserFollows = async () => {
     if (!user) return;
-    
+
     try {
       setIsLoading(true);
       const follows = await socialAPI.getUserFollows();
@@ -111,7 +111,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const loadUserFollowers = async () => {
     if (!user) return;
-    
+
     try {
       const followers = await socialAPI.getUserFollowers(user.id);
       setUserFollowers(followers);
@@ -122,7 +122,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const followUser = async (targetUserId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.followUser(targetUserId);
@@ -137,7 +137,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const unfollowUser = async (targetUserId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.unfollowUser(targetUserId);
@@ -152,7 +152,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const followEvent = async (eventId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.followEvent(eventId);
@@ -167,7 +167,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const unfollowEvent = async (eventId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.unfollowEvent(eventId);
@@ -182,7 +182,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const followCategory = async (categoryId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.followCategory(categoryId);
@@ -197,7 +197,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const unfollowCategory = async (categoryId: string) => {
     if (!user) throw new Error('User not authenticated');
-    
+
     try {
       setIsLoading(true);
       await socialAPI.unfollowCategory(categoryId);
@@ -212,7 +212,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
 
   const isFollowing = async (targetId: string, targetType: 'USER' | 'EVENT' | 'CATEGORY') => {
     if (!user) return false;
-    
+
     try {
       return await socialAPI.isFollowing(targetId, targetType);
     } catch (error) {
@@ -221,11 +221,9 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
     }
   };
 
-  const getUserFollows = async (targetType?: 'USER' | 'EVENT' | 'CATEGORY') => {
-    if (!user) return [];
-    
+  const getUserFollows = async (userId?: string, targetType?: 'USER' | 'EVENT' | 'CATEGORY') => {
     try {
-      return await socialAPI.getUserFollows(targetType);
+      return await socialAPI.getUserFollows(userId, targetType);
     } catch (error) {
       console.error('Error getting user follows:', error);
       return [];
@@ -276,12 +274,17 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
           event: '*',
           schema: 'public',
           table: 'follows',
-          filter: `target_id=eq.${user.id} AND target_type=eq.USER`
+          filter: `target_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Followers change detected:', payload);
-          // Refresh followers data
-          loadUserFollowers();
+          // Verify it's a USER follow (redundant but safer)
+          if (payload.new && (payload.new as any).target_type === 'USER') {
+            console.log('Followers change detected:', payload);
+            loadUserFollowers();
+          } else if (payload.old && (payload.old as any).target_type === 'USER') {
+            console.log('Followers change detected (delete):', payload);
+            loadUserFollowers();
+          }
         }
       )
       .subscribe();

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,9 +10,10 @@ import { motion } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
-import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X, Shield, Settings, Briefcase } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import { GlassTile } from '@/components/ui/glass-tile'
+import { cn } from '@/lib/utils'
 
 export default function CustomerProfile() {
     const { user } = useAuth()
@@ -30,7 +30,6 @@ export default function CustomerProfile() {
         street_address: ''
     })
 
-    // Update form data when user data becomes available
     useEffect(() => {
         if (user) {
             setFormData({
@@ -57,19 +56,13 @@ export default function CustomerProfile() {
     }
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }))
+        setFormData(prev => ({ ...prev, [field]: value }))
     }
 
     const handleSave = async () => {
         if (!user) return
-
+        setLoading(true)
         try {
-            setLoading(true)
-            
-            // Update user metadata in Supabase Auth
             const { error: authError } = await supabase.auth.updateUser({
                 data: {
                     first_name: formData.first_name,
@@ -81,10 +74,8 @@ export default function CustomerProfile() {
                     street_address: formData.street_address
                 }
             })
-
             if (authError) throw authError
 
-            // Update user record in the users table
             const { error: dbError } = await supabase
                 .from('users')
                 .update({
@@ -100,276 +91,217 @@ export default function CustomerProfile() {
 
             if (dbError) throw dbError
 
-            toast({
-                title: "Profile Updated",
-                description: "Your profile has been successfully updated.",
-            })
-            
+            toast({ title: "Profile Updated", description: "Your digital identity has been synchronized." })
             setIsEditing(false)
         } catch (error: any) {
-            console.error('Error updating profile:', error)
-            toast({
-                title: "Error",
-                description: error.message || "Failed to update profile",
-                variant: "destructive",
-            })
+            toast({ title: "Update Failed", description: error.message, variant: "destructive" })
         } finally {
             setLoading(false)
         }
     }
 
     const handleCancel = () => {
-        setFormData({
-            first_name: user?.first_name || '',
-            last_name: user?.last_name || '',
-            username: user?.username || '',
-            contact_number: user?.contact_number || '',
-            city: user?.city || '',
-            pincode: user?.pincode || '',
-            street_address: user?.street_address || ''
-        })
+        if (user) {
+            setFormData({
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                username: user.username || '',
+                contact_number: user.contact_number || '',
+                city: user.city || '',
+                pincode: user.pincode || '',
+                street_address: user.street_address || ''
+            })
+        }
         setIsEditing(false)
     }
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    }
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 20
-            }
-        }
-    }
-
     return (
-        <div className="min-h-screen flex flex-col bg-background">
+        <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
+            {/* Mesh Background */}
+            <div className="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
+            </div>
+
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
-            
-            <main className="flex-grow container mx-auto px-4 py-8">
-                <motion.div 
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <motion.div 
-                        className="mb-8"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
+
+            <main className="flex-grow pt-32 pb-20">
+                <div className="container mx-auto px-4 max-w-6xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="mb-12"
                     >
-                        <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-                        <p className="text-muted-foreground">Manage your account information and preferences</p>
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 leading-[0.9]">
+                            Account Center.
+                        </h1>
+                        <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">
+                            Manage your global presence and preferences
+                        </p>
                     </motion.div>
 
-                    <motion.div 
-                        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
-                        {/* Profile Overview */}
-                        <motion.div 
-                            className="lg:col-span-1"
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.1 }}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Sidebar Profile Card */}
+                        <motion.div
+                            className="lg:col-span-4"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8, delay: 0.1 }}
                         >
-                            <HoverShadowEffect className="border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                                <Card className="border-0 shadow-none">
-                                <CardHeader className="text-center pb-4">
-                                    <div className="flex justify-center mb-4">
-                                        <Avatar className="h-24 w-24 bg-[#6CDAEC] text-white">
-                                            <AvatarFallback className="text-2xl">
+                            <GlassTile className="p-8 text-center" interactive={false}>
+                                <div className="flex justify-center mb-8 relative">
+                                    <div className="relative">
+                                        <Avatar className="h-32 w-32 bg-blue-500 text-white shadow-2xl border-4 border-white dark:border-white/10">
+                                            <AvatarFallback className="text-4xl font-black">
                                                 {getInitials(user?.first_name, user?.last_name, user?.email)}
                                             </AvatarFallback>
                                         </Avatar>
-                                    </div>
-                                    <CardTitle className="text-xl font-semibold text-foreground">
-                                        {user?.first_name} {user?.last_name || ''}
-                                        {(!user?.first_name && !user?.last_name) && (user?.username || user?.email?.split('@')[0])}
-                                    </CardTitle>
-                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Calendar className="h-4 w-4" />
-                                            <span>Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <User className="h-4 w-4" />
-                                            <span>Role: {user?.role === 'USER' ? 'Customer' : user?.role}</span>
+                                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-white dark:bg-black border border-neutral-100 dark:border-white/10 flex items-center justify-center text-blue-500 shadow-lg">
+                                            <Shield className="h-5 w-5" />
                                         </div>
                                     </div>
-                                </CardContent>
-                                </Card>
-                            </HoverShadowEffect>
+                                </div>
+                                <h2 className="text-2xl font-black tracking-tight mb-1">
+                                    {user?.first_name} {user?.last_name || ''}
+                                </h2>
+                                <p className="text-sm font-bold text-neutral-400 mb-8 uppercase tracking-widest">{user?.email}</p>
+
+                                <div className="space-y-4 pt-8 border-t border-neutral-100 dark:border-white/5">
+                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                                        <span className="text-neutral-400">Membership</span>
+                                        <span className="text-blue-500">{user?.role === 'USER' ? 'Basic Member' : user?.role}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                                        <span className="text-neutral-400">Joined</span>
+                                        <span>{user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </GlassTile>
+
+                            <div className="mt-8 space-y-4">
+                                <Button variant="ghost" className="w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px] bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5">
+                                    <Settings className="h-4 w-4" /> Account Settings
+                                </Button>
+                                <Button variant="ghost" className="w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px] hover:bg-white/40 dark:hover:bg-white/5">
+                                    <Briefcase className="h-4 w-4" /> Security Log
+                                </Button>
+                            </div>
                         </motion.div>
 
-                        {/* Profile Details */}
-                        <motion.div 
-                            className="lg:col-span-2"
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
+                        {/* Details Panel */}
+                        <motion.div
+                            className="lg:col-span-8"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            <HoverShadowEffect className="border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                                <Card className="border-0 shadow-none">
-                                <CardHeader className="flex flex-row items-center justify-between">
-                                    <CardTitle className="text-xl font-semibold text-foreground">Personal Information</CardTitle>
-                                    <div className="flex gap-2">
-                                        {isEditing ? (
-                                            <>
-                                                <Button 
-                                                    size="sm" 
-                                                    onClick={handleSave}
-                                                    disabled={loading}
-                                                >
-                                                    {loading ? (
-                                                        <motion.div
-                                                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                                                            animate={{ rotate: 360 }}
-                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                        />
-                                                    ) : (
-                                                        <Save className="h-4 w-4 mr-1" />
-                                                    )}
-                                                    Save
-                                                </Button>
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm" 
-                                                    onClick={handleCancel}
-                                                    disabled={loading}
-                                                >
-                                                    <X className="h-4 w-4 mr-1" />
-                                                    Cancel
-                                                </Button>
-                                            </>
-                                        ) : (
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
-                                                onClick={() => setIsEditing(true)}
+                            <GlassTile className="p-10" interactive={false}>
+                                <div className="flex items-center justify-between mb-12">
+                                    <h3 className="text-2xl font-black tracking-tighter">Identity Details</h3>
+                                    {!isEditing ? (
+                                        <Button
+                                            onClick={() => setIsEditing(true)}
+                                            className="h-12 px-6 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight hover:scale-[1.02] transition-transform"
+                                        >
+                                            <Edit className="h-4 w-4 mr-2" /> Modify Profile
+                                        </Button>
+                                    ) : (
+                                        <div className="flex gap-4">
+                                            <Button
+                                                variant="ghost"
+                                                onClick={handleCancel}
+                                                className="h-12 px-6 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
                                             >
-                                                <Edit className="h-4 w-4 mr-1" />
-                                                Edit
+                                                <X className="h-4 w-4 mr-2" /> Cancel
                                             </Button>
-                                        )}
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <Button
+                                                onClick={handleSave}
+                                                disabled={loading}
+                                                className="h-12 px-8 rounded-2xl bg-blue-500 text-white font-black tracking-tight hover:scale-[1.02] transition-transform shadow-lg shadow-blue-500/20"
+                                            >
+                                                {loading ? (
+                                                    <motion.div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                                                ) : (
+                                                    <Save className="h-4 w-4 mr-2" />
+                                                )}
+                                                Update Data
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-8">
                                         <div className="space-y-4">
-                                            <div>
-                                                <Label htmlFor="first_name">First Name</Label>
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">First Name</Label>
+                                            <Input
+                                                value={formData.first_name}
+                                                onChange={(e) => handleInputChange('first_name', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Last Name</Label>
+                                            <Input
+                                                value={formData.last_name}
+                                                onChange={(e) => handleInputChange('last_name', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Handle</Label>
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-bold">@</div>
                                                 <Input
-                                                    id="first_name"
-                                                    value={formData.first_name}
-                                                    onChange={(e) => handleInputChange('first_name', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="last_name">Last Name</Label>
-                                                <Input
-                                                    id="last_name"
-                                                    value={formData.last_name}
-                                                    onChange={(e) => handleInputChange('last_name', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="username">Username</Label>
-                                                <Input
-                                                    id="username"
                                                     value={formData.username}
                                                     onChange={(e) => handleInputChange('username', e.target.value)}
                                                     disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="email">Email</Label>
-                                                <Input
-                                                    id="email"
-                                                    value={user?.email || ''}
-                                                    disabled
-                                                    className="mt-1 bg-gray-50"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <Label htmlFor="contact_number">Contact Number</Label>
-                                                <Input
-                                                    id="contact_number"
-                                                    value={formData.contact_number}
-                                                    onChange={(e) => handleInputChange('contact_number', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="street_address">Street Address</Label>
-                                                <Input
-                                                    id="street_address"
-                                                    value={formData.street_address}
-                                                    onChange={(e) => handleInputChange('street_address', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="city">City</Label>
-                                                <Input
-                                                    id="city"
-                                                    value={formData.city}
-                                                    onChange={(e) => handleInputChange('city', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="pincode">Pincode</Label>
-                                                <Input
-                                                    id="pincode"
-                                                    value={formData.pincode}
-                                                    onChange={(e) => handleInputChange('pincode', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="mt-1"
+                                                    className="h-14 pl-10 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
                                                 />
                                             </div>
                                         </div>
                                     </div>
-                                </CardContent>
-                                </Card>
-                            </HoverShadowEffect>
+
+                                    <div className="space-y-8">
+                                        <div className="space-y-4">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Contact Access</Label>
+                                            <Input
+                                                value={formData.contact_number}
+                                                onChange={(e) => handleInputChange('contact_number', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Origin City</Label>
+                                            <Input
+                                                value={formData.city}
+                                                onChange={(e) => handleInputChange('city', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Address Matrix</Label>
+                                            <Input
+                                                value={formData.street_address}
+                                                onChange={(e) => handleInputChange('street_address', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </GlassTile>
                         </motion.div>
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
             </main>
-            
+
             <Footer />
         </div>
     )
-} 
+}

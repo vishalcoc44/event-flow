@@ -1,22 +1,64 @@
-import { useEffect } from 'react';
+import { useEffect, useContext, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrganization } from '@/contexts/OrganizationContext';
+import { useOrganization, OrganizationContext } from '@/contexts/OrganizationContext';
 
 // Hook to automatically load organization data when user is authenticated
 export const useOrganizationData = () => {
   const { user, isLoading: userLoading } = useAuth();
-  const { loadOrganization, loadOrganizationById, organization, isLoading, error, updateOrganization } = useOrganization();
+
+  // Directly use useContext to avoid the "must be used within provider" throw
+  // since we intentionally omit providers on some public pages for performance
+  const orgContext = useContext(OrganizationContext);
+
+  const {
+    loadOrganizationById,
+    organization,
+    isLoading,
+    error,
+    updateOrganization,
+    loadUserMemberships
+  } = orgContext || {
+    loadOrganizationById: undefined,
+    organization: null,
+    isLoading: false,
+    error: null,
+    updateOrganization: async () => ({}),
+    loadUserMemberships: async () => { }
+  } as any;
+
+  // Use a ref to track if loading is already in progress to prevent loops
+  const loadingRef = useRef<{ [key: string]: boolean }>({});
+  const membershipsLoadingRef = useRef<boolean>(false);
 
   useEffect(() => {
     // Only load organization data if AuthContext hasn't already provided it in user object
-    // and we actually need the full organization details (not just the basic info in user)
-    if (!userLoading && user?.organization_id && !organization) {
-      console.log('Loading organization details by ID:', user.organization_id);
-      loadOrganizationById(user.organization_id);
+    // and we actually need the full organization details
+    if (!userLoading && user?.organization_id && !organization && loadOrganizationById) {
+      if (!loadingRef.current[user.organization_id]) {
+        console.log('Loading organization details by ID:', user.organization_id);
+        loadingRef.current[user.organization_id] = true;
+        loadOrganizationById(user.organization_id).finally(() => {
+          // Keep it true for a bit to prevent immediate retry if it failed
+          setTimeout(() => {
+            if (loadingRef.current) loadingRef.current[user!.organization_id!] = false;
+          }, 5000);
+        });
+      }
     }
-    // Note: Removed the fallback user lookup as AuthContext now handles organization_id loading
-    // If user.organization_id is null/undefined, it means the user is not in an organization
-  }, [user?.id, user?.organization_id, userLoading, organization]);
+
+    // Load user memberships if we have a user but no memberships loaded
+    if (!userLoading && user?.id && loadUserMemberships && orgContext?.userMemberships?.length === 0) {
+      if (!membershipsLoadingRef.current) {
+        console.log('Loading user memberships for:', user.id);
+        membershipsLoadingRef.current = true;
+        loadUserMemberships(user.id).finally(() => {
+          setTimeout(() => {
+            membershipsLoadingRef.current = false;
+          }, 5000);
+        });
+      }
+    }
+  }, [user?.id, user?.organization_id, userLoading, organization, loadOrganizationById, loadUserMemberships, orgContext?.userMemberships?.length]);
 
   return {
     organization,
@@ -33,7 +75,13 @@ export const useOrganizationData = () => {
 // Hook to check if user has specific permissions in organization
 export const useOrganizationPermissions = () => {
   const { user, isLoading: userLoading } = useAuth();
-  const { organization, isLoading: orgLoading } = useOrganization();
+
+  // Directly use useContext to avoid the "must be used within provider" throw
+  const orgContext = useContext(OrganizationContext);
+  const { organization, isLoading: orgLoading } = orgContext || {
+    organization: null,
+    isLoading: false
+  };
 
   const isOwner = organization?.created_by === user?.id;
   const isAdmin = user?.is_org_admin || false;
@@ -67,7 +115,11 @@ export const useOrganizationPermissions = () => {
 
 // Hook to get organization usage information
 export const useOrganizationUsage = () => {
-  const { organization, stats } = useOrganization();
+  const orgContext = useContext(OrganizationContext);
+  const { organization, stats } = orgContext || {
+    organization: null,
+    stats: null
+  };
 
   if (!organization || !stats) {
     return {
@@ -111,7 +163,8 @@ export const useOrganizationUsage = () => {
 
 // Hook to get subscription information
 export const useSubscriptionInfo = () => {
-  const { organization } = useOrganization();
+  const orgContext = useContext(OrganizationContext);
+  const { organization } = orgContext || { organization: null };
 
   if (!organization) {
     return {

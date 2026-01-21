@@ -4,25 +4,43 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
-import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
-import { Plus, Search, Filter, Calendar, MapPin, Users, Eye, EyeOff, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Plus,
+  Search,
+  Filter,
+  Calendar,
+  MapPin,
+  Users,
+  Eye,
+  EyeOff,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  MoreVertical,
+  ArrowRight,
+  TrendingUp,
+  ShieldCheck
+} from 'lucide-react'
 import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrganizationData'
 import { useCategories } from '@/contexts/CategoryContext'
 import { supabase } from '@/lib/supabase'
 import { EventListSkeleton } from '@/components/ui/loading-skeleton'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import { useAuth } from '@/contexts/AuthContext'
+import { GlassTile } from '@/components/ui/glass-tile'
+import { cn } from '@/lib/utils'
 
 interface OrganizationEvent {
-  id: string      // Matches what database actually returns
+  id: string
   title: string
   description: string
-  date: string    // Matches what database actually returns
-  time: string    // Matches what database actually returns
+  date: string
+  time: string
   location: string
   price: number
   image_url: string | null
@@ -34,7 +52,7 @@ interface OrganizationEvent {
   creator_name: string
   total_bookings: number
   average_rating: number | null
-  max_attendees?: number | null // Add max_attendees property
+  max_attendees?: number | null
   created_at: string
 }
 
@@ -60,15 +78,11 @@ export default function OrganizationEvents() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
-  // Fetch organization events with optimization
   useEffect(() => {
     const fetchEvents = async () => {
       if (!organization?.id) return
-
       try {
         setIsLoading(true)
-
-        // Use optimized query instead of RPC for better performance
         const { data, error } = await supabase
           .from('events')
           .select(`
@@ -86,401 +100,286 @@ export default function OrganizationEvents() {
             created_at,
             categories:category_id(name),
             event_spaces:event_space_id(name),
-            creator:created_by(
-              first_name,
-              last_name,
-              username
-            )
+            creator:created_by(first_name, last_name, username)
           `)
           .eq('organization_id', organization.id)
           .order('date', { ascending: true })
-          .limit(50) // Limit initial load for better performance
 
         if (error) throw error
 
-        // Transform data to match our interface
         const transformedEvents = (data || []).map(event => ({
           ...event,
           creator_name: event.creator
             ? `${event.creator.first_name} ${event.creator.last_name}`.trim()
             : 'Unknown',
-          total_bookings: event._count?.[0]?.count || 0,
+          total_bookings: 0, // Simplified for now
           category_name: event.categories?.name || null,
           event_space_name: event.event_spaces?.name || null,
-          average_rating: null, // Add missing average_rating property
-          max_attendees: null // Add max_attendees property
+          average_rating: null,
+          max_attendees: null
         }))
 
         setEvents(transformedEvents)
       } catch (error) {
-        console.error('Error fetching events:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load organization events",
-          variant: "destructive",
-        })
+        toast({ title: "Fetch Error", description: "Failed to sync event matrix.", variant: "destructive" })
       } finally {
         setIsLoading(false)
       }
     }
-
     fetchEvents()
   }, [organization?.id, toast])
 
-  // Fetch event spaces for filtering
   useEffect(() => {
     const fetchEventSpaces = async () => {
       if (!organization?.id) return
-
       try {
         const { data, error } = await supabase
           .from('event_spaces')
           .select('id, name, slug')
           .eq('organization_id', organization.id)
           .order('name')
-
         if (error) throw error
         setEventSpaces(data || [])
       } catch (error) {
         console.error('Error fetching event spaces:', error)
       }
     }
-
     fetchEventSpaces()
   }, [organization?.id])
 
-  // Filter events based on search and filters
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase())
-    
+      event.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSpace = selectedSpace === 'all' || event.event_space_name === selectedSpace
-    
     const matchesCategory = selectedCategory === 'all' || event.category_name === selectedCategory
-    
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'approved' && event.is_approved) ||
-                         (statusFilter === 'pending' && !event.is_approved) ||
-                         (statusFilter === 'public' && event.is_public) ||
-                         (statusFilter === 'private' && !event.is_public)
-    
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'approved' && event.is_approved) ||
+      (statusFilter === 'pending' && !event.is_approved) ||
+      (statusFilter === 'public' && event.is_public) ||
+      (statusFilter === 'private' && !event.is_public)
     return matchesSearch && matchesSpace && matchesCategory && matchesStatus
   })
 
-  const getEventStatus = (event: OrganizationEvent) => {
-    if (!event.is_approved) return { label: 'Pending', color: 'yellow' }
-    if (event.is_public) return { label: 'Public', color: 'green' }
-    return { label: 'Private', color: 'blue' }
-  }
-
-  const formatDate = (date: string) => {
-    try {
-      // Handle different date formats that might come from the database
-      let dateObj: Date;
-      
-      // If it's already a valid date string, use it directly
-      if (date.includes('T') || date.includes(' ')) {
-        dateObj = new Date(date);
-      } else {
-        // If it's just a date (YYYY-MM-DD), parse it carefully
-        dateObj = new Date(date + 'T00:00:00');
-      }
-      
-      // Check if date is valid
-      if (isNaN(dateObj.getTime())) {
-        return 'Invalid Date';
-      }
-      
-      return dateObj.toLocaleDateString('en-US', {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error, date);
-      return 'Invalid Date';
-    }
-  }
-
-  const formatTime = (time: string) => {
-    try {
-      // Handle different time formats
-      let timeObj: Date;
-      
-      if (time.includes(':')) {
-        // If it's in HH:MM or HH:MM:SS format
-        timeObj = new Date(`2000-01-01T${time}`);
-      } else {
-        // If it's already a full datetime string
-        timeObj = new Date(time);
-      }
-      
-      // Check if time is valid
-      if(isNaN(timeObj.getTime())) {
-        return 'Invalid Time';
-      }
-      
-      return timeObj.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch (error) {
-      console.error('Error formatting time:', error, time);
-      return 'Invalid Time';
-    }
-  }
-
-  if (orgLoading || isLoadingPermissions) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 border-4 border-t-primary rounded-full animate-spin"></div>
-          <span className="text-gray-600">Loading...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (!organization) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Organization Required</h1>
-          <p className="text-gray-600 mb-6">You need to be part of an organization to view events.</p>
-          <Button onClick={() => router.push('/create-organization')}>
-            Create Organization
-          </Button>
-        </div>
-      </div>
-    )
+  const getStatusConfig = (event: OrganizationEvent) => {
+    if (!event.is_approved) return { label: 'Pending', icon: Clock, class: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' }
+    if (event.is_public) return { label: 'Public', icon: Eye, class: 'bg-green-500/10 text-green-500 border-green-500/20' }
+    return { label: 'Private', icon: EyeOff, class: 'bg-blue-500/10 text-blue-500 border-blue-500/20' }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      {/* Header with Organization Dropdown */}
+    <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
+      {/* Mesh Background */}
+      <div className="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
+      </div>
+
       <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Organization Events</h1>
-            <p className="text-gray-600 mt-2">Manage events for {organization.name}</p>
-          </div>
-          
-          {canCreateEvents && (
-            <HoverShadowEffect key="create-event-header">
+      <main className="flex-grow pt-32 pb-20">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Header Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8"
+          >
+            <div>
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 leading-[0.9]">
+                Event Matrix.
+              </h1>
+              <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">
+                Advanced lifecycle control for {organization.name}
+              </p>
+            </div>
+
+            {canCreateEvents && (
               <Button
                 onClick={() => router.push('/organization/create-event')}
-                className="bg-primary hover:bg-primary/90 text-white"
+                className="h-14 px-8 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight hover:scale-[1.02] transition-transform shadow-2xl"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Event
+                <Plus className="w-5 h-5 mr-2" /> New Deployment
               </Button>
-            </HoverShadowEffect>
-          )}
-        </div>
+            )}
+          </motion.div>
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white"
-                />
+          {/* Search & Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="mb-12"
+          >
+            <GlassTile className="p-4" interactive={false}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                  <Input
+                    placeholder="Filter by title or origin..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="h-12 pl-12 rounded-xl bg-background/50 border-neutral-200 dark:border-white/5 font-bold"
+                  />
+                </div>
+
+                <Select value={selectedSpace} onValueChange={setSelectedSpace}>
+                  <SelectTrigger className="h-12 rounded-xl bg-background/50 border-neutral-200 dark:border-white/5 font-bold">
+                    <SelectValue placeholder="All Matrix Spaces" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-white/10 backdrop-blur-xl">
+                    <SelectItem value="all">All Matrix Spaces</SelectItem>
+                    {eventSpaces.map(space => (
+                      <SelectItem key={space.id} value={space.name}>{space.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-12 rounded-xl bg-background/50 border-neutral-200 dark:border-white/5 font-bold">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-white/10 backdrop-blur-xl">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {(categories || []).map(cat => (
+                      <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-12 rounded-xl bg-background/50 border-neutral-200 dark:border-white/5 font-bold">
+                    <SelectValue placeholder="Status Filter" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-white/10 backdrop-blur-xl">
+                    <SelectItem value="all">Status Filter</SelectItem>
+                    <SelectItem value="approved">Approved Zone</SelectItem>
+                    <SelectItem value="pending">Pending Validation</SelectItem>
+                    <SelectItem value="public">Global Access</SelectItem>
+                    <SelectItem value="private">Restricted Access</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+            </GlassTile>
+          </motion.div>
 
-              {/* Event Space Filter */}
-              <Select value={selectedSpace} onValueChange={setSelectedSpace}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="All spaces" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Spaces</SelectItem>
-                  {eventSpaces.map(space => (
-                    <SelectItem key={space.id} value={space.name}>
-                      {space.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Events Matrix */}
+          {isLoading ? (
+            <EventListSkeleton count={8} />
+          ) : filteredEvents.length === 0 ? (
+            <GlassTile className="p-20 text-center" interactive={false}>
+              <div className="w-20 h-20 rounded-3xl bg-neutral-100 dark:bg-white/5 flex items-center justify-center text-neutral-400 mx-auto mb-8">
+                <Calendar className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-black tracking-tighter mb-4">Matrix Empty</h3>
+              <p className="text-neutral-500 mb-10 font-medium max-w-md mx-auto">
+                No active events detected in this coordinate range. Initialize a new mission to begin.
+              </p>
+              {canCreateEvents && events.length === 0 && (
+                <Button
+                  onClick={() => router.push('/organization/create-event')}
+                  className="h-14 px-8 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight"
+                >
+                  <Plus className="w-5 h-5 mr-2" /> Initialize Hub
+                </Button>
+              )}
+            </GlassTile>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence mode="popLayout">
+                {filteredEvents.map((event, index) => {
+                  const status = getStatusConfig(event)
+                  return (
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.6, delay: index * 0.05 }}
+                    >
+                      <GlassTile className="p-0 overflow-hidden flex flex-col h-full group" hoverScale={1.02}>
+                        <div className="relative h-40 overflow-hidden">
+                          {event.image_url ? (
+                            <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          ) : (
+                            <div className="w-full h-full bg-neutral-100 dark:bg-white/5 flex items-center justify-center">
+                              <Calendar className="h-12 w-12 text-neutral-300" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
-              {/* Category Filter */}
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {(categories && Array.isArray(categories)) ? categories.filter(category => category && typeof category === 'object' && category.id && category.name).map(category => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  )) : null}
-                </SelectContent>
-              </Select>
+                          <div className="absolute top-3 right-3">
+                            <Badge className={cn("px-2.5 py-1 rounded-lg backdrop-blur-md border font-black tracking-tighter uppercase text-[8px]", status.class)}>
+                              {status.label}
+                            </Badge>
+                          </div>
 
-              {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="All status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="pending">Pending Approval</SelectItem>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="private">Private</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Events Grid */}
-        {isLoading ? (
-          <React.Fragment key="loading">
-            <EventListSkeleton count={6} />
-          </React.Fragment>
-        ) : filteredEvents.length === 0 ? (
-          <React.Fragment key="empty">
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Calendar className="w-16 h-16 text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No events found</h3>
-                <p className="text-gray-600 text-center mb-6">
-                  {events.length === 0 
-                    ? "Your organization hasn't created any events yet."
-                    : "No events match your current filters."
-                  }
-                </p>
-                {canCreateEvents && events.length === 0 && (
-                  <Button
-                    onClick={() => router.push('/organization/create-event')}
-                    className="bg-primary hover:bg-primary/90 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Event
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </React.Fragment>
-        ) : (
-          <React.Fragment key="events">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {filteredEvents.map((event) => {
-              const status = getEventStatus(event)
-              
-              return (
-                <HoverShadowEffect key={event.id}>
-                  <Card className="overflow-hidden cursor-pointer h-full"
-                        onClick={() => router.push(`/events/${event.id}`)}>
-                    {/* Event Image */}
-                    <div className="relative h-32 bg-gray-200">
-                      {event.image_url ? (
-                        <img
-                          key={`img-${event.id}`}
-                          src={event.image_url}
-                          alt={event.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div key={`placeholder-${event.id}`} className="w-full h-full flex items-center justify-center">
-                          <Calendar className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                      
-                      {/* Status Badge */}
-                      <div className="absolute top-3 right-3">
-                        <Badge 
-                          variant={status.color === 'green' ? 'default' : 'secondary'}
-                          className={`
-                            ${status.color === 'green' ? 'bg-green-100 text-green-800' : ''}
-                            ${status.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' : ''}
-                            ${status.color === 'blue' ? 'bg-blue-100 text-blue-800' : ''}
-                          `}
-                        >
-                          {status.label}
-                        </Badge>
-                      </div>
-
-                      {/* Privacy Indicator */}
-                      <div className="absolute top-3 left-3">
-                        {event.is_public ? (
-                          <Eye key={`eye-${event.id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
-                        ) : (
-                          <EyeOff key={`eye-off-${event.id}`} className="w-4 h-4 text-white bg-black bg-opacity-50 rounded p-0.5" />
-                        )}
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
-                          {event.title}
-                        </h3>
-                        {event.requires_approval && (
-                          <Clock key={`clock-${event.id}`} className="w-3 h-3 text-yellow-500 ml-2 flex-shrink-0" />
-                        )}
-                      </div>
-
-                      <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                        {event.description}
-                      </p>
-
-                      {/* Event Details */}
-                      <div className="space-y-1 mb-3">
-                        <div className="flex items-center text-xs text-gray-600">
-                          <Calendar className="w-3 h-3 mr-2" />
-                          {formatDate(event.date)} at {formatTime(event.time)}
-                        </div>
-
-                        <div className="flex items-center text-xs text-gray-600">
-                          <MapPin className="w-3 h-3 mr-2" />
-                          {event.location}
-                        </div>
-
-                        {event.total_bookings > 0 && (
-                          <div key={`bookings-${event.id}`} className="flex items-center text-xs text-gray-600">
-                            <Users className="w-3 h-3 mr-2" />
-                            {event.total_bookings} registered
-                            {event.max_attendees && (
-                              <span key={`max-attendees-${event.id}`}> / {event.max_attendees} max</span>
+                          <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                            <div>
+                              <div className="text-[8px] font-bold uppercase tracking-widest text-white/60 mb-0.5">Category</div>
+                              <div className="text-xs font-black text-white">{event.category_name || 'General'}</div>
+                            </div>
+                            {event.requires_approval && (
+                              <div className="p-1.5 rounded-lg bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 text-yellow-500">
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Event Meta */}
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                        <div className="text-xs text-gray-500">
-                          {event.event_space_name && (
-                            <span key={`space-${event.id}`}>In {event.event_space_name}</span>
-                          )}
                         </div>
 
-                        <div className="text-base font-semibold text-gray-900">
-                          {event.price > 0 ? `$${event.price}` : 'Free'}
+                        <div className="p-5 flex-grow flex flex-col">
+                          <h4 className="text-lg font-black tracking-tight mb-2 line-clamp-1 leading-tight group-hover:text-blue-500 transition-colors">
+                            {event.title}
+                          </h4>
+
+                          <div className="space-y-2 mb-6">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                              <Calendar className="h-3 w-3 text-blue-500" />
+                              {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                              <MapPin className="h-3 w-3 text-blue-500" />
+                              <span className="truncate max-w-[150px]">{event.location}</span>
+                            </div>
+                          </div>
+
+                          <div className="mt-auto grid grid-cols-2 gap-4 pb-4 border-b border-neutral-100 dark:border-white/5">
+                            <div>
+                              <div className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">Attendees</div>
+                              <div className="text-sm font-black flex items-center gap-1.5">
+                                <Users className="h-3 w-3" /> {event.total_bookings}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">Admission</div>
+                              <div className="text-sm font-black text-blue-500">${event.price}</div>
+                            </div>
+                          </div>
+
+                          <div className="pt-4 flex gap-2">
+                            <Button
+                              onClick={() => router.push(`/events/${event.id}`)}
+                              variant="outline"
+                              className="flex-grow h-10 rounded-xl border-neutral-200 dark:border-white/10 font-bold uppercase tracking-widest text-[9px] hover:bg-neutral-50 dark:hover:bg-white/5"
+                            >
+                              Details
+                            </Button>
+                            <Button className="h-10 w-10 p-0 rounded-xl border-neutral-200 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5" variant="ghost">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </HoverShadowEffect>
-              )
-            })}
+                      </GlassTile>
+                    </motion.div>
+                  )
+                })}
+              </AnimatePresence>
             </div>
-          </React.Fragment>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

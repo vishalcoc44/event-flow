@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useOrganization } from '@/contexts/OrganizationContext';
+import { OrganizationContext } from '@/contexts/OrganizationContext';
 
 export interface SubscriptionPlan {
   id: string;
@@ -30,7 +30,8 @@ export interface OrganizationUsage {
 }
 
 export function useSubscription() {
-  const { organization } = useOrganization();
+  const context = useContext(OrganizationContext);
+  const organization = context?.organization;
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<SubscriptionPlan | null>(null);
   const [usage, setUsage] = useState<OrganizationUsage | null>(null);

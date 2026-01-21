@@ -117,92 +117,70 @@ serve(async (req) => {
       }
     }
 
-    // Create the event
-    const { data: newEvent, error: eventError } = await supabase
-      .from('events')
-      .insert({
-        title: event_data.title,
-        description: event_data.description,
-        category_id: event_data.category_id || null,
-        event_space_id: event_data.event_space_id || null,
-        location: event_data.location || null,
-        price: event_data.price || 0,
-        date: event_data.date || null,
-        time: event_data.time || null,
-        image_url: event_data.image_url || null,
-        organization_id: organization_id,
-        created_by: user.id,
-        is_public: event_data.is_public ?? true,
-        requires_approval: event_data.requires_approval ?? false,
-        is_approved: !(event_data.requires_approval ?? false) // Auto-approve unless requires approval
-        // Note: max_attendees and registration_deadline are not part of the events table schema
+    // Use the RPC function for proper validation and business logic
+    const { data: eventId, error: eventError } = await supabase
+      .rpc('create_organization_event', {
+        p_title: event_data.title,
+        p_description: event_data.description,
+        p_category_id: event_data.category_id || null,
+        p_location: event_data.location,
+        p_price: event_data.price || 0,
+        p_date: event_data.date,
+        p_time: event_data.time,
+        p_image_url: event_data.image_url,
+        p_organization_id: organization_id,
+        p_created_by: user.id
       })
-      .select()
-      .single()
 
     if (eventError) {
       console.error('Error creating event:', eventError)
       return new Response(
         JSON.stringify({ error: 'Failed to create event', details: eventError.message }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
-    // Create notifications for organization members
-    try {
-      // Get all organization members except the creator
-      const { data: orgMembers, error: membersError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('organization_id', organization_id)
-        .neq('id', user.id)
+    // Fetch the created event details
+    const { data: newEvent, error: fetchError } = await supabase
+      .from('events')
+      .select(`
+        *,
+        created_by_user:users!events_created_by_fkey(first_name, last_name, username),
+        category:categories(name),
+        event_space:event_spaces(name)
+      `)
+      .eq('id', eventId)
+      .single()
 
-      if (membersError) {
-        console.error('Error fetching organization members:', membersError)
-      } else if (orgMembers && orgMembers.length > 0) {
-        // Create notification records for each member
-        const notifications = orgMembers.map(member => ({
-          user_id: member.id,
-          type: 'EVENT_CREATED',
-          title: `New Event: ${event_data.title}`,
-          message: `A new event has been created in your organization: ${event_data.title}`,
-          data: {
-            event_id: newEvent.id,
-            event_title: event_data.title,
-            organization_id: organization_id,
-            created_by: user.id
-          },
-          is_read: false,
-          created_at: new Date().toISOString()
-        }))
-
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert(notifications)
-
-        if (notificationError) {
-          console.error('Error creating notifications:', notificationError)
-          // Don't fail the request if notifications fail
+    if (fetchError) {
+      console.error('Error fetching created event:', fetchError)
+      // Don't fail the request, just return the ID
+      return new Response(
+        JSON.stringify({
+          success: true,
+          event_id: eventId,
+          message: 'Event created successfully'
+        }),
+        {
+          status: 201,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      }
-    } catch (notificationError) {
-      console.error('Notification creation failed:', notificationError)
-      // Don't fail the request if notifications fail
+      )
     }
 
     // Return the created event
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         event: newEvent,
         message: 'Event created successfully'
       }),
-      { 
-        status: 201, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 201,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
 

@@ -5,16 +5,30 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBookings } from '@/contexts/BookingContext'
 import { useEvents } from '@/contexts/EventContext'
-import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, User, DollarSign, CheckCircle } from 'lucide-react'
-import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
+import { motion, AnimatePresence } from 'framer-motion'
+import { GlassTile } from '@/components/ui/glass-tile'
+import {
+    Calendar,
+    Clock,
+    MapPin,
+    User,
+    DollarSign,
+    CheckCircle,
+    Search,
+    ArrowRight,
+    ArrowUpRight,
+    TrendingUp,
+    Settings,
+    Users,
+    Compass,
+    Star
+} from 'lucide-react'
 
 type DashboardStats = {
     totalBookings: number
@@ -54,11 +68,9 @@ export default function CustomerDashboard() {
 
     useEffect(() => {
         if (user && bookings && events) {
-            // Filter bookings for current user
             const currentUserBookings = bookings.filter(booking => booking.user_id === user.id)
             setUserBookings(currentUserBookings)
 
-            // Group bookings by event for stats calculation
             const groupedBookings = currentUserBookings.reduce((groups: any[], booking) => {
                 const eventId = booking.event?.id
                 if (!eventId) return groups
@@ -81,17 +93,14 @@ export default function CustomerDashboard() {
                 return groups
             }, [])
 
-            // Calculate stats using grouped bookings
-            const totalBookings = groupedBookings.length // Count unique events, not individual tickets
+            const totalBookings = groupedBookings.length
             const upcomingEvents = groupedBookings.filter(group => {
                 const eventDate = new Date(group.event?.date || '')
                 const today = new Date()
                 return eventDate > today && group.status !== 'CANCELLED'
             }).length
 
-            const totalSpent = groupedBookings.reduce((sum, group) => {
-                return sum + group.totalPrice
-            }, 0)
+            const totalSpent = groupedBookings.reduce((sum, group) => sum + group.totalPrice, 0)
 
             const attendedEvents = groupedBookings.filter(group => {
                 const eventDate = new Date(group.event?.date || '')
@@ -106,14 +115,12 @@ export default function CustomerDashboard() {
                 attendedEvents
             })
 
-            // Get recommended events (events not booked by user)
             const userBookedEventIds = groupedBookings.map(group => group.eventId)
             const availableEvents = events.filter(event => !userBookedEventIds.includes(event.id))
             setRecommendedEvents(availableEvents.slice(0, 6))
         }
     }, [user, bookings, events])
 
-    // Group bookings for display
     const groupedBookings = userBookings.reduce((groups: any[], booking) => {
         const eventId = booking.event?.id
         if (!eventId) return groups
@@ -136,533 +143,361 @@ export default function CustomerDashboard() {
         return groups
     }, [])
 
-    const filteredBookings = groupedBookings.filter(group => 
-        group.event?.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const filteredBookings = groupedBookings.filter(group =>
+        group.event?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         group.event?.location?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     const getInitials = (firstName?: string, lastName?: string, email?: string) => {
-        if (firstName && lastName) {
-            return `${firstName[0]}${lastName[0]}`.toUpperCase()
-        } else if (firstName) {
-            return firstName[0].toUpperCase()
-        } else if (email) {
-            return email[0].toUpperCase()
-        }
+        if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase()
+        if (firstName) return firstName[0].toUpperCase()
+        if (email) return email[0].toUpperCase()
         return 'U'
     }
 
-    const getStatusColor = (status: string) => {
+    const getStatusStyles = (status: string) => {
         switch (status.toUpperCase()) {
-            case 'CONFIRMED':
-                return 'bg-green-100 text-green-800'
-            case 'PENDING':
-                return 'bg-yellow-100 text-yellow-800'
-            case 'CANCELLED':
-                return 'bg-red-100 text-red-800'
-            default:
-                return 'bg-muted text-gray-800'
-        }
-    }
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    }
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 20
-            }
+            case 'CONFIRMED': return 'bg-emerald-50 text-emerald-600 border-emerald-100'
+            case 'PENDING': return 'bg-amber-50 text-amber-600 border-amber-100'
+            case 'CANCELLED': return 'bg-rose-50 text-rose-600 border-rose-100'
+            default: return 'bg-slate-50 text-slate-600 border-slate-100'
         }
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-background">
-            <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
-            
-            <main className="flex-grow container mx-auto px-4 py-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-                    <div className="flex items-center mb-4 md:mb-0">
-                        <Avatar className="h-12 w-12 bg-[#6CDAEC] text-white mr-4">
-                            <AvatarFallback>
-                                {getInitials(user?.first_name, user?.last_name, user?.email)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h1 className="text-2xl font-bold text-foreground">
-                                Welcome, {user?.first_name || user?.username || user?.email?.split('@')[0]}!
-                            </h1>
-                            <p className="text-sm text-muted-foreground">{user?.email}</p>
+        <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+            {/* Mesh Gradient Background */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[140px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px]" />
+                <div className="absolute top-[30%] left-[20%] w-[25%] h-[25%] rounded-full bg-rose-500/5 blur-[100px]" />
+            </div>
+
+            <Header />
+
+            <main className="flex-grow container mx-auto px-4 py-12 max-w-7xl">
+                {/* Personalized Hero Area */}
+                <div className="relative mb-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8"
+                    >
+                        <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
+                            <motion.div
+                                className="relative"
+                                whileHover={{ scale: 1.05 }}
+                            >
+                                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                                <Avatar className="h-24 w-24 border-4 border-white shadow-2xl relative z-10 bg-gradient-to-br from-[#6CDAEC] to-primary">
+                                    <AvatarFallback className="text-2xl font-bold text-white">
+                                        {getInitials(user?.first_name, user?.last_name, user?.email)}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </motion.div>
+                            <div className="text-center md:text-left">
+                                <span className="text-sm font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">Community Member</span>
+                                <h1 className="text-4xl font-black text-slate-900 mt-2 tracking-tight">
+                                    Hey, {user?.first_name || user?.username || user?.email?.split('@')[0]}!
+                                </h1>
+                                <p className="text-slate-500 mt-1 font-medium italic">Ready for your next adventure?</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex space-x-2">
-                        <Link href="/customer/profile">
-                            <Button variant="outline" size="sm">
-                                <User className="h-4 w-4 mr-2" />
-                                Profile
-                            </Button>
-                        </Link>
+
+                        <div className="flex gap-4">
+                            <Link href="/customer/profile">
+                                <Button className="rounded-2xl border-slate-100 bg-white shadow-sm hover:shadow-md hover:bg-slate-50 py-6 px-6 text-slate-900 font-bold border flex gap-2">
+                                    <Settings size={20} className="text-slate-400" />
+                                    Manage Profile
+                                </Button>
+                            </Link>
+                            <Link href="/events">
+                                <Button className="rounded-2xl bg-neutral-900 hover:bg-neutral-800 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 py-6 px-8 text-white font-bold flex gap-2">
+                                    <Compass size={20} />
+                                    Discover Events
+                                </Button>
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Modern Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    <GlassTile delay={0.1} className="bg-white/60">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-2xl bg-cyan-50 text-cyan-600 shadow-inner">
+                                <Calendar size={24} />
+                            </div>
+                            <Badge variant="outline" className="text-[10px] font-bold border-cyan-100 text-cyan-700 bg-cyan-50/50">LIFETIME</Badge>
+                        </div>
+                        <div>
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Bookings</span>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{bookingsLoading ? '...' : dashboardStats.totalBookings}</h3>
+                        </div>
+                    </GlassTile>
+
+                    <GlassTile delay={0.2} className="bg-white/60">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner">
+                                <Clock size={24} />
+                            </div>
+                            <Badge variant="outline" className="text-[10px] font-bold border-emerald-100 text-emerald-700 bg-emerald-50/50">ACTIVE</Badge>
+                        </div>
+                        <div>
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Upcoming</span>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{bookingsLoading ? '...' : dashboardStats.upcomingEvents}</h3>
+                        </div>
+                    </GlassTile>
+
+                    <GlassTile delay={0.3} className="bg-white/60">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shadow-inner">
+                                <DollarSign size={24} />
+                            </div>
+                            <Badge variant="outline" className="text-[10px] font-bold border-slate-100 text-slate-500 bg-slate-50">USD</Badge>
+                        </div>
+                        <div>
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Spent</span>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">${bookingsLoading ? '...' : dashboardStats.totalSpent.toLocaleString()}</h3>
+                        </div>
+                    </GlassTile>
+
+                    <GlassTile delay={0.4} className="bg-white/60">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-2xl bg-amber-50 text-amber-600 shadow-inner">
+                                <CheckCircle size={24} />
+                            </div>
+                            <Badge variant="outline" className="text-[10px] font-bold border-amber-100 text-amber-700 bg-amber-50/50">ACHIEVED</Badge>
+                        </div>
+                        <div>
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Attended</span>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{bookingsLoading ? '...' : dashboardStats.attendedEvents}</h3>
+                        </div>
+                    </GlassTile>
+                </div>
+
+                {/* Social Hub Section */}
+                <div className="mb-16">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Social Hub</h2>
+                            <p className="text-slate-500 font-medium">Connect and discover with your network.</p>
+                        </div>
                         <Link href="/social">
-                            <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                Social
+                            <Button className="rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-indigo-200 shadow-lg text-white font-bold py-6 px-8 flex gap-2">
+                                <Users size={20} />
+                                Expand Network
                             </Button>
                         </Link>
-                        <Link href="/events">
-                            <Button size="sm">
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Book Event
-                            </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Link href="/social">
+                            <GlassTile className="p-6 flex items-center gap-6 group bg-white/40">
+                                <div className="w-16 h-16 rounded-[24px] bg-purple-50 flex items-center justify-center text-purple-600 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                                    <User size={28} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 text-lg">My Circle</h4>
+                                    <p className="text-sm text-slate-400 font-medium">Follow event enthusiasts</p>
+                                </div>
+                                <ArrowUpRight className="ml-auto text-slate-300 group-hover:text-purple-600 transition-colors" size={24} />
+                            </GlassTile>
+                        </Link>
+
+                        <Link href="/social">
+                            <GlassTile className="p-6 flex items-center gap-6 group bg-white/40">
+                                <div className="w-16 h-16 rounded-[24px] bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                                    <Calendar size={28} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 text-lg">Watched</h4>
+                                    <p className="text-sm text-slate-400 font-medium">Track favorite events</p>
+                                </div>
+                                <ArrowUpRight className="ml-auto text-slate-300 group-hover:text-blue-600 transition-colors" size={24} />
+                            </GlassTile>
+                        </Link>
+
+                        <Link href="/social">
+                            <GlassTile className="p-6 flex items-center gap-6 group bg-white/40">
+                                <div className="w-16 h-16 rounded-[24px] bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                                    <Star size={28} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 text-lg">Vibes</h4>
+                                    <p className="text-sm text-slate-400 font-medium">Explore categories</p>
+                                </div>
+                                <ArrowUpRight className="ml-auto text-slate-300 group-hover:text-rose-600 transition-colors" size={24} />
+                            </GlassTile>
                         </Link>
                     </div>
                 </div>
-                
-                {/* Stats Cards */}
-                <motion.div 
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                    >
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                            <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-muted-foreground">Total Bookings</h2>
-                                <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                                        <Calendar className="h-5 w-5 text-[#6CDAEC]" />
-                                    </div>
-                            </div>
-                            <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-foreground">
-                                        {bookingsLoading ? '...' : dashboardStats.totalBookings}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground mt-1">Total bookings made</span>
-                            </div>
-                            </Card>
-                        </HoverShadowEffect>
-                    </motion.div>
-                    
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                    >
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                            <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-muted-foreground">Upcoming Events</h2>
-                                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                                        <Clock className="h-5 w-5 text-green-600" />
-                                    </div>
-                            </div>
-                            <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-foreground">
-                                        {bookingsLoading ? '...' : dashboardStats.upcomingEvents}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground mt-1">Events in the next month</span>
-                            </div>
-                            </Card>
-                        </HoverShadowEffect>
-                    </motion.div>
-                    
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                    >
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                            <div className="flex items-center justify-between mb-2">
-                                    <h2 className="text-sm font-medium text-muted-foreground">Total Spent</h2>
-                                    <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                                        <DollarSign className="h-5 w-5 text-purple-600" />
-                                    </div>
-                            </div>
-                            <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-foreground">
-                                        ${bookingsLoading ? '...' : dashboardStats.totalSpent.toFixed(2)}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground mt-1">Total amount spent on events</span>
-                            </div>
-                            </Card>
-                        </HoverShadowEffect>
-                    </motion.div>
-                    
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                    >
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                            <div className="flex items-center justify-between mb-2">
-                                <h2 className="text-sm font-medium text-muted-foreground">Attended Events</h2>
-                                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                                        <CheckCircle className="h-5 w-5 text-green-600" />
-                                    </div>
-                            </div>
-                            <div className="flex flex-col">
-                                    <span className="text-3xl font-bold text-foreground">
-                                        {bookingsLoading ? '...' : dashboardStats.attendedEvents}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground mt-1">Events you've attended</span>
-                            </div>
-                            </Card>
-                        </HoverShadowEffect>
-                    </motion.div>
-                </motion.div>
-                
-                {/* Social Features Section */}
-                <motion.div 
-                    className="mb-12"
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                >
-                    <motion.div 
-                        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                    >
-                        <h2 className="text-xl font-semibold text-foreground mb-4 md:mb-0">Social Features</h2>
-                        <Link href="/social">
-                            <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                Explore Social
-                            </Button>
-                        </Link>
-                    </motion.div>
-                    
-                    <motion.div 
-                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Users</h3>
-                                <p className="text-muted-foreground text-sm mb-4">Connect with other event enthusiasts and organizers</p>
-                                <Link href="/social">
-                                    <Button variant="outline" size="sm" className="w-full">
-                                        Connect
-                                    </Button>
-                                </Link>
-                            </Card>
-                        </HoverShadowEffect>
-                        
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <Calendar className="w-6 h-6 text-blue-600" />
-                                    </div>
-                                </div>
-                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Events</h3>
-                                <p className="text-muted-foreground text-sm mb-4">Stay updated on your favorite events and get notifications</p>
-                                <Link href="/social">
-                                    <Button variant="outline" size="sm" className="w-full">
-                                        Follow Events
-                                    </Button>
-                                </Link>
-                            </Card>
-                        </HoverShadowEffect>
-                        
-                        <HoverShadowEffect className="bg-card border border-border rounded-2xl p-6 cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                            <Card className="p-6 border-0 shadow-none">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 className="text-lg font-semibold text-foreground mb-2">Follow Categories</h3>
-                                <p className="text-muted-foreground text-sm mb-4">Discover events in your favorite categories</p>
-                                <Link href="/social">
-                                    <Button variant="outline" size="sm" className="w-full">
-                                        Explore Categories
-                                    </Button>
-                                </Link>
-                            </Card>
-                        </HoverShadowEffect>
-                    </motion.div>
-                </motion.div>
-                
-                {/* Your Recent Bookings */}
-                <motion.div 
-                    className="mb-12"
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                >
-                    <motion.div 
-                        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                    >
-                        <h2 className="text-xl font-semibold text-foreground mb-4 md:mb-0">Your Recent Bookings</h2>
-                        <div className="w-full md:w-auto flex items-center">
-                            <div className="relative flex-grow md:w-64">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <Input
-                                    type="text"
-                                    placeholder="Search bookings by title or location..."
-                                    className="pl-10"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+
+                {/* Booking History Grid */}
+                <div className="mb-16">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">My Experience</h2>
+                            <p className="text-slate-500 font-medium">Review your past and upcoming bookings.</p>
                         </div>
-                    </motion.div>
-                    
-                    {bookingsLoading ? (
-                        <div className="flex justify-center items-center h-64">
-                            <motion.div
-                                className="w-12 h-12 border-4 border-t-[#6CDAEC] rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        <div className="relative group w-full md:w-80">
+                            <div className="absolute inset-y-0 left-0 pl-1 py-1 h-full flex items-center pointer-events-none">
+                                <div className="p-3 text-slate-400 group-focus-within:text-primary transition-colors">
+                                    <Search size={18} />
+                                </div>
+                            </div>
+                            <Input
+                                type="text"
+                                placeholder="Locate an experience..."
+                                className="pl-12 py-7 rounded-2xl border-slate-100 bg-white/60 backdrop-blur-sm shadow-sm focus:bg-white transition-all"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                    ) : filteredBookings.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="text-gray-400 mb-4">
-                                <Calendar className="h-12 w-12 mx-auto" />
+                    </div>
+
+                    {bookingsLoading ? (
+                        <div className="flex justify-center py-20">
+                            <div className="relative">
+                                <div className="w-16 h-16 border-4 border-slate-100 border-t-primary rounded-full animate-spin" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Compass size={24} className="text-primary animate-pulse" />
+                                </div>
                             </div>
-                            <h3 className="text-lg font-medium text-foreground mb-2">No bookings found</h3>
-                            <p className="text-muted-foreground mb-6">
-                                {searchTerm ? "We couldn't find any bookings matching your search." : "You haven't made any bookings yet."}
-                            </p>
-                            {searchTerm ? (
-                                <Button onClick={() => setSearchTerm('')}>Clear Search</Button>
-                            ) : (
-                                <Link href="/events">
-                                    <Button>Browse Events</Button>
-                                </Link>
-                            )}
+                        </div>
+                    ) : filteredBookings.length === 0 ? (
+                        <div className="text-center py-20 bg-white/40 rounded-[40px] border-2 border-dashed border-slate-200">
+                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Calendar size={40} className="text-slate-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900">No Experiences Found</h3>
+                            <p className="text-slate-500 mt-2 mb-8">Start your journey by exploring new events.</p>
+                            <Link href="/events">
+                                <Button className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold py-6 px-10 shadow-lg shadow-primary/20">
+                                    Discover Now
+                                </Button>
+                            </Link>
                         </div>
                     ) : (
-                        <motion.div 
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                        >
-                            {filteredBookings.slice(0, 6).map((bookingGroup, index) => (
-                                <motion.div 
-                                    key={bookingGroup.eventId} 
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {filteredBookings.slice(0, 6).map((group, i) => (
+                                <motion.div
+                                    key={group.eventId}
                                     initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                                    whileHover={{ 
-                                        scale: 1.02,
-                                        transition: { duration: 0.2 }
-                                    }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 * i }}
                                 >
-                                    <HoverShadowEffect className="overflow-hidden border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                                        <Card className="overflow-hidden border-0 shadow-none">
-                                <div className="relative h-48">
-                                    <img 
-                                                src={bookingGroup.event?.image_url || 'https://via.placeholder.com/400x200?text=Event'} 
-                                                alt={bookingGroup.event?.title}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://via.placeholder.com/400x200?text=Event';
-                                        }}
-                                    />
-                                    <div className="absolute top-2 right-2">
-                                                <Badge className={getStatusColor(bookingGroup.status)}>
-                                                    {bookingGroup.status}
+                                    <div className="group bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500 hover:-translate-y-2">
+                                        <div className="relative h-56 overflow-hidden">
+                                            <img
+                                                src={group.event?.image_url || 'https://via.placeholder.com/800x600?text=Experience'}
+                                                alt={group.event?.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className="absolute top-4 right-4 flex flex-col gap-2">
+                                                <Badge className={`py-1.5 px-3 rounded-xl border backdrop-blur-xl ${getStatusStyles(group.status)}`}>
+                                                    {group.status}
                                                 </Badge>
-                                            </div>
-                                            {bookingGroup.quantity > 1 && (
-                                                <div className="absolute top-2 left-2">
-                                                    <Badge className="bg-[#6CDAEC] text-white">
-                                                        {bookingGroup.quantity} Tickets
+                                                {group.quantity > 1 && (
+                                                    <Badge className="py-1.5 px-3 rounded-xl bg-primary text-white border-0 shadow-lg">
+                                                        {group.quantity} Tickets
                                                     </Badge>
-                                    </div>
-                                            )}
-                                </div>
-                                <div className="p-4">
-                                            <h3 className="text-lg font-semibold mb-2 text-foreground">{bookingGroup.event?.title}</h3>
-                                    <div className="flex items-center text-sm text-muted-foreground mb-2">
-                                                <Calendar className="h-4 w-4 mr-1" />
-                                                <span>{bookingGroup.event?.date ? new Date(bookingGroup.event.date).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'short', 
-                                            day: 'numeric' 
-                                                }) : 'N/A'}</span>
+                                                )}
                                             </div>
-                                            <div className="flex items-center text-sm text-muted-foreground mb-2">
-                                                <Clock className="h-4 w-4 mr-1" />
-                                                <span>{bookingGroup.event?.time || 'N/A'}</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-muted-foreground mb-4">
-                                                <MapPin className="h-4 w-4 mr-1" />
-                                                <span>{bookingGroup.event?.location || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-foreground">
-                                                        ${bookingGroup.totalPrice.toFixed(2)}
-                                                    </span>
-                                                    {bookingGroup.quantity > 1 && (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {bookingGroup.quantity} tickets
-                                                        </span>
-                                                    )}
-                                    </div>
-                                                <Link href={`/events/${bookingGroup.eventId}`}>
-                                            <Button variant="outline" size="sm">View Details</Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                                </Card>
-                            </HoverShadowEffect>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    )}
-                </motion.div>
-                
-                {/* Recommended For You */}
-                {recommendedEvents.length > 0 && (
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                    <motion.div 
-                        className="flex justify-between items-center mb-6"
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                    >
-                        <h2 className="text-xl font-semibold text-foreground">Recommended For You</h2>
-                            <Link href="/events" className="text-[#6CDAEC] hover:underline text-sm font-medium">
-                            Discover More
-                        </Link>
-                    </motion.div>
-                    
-                        <motion.div
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                        >
-                            {recommendedEvents.slice(0, 4).map((event, index) => (
-                                <motion.div 
-                                    key={event.id} 
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                                    whileHover={{ 
-                                        scale: 1.02,
-                                        transition: { duration: 0.2 }
-                                    }}
-                                >
-                                    <HoverShadowEffect className="overflow-hidden border border-border rounded-2xl cursor-pointer" shadowColor="rgba(0,0,0,0.15)" shadowIntensity={0.2}>
-                                        <Card className="overflow-hidden border-0 shadow-none">
-                                <div className="relative h-32">
-                                    <img
-                                                src={event.image_url || 'https://via.placeholder.com/400x200?text=Event'}
-                                                alt={event.title}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://via.placeholder.com/400x200?text=Event';
-                                        }}
-                                    />
-                                </div>
-                                <div className="p-3">
-                                            <h3 className="text-base font-semibold mb-2 text-foreground line-clamp-2">{event.title}</h3>
-                                    <div className="flex items-center text-xs text-muted-foreground mb-1">
-                                                <Calendar className="h-3 w-3 mr-1" />
-                                                <span>{event.date ? new Date(event.date).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                                }) : 'N/A'}</span>
-                                    </div>
-                                    <div className="flex items-center text-xs text-muted-foreground mb-3">
-                                                <MapPin className="h-3 w-3 mr-1" />
-                                                <span>{event.location || 'N/A'}</span>
-                                    </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs font-medium text-foreground">
-                                                    ${event.price || 0}
-                                                </span>
-                                                <div className="flex space-x-1">
-                                    <Link href={`/events/${event.id}`}>
-                                                        <Button variant="outline" size="sm" className="text-xs px-2 py-1">Learn More</Button>
-                                                    </Link>
-                                                    <Link href={`/customer/book-event/${event.id}`}>
-                                                        <Button size="sm" className="bg-[#6CDAEC] hover:bg-[#5BC8D9] text-xs px-2 py-1">
-                                                            Buy Ticket
-                                                        </Button>
-                                    </Link>
+                                        </div>
+                                        <div className="p-6">
+                                            <h3 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-1 mb-4">{group.event?.title}</h3>
+
+                                            <div className="space-y-3 mb-6">
+                                                <div className="flex items-center text-slate-500 text-sm font-medium">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center mr-3 text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                                                        <Calendar size={16} />
+                                                    </div>
+                                                    {group.event?.date ? new Date(group.event.date).toLocaleDateString('en-US', {
+                                                        month: 'long', day: 'numeric', year: 'numeric'
+                                                    }) : 'Flexible Date'}
+                                                </div>
+                                                <div className="flex items-center text-slate-500 text-sm font-medium">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center mr-3 text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 transition-colors">
+                                                        <MapPin size={16} />
+                                                    </div>
+                                                    {group.event?.location || 'Digital Experience'}
                                                 </div>
                                             </div>
-                                </div>
-                                </Card>
-                            </HoverShadowEffect>
+
+                                            <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                                <div className="flex flex-col">
+                                                    <span className="text-2xl font-black text-slate-900 tracking-tight">${group.totalPrice.toFixed(0)}</span>
+                                                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest leading-none">Investment</span>
+                                                </div>
+                                                <Link href={`/events/${group.eventId}`}>
+                                                    <Button className="w-12 h-12 rounded-2xl bg-slate-50 group-hover:bg-slate-900 text-slate-400 group-hover:text-white transition-all p-0 flex items-center justify-center">
+                                                        <ArrowRight size={20} />
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </motion.div>
-                        ))}
-                        </motion.div>
-                    </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Recommendations Grid */}
+                {recommendedEvents.length > 0 && (
+                    <div className="mb-20">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Curated For You</h2>
+                                <p className="text-slate-500 font-medium">Experiences you might enjoy.</p>
+                            </div>
+                            <Link href="/events" className="group text-primary font-bold text-sm flex items-center gap-2">
+                                Discover More <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                            </Link>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {recommendedEvents.slice(0, 4).map((event, i) => (
+                                <motion.div
+                                    key={event.id}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.1 * i }}
+                                >
+                                    <div className="group bg-white/60 backdrop-blur-sm rounded-[28px] p-4 border border-slate-100 hover:bg-white hover:shadow-xl transition-all duration-500">
+                                        <div className="relative h-40 rounded-[20px] overflow-hidden mb-4">
+                                            <img
+                                                src={event.image_url || 'https://via.placeholder.com/600x400?text=Event'}
+                                                alt={event.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                            <div className="absolute top-3 right-3">
+                                                <div className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-black shadow-sm">
+                                                    ${event.price || 0}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h4 className="font-bold text-slate-900 line-clamp-1 mb-2 group-hover:text-primary transition-colors">{event.title}</h4>
+                                        <p className="text-xs text-slate-400 font-medium truncate mb-4">{event.location || 'Remote'}</p>
+                                        <div className="flex gap-2">
+                                            <Link href={`/events/${event.id}`} className="flex-1">
+                                                <Button variant="ghost" className="w-full rounded-xl text-[10px] font-bold h-9">DETAILS</Button>
+                                            </Link>
+                                            <Link href={`/customer/book-event/${event.id}`} className="flex-1">
+                                                <Button className="w-full rounded-xl bg-slate-900 hover:bg-primary text-white text-[10px] font-bold h-9 shadow-lg">TICKET</Button>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
                 )}
             </main>
-            
+
             <Footer />
         </div>
     )
-} 
+}

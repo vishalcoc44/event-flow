@@ -40,7 +40,7 @@ export function GradientButton({
   const content = (
     <HoverBorderGradient
       containerClassName={cn(
-        "rounded-lg",
+        "rounded-xl",
         containerClassName
       )}
       as="button"

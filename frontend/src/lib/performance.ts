@@ -116,7 +116,25 @@ export const usePerformance = () => {
     createIntersectionObserver: performanceUtils.createIntersectionObserver,
     preloadResource: performanceUtils.preloadResource,
     lazyLoadImage: performanceUtils.lazyLoadImage,
-    measurePerformance: performanceUtils.measurePerformance as <T>(name: string, fn: () => T | Promise<T>) => T | Promise<T>
+    measurePerformance: performanceUtils.measurePerformance as <T>(name: string, fn: () => T | Promise<T>) => T | Promise<T>,
+    // Navigation tracking
+    startNavigation: (path: string) => {
+      if (typeof window === 'undefined') return;
+      (window as any).__nav_start = performance.now();
+      (window as any).__nav_path = path;
+    },
+    endNavigation: () => {
+      if (typeof window === 'undefined') return;
+      const start = (window as any).__nav_start;
+      const path = (window as any).__nav_path;
+      if (start) {
+        const end = performance.now();
+        const duration = end - start;
+        console.log(`%c⚡ Navigation to [${path}]: ${duration.toFixed(2)}ms`, 'color: #3b82f6; font-weight: bold;');
+        delete (window as any).__nav_start;
+        delete (window as any).__nav_path;
+      }
+    }
   };
 };
 

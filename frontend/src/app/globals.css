@@ -182,25 +182,61 @@ body {
 }
 
 /* Heading styles - Main headings use Open Sans */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
 }
 
 /* Additional heading styles for better typography */
-h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; }
-h2 { font-size: 2rem; font-weight: 600; line-height: 1.3; }
-h3 { font-size: 1.5rem; font-weight: 600; line-height: 1.4; }
-h4 { font-size: 1.25rem; font-weight: 500; line-height: 1.4; }
-h5 { font-size: 1.125rem; font-weight: 500; line-height: 1.4; }
-h6 { font-size: 1rem; font-weight: 500; line-height: 1.4; }
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+h5 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+h6 {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -228,6 +264,7 @@ h6 { font-size: 1rem; font-weight: 500; line-height: 1.4; }
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -260,51 +297,51 @@ h6 { font-size: 1rem; font-weight: 500; line-height: 1.4; }
   .btn-primary {
     @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors;
   }
-  
+
   .btn-secondary {
     @apply bg-secondary text-foreground px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors;
   }
-  
+
   .btn-outline {
     @apply border border-primary text-primary bg-transparent px-4 py-2 rounded-md hover:bg-primary/10 transition-colors;
   }
-  
+
   .btn-destructive {
     @apply bg-destructive text-white px-4 py-2 rounded-md hover:bg-destructive/90 transition-colors;
   }
-  
+
   .card {
     @apply bg-card rounded-lg shadow-card p-6;
   }
-  
+
   .input {
     @apply bg-input rounded-md px-3 py-2 border border-border focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
-  
+
   .select {
     @apply bg-input rounded-md px-3 py-2 border border-border focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
-  
+
   .badge {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
-  
+
   .badge-primary {
     @apply bg-primary/20 text-primary;
   }
-  
+
   .badge-secondary {
     @apply bg-secondary text-foreground;
   }
-  
+
   .badge-success {
     @apply bg-green-100 text-green-800;
   }
-  
+
   .badge-warning {
     @apply bg-yellow-100 text-yellow-800;
   }
-  
+
 
   .badge-danger {
     @apply bg-red-100 text-red-800;
@@ -314,6 +351,33 @@ h6 { font-size: 1rem; font-weight: 500; line-height: 1.4; }
 @layer utilities {
   .animate-scroll {
     animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+  }
+
+  /* Premium Glassmorphism */
+  .glass-premium {
+    @apply bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/20 dark:bg-white/5 backdrop-blur-md border border-white/30 dark:border-white/10 shadow-xl;
+  }
+
+  /* Mesh Gradients */
+  .mesh-gradient-blue {
+    background: radial-gradient(at 0% 0%, hsla(210, 100%, 90%, 1) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(220, 100%, 85%, 1) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(230, 100%, 90%, 1) 0, transparent 50%);
+  }
+
+  .dark .mesh-gradient-blue {
+    background: radial-gradient(at 0% 0%, hsla(210, 100%, 10%, 0.3) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(220, 100%, 5%, 0.3) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(230, 100%, 10%, 0.3) 0, transparent 50%);
+  }
+
+  /* Modern Transitions */
+  .transition-premium {
+    @apply transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 

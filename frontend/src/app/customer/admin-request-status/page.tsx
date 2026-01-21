@@ -6,9 +6,12 @@ import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
+import { GlassTile } from '@/components/ui/glass-tile'
+import { motion } from 'framer-motion'
+import { CheckCircle, XCircle, Clock, AlertCircle, FileText, Building, Briefcase } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type AdminRequestStatus = {
     request_id: string
@@ -40,23 +43,23 @@ export default function AdminRequestStatus() {
             const { data, error } = await supabase.rpc('get_user_admin_request_status', {
                 p_user_id: user!.id
             })
-            
+
             if (error) {
-                console.error('Error fetching admin request status:', error)
+                console.error('Error fetching admin request status:', error.message || error)
                 toast({
                     title: "Error",
-                    description: "Failed to fetch admin request status",
+                    description: error.message || "Failed to fetch admin request status",
                     variant: "destructive"
                 })
                 return
             }
-            
+
             setRequestStatus(data?.[0] || null)
-        } catch (error) {
-            console.error('Error fetching admin request status:', error)
+        } catch (error: any) {
+            console.error('Error fetching admin request status:', error.message || error)
             toast({
                 title: "Error",
-                description: "Failed to fetch admin request status",
+                description: error.message || "Failed to fetch admin request status",
                 variant: "destructive"
             })
         } finally {
@@ -66,35 +69,35 @@ export default function AdminRequestStatus() {
 
     const handleCancelRequest = async () => {
         if (!user) return
-        
+
         try {
             setCancelling(true)
             const { error } = await supabase.rpc('cancel_admin_request', {
                 p_user_id: user.id
             })
-            
+
             if (error) {
-                console.error('Error cancelling request:', error)
+                console.error('Error cancelling request:', error.message || error)
                 toast({
                     title: "Error",
-                    description: "Failed to cancel admin request",
+                    description: error.message || "Failed to cancel admin request",
                     variant: "destructive"
                 })
                 return
             }
-            
+
             toast({
                 title: "Success",
                 description: "Admin request cancelled successfully"
             })
-            
+
             // Refresh the status
             await fetchAdminRequestStatus()
-        } catch (error) {
-            console.error('Error cancelling request:', error)
+        } catch (error: any) {
+            console.error('Error cancelling request:', error.message || error)
             toast({
                 title: "Error",
-                description: "Failed to cancel admin request",
+                description: error.message || "Failed to cancel admin request",
                 variant: "destructive"
             })
         } finally {
@@ -102,243 +105,225 @@ export default function AdminRequestStatus() {
         }
     }
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'PENDING': return 'bg-yellow-100 text-yellow-800'
-            case 'APPROVED': return 'bg-green-100 text-green-800'
-            case 'REJECTED': return 'bg-red-100 text-red-800'
-            case 'CANCELLED': return 'bg-gray-100 text-gray-800'
-            default: return 'bg-gray-100 text-gray-800'
-        }
-    }
-
-    const getStatusIcon = (status: string) => {
+    const getStatusConfig = (status: string) => {
         switch (status) {
             case 'PENDING':
-                return (
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                )
+                return {
+                    color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                    icon: <Clock className="w-6 h-6 text-yellow-600" />,
+                    title: 'Under Review',
+                    description: 'Your request is currently being reviewed by our administrators.',
+                    gradient: 'from-yellow-50 to-orange-50'
+                }
             case 'APPROVED':
-                return (
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                )
+                return {
+                    color: 'bg-green-100 text-green-800 border-green-200',
+                    icon: <CheckCircle className="w-6 h-6 text-green-600" />,
+                    title: 'Request Approved',
+                    description: 'Congratulations! Your admin privileges have been granted.',
+                    gradient: 'from-green-50 to-emerald-50'
+                }
             case 'REJECTED':
-                return (
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                )
+                return {
+                    color: 'bg-red-100 text-red-800 border-red-200',
+                    icon: <XCircle className="w-6 h-6 text-red-600" />,
+                    title: 'Request Rejected',
+                    description: 'Your request was not approved at this time.',
+                    gradient: 'from-red-50 to-pink-50'
+                }
             case 'CANCELLED':
-                return (
-                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                )
+                return {
+                    color: 'bg-gray-100 text-gray-800 border-gray-200',
+                    icon: <AlertCircle className="w-6 h-6 text-gray-600" />,
+                    title: 'Request Cancelled',
+                    description: 'You have cancelled this request.',
+                    gradient: 'from-gray-50 to-slate-50'
+                }
             default:
-                return null
+                return {
+                    color: 'bg-gray-100 text-gray-800 border-gray-200',
+                    icon: <AlertCircle className="w-6 h-6 text-gray-600" />,
+                    title: 'Unknown Status',
+                    description: 'Status unknown.',
+                    gradient: 'from-gray-50 to-slate-50'
+                }
         }
     }
 
     if (!user) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Login</h1>
-                    <p className="text-gray-600">You need to be logged in to view this page.</p>
-                </div>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#f3f4f6]">
+                <GlassTile className="max-w-md w-full text-center py-10">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+                    <p className="text-gray-600 mb-6">You need to be logged in to view your request status.</p>
+                    <a href="/login" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors">
+                        Log In
+                    </a>
+                </GlassTile>
             </div>
         )
     }
 
+    const statusConfig = requestStatus ? getStatusConfig(requestStatus.status) : null
+
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
-            <Header />
-            
-            <main className="flex-grow py-8">
-                <div className="container mx-auto px-4">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Request Status</h1>
-                        <p className="text-gray-600">Check the status of your admin privilege request</p>
-                    </div>
+        <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#f3f4f6]">
+            {/* Mesh Gradient Background */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob"></div>
+                <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-2000"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-cyan-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-4000"></div>
+                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]"></div>
+            </div>
+
+            <div className="relative z-10 flex flex-col min-h-screen">
+                <Header user={user ? { ...user, role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
+                <main className="flex-grow py-12 container mx-auto px-4 max-w-3xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-8 text-center"
+                    >
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Admin Status</h1>
+                        <p className="text-gray-600 text-lg">Track the progress of your administrative access request</p>
+                    </motion.div>
 
                     {loading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                            <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
+                            <p className="text-gray-500 animate-pulse">Checking status...</p>
                         </div>
                     ) : !requestStatus ? (
-                        <Card>
-                            <CardContent className="py-12">
-                                <div className="text-center">
-                                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Admin Request Found</h3>
-                                    <p className="text-gray-600 mb-4">You haven't submitted an admin request yet.</p>
-                                    <Button onClick={() => window.location.href = '/register'}>
-                                        Request Admin Access
-                                    </Button>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <GlassTile className="py-16 flex flex-col items-center justify-center text-center" interactive={false}>
+                                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6 shadow-inner border border-blue-100">
+                                    <Briefcase className="w-10 h-10 text-blue-500" />
                                 </div>
-                            </CardContent>
-                        </Card>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Request</h3>
+                                <p className="text-gray-500 max-w-md mx-auto mb-8">
+                                    You haven't submitted a request for admin access yet. If you'd like to become an administrator, you can submit a new request.
+                                </p>
+                                <Button
+                                    onClick={() => window.location.href = '/register'}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 px-8 py-6 h-auto text-lg rounded-xl"
+                                >
+                                    Request Admin Access
+                                </Button>
+                            </GlassTile>
+                        </motion.div>
                     ) : (
-                        <Card className="max-w-2xl mx-auto">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    {getStatusIcon(requestStatus.status)}
-                                    <div>
-                                        <CardTitle>Admin Request Status</CardTitle>
-                                        <CardDescription>
-                                            Request submitted on {new Date(requestStatus.created_at).toLocaleDateString()}
-                                        </CardDescription>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <GlassTile className="p-0 overflow-hidden" interactive={false}>
+                                {statusConfig && (
+                                    <div className={cn("p-8 bg-gradient-to-br", statusConfig.gradient)}>
+                                        <div className="flex items-center gap-4 mb-2">
+                                            <div className="p-3 bg-white/60 backdrop-blur-sm rounded-full shadow-sm">
+                                                {statusConfig.icon}
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-gray-900">{statusConfig.title}</h2>
+                                                <p className="text-gray-600">{statusConfig.description}</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <Badge className={getStatusColor(requestStatus.status)}>
-                                        {requestStatus.status}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div>
-                                    <h4 className="font-medium text-gray-900 mb-2">Request Details</h4>
-                                    <div className="bg-gray-50 p-4 rounded-lg">
-                                        <p className="text-gray-700 mb-2">
-                                            <strong>Reason:</strong> {requestStatus.reason}
-                                        </p>
-                                        {requestStatus.organization && (
-                                            <p className="text-gray-700 mb-2">
-                                                <strong>Organization:</strong> {requestStatus.organization}
-                                            </p>
-                                        )}
-                                        <p className="text-gray-700">
-                                            <strong>Experience Level:</strong> {requestStatus.experience_level}
-                                        </p>
-                                    </div>
-                                </div>
+                                )}
 
-                                {requestStatus.reviewed_at && (
+                                <div className="p-8 space-y-8">
+                                    {/* Request Details Section */}
                                     <div>
-                                        <h4 className="font-medium text-gray-900 mb-2">Review Information</h4>
-                                        <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-gray-700 mb-2">
-                                                <strong>Reviewed on:</strong> {new Date(requestStatus.reviewed_at).toLocaleDateString()}
-                                            </p>
-                                            {requestStatus.review_notes && (
-                                                <p className="text-gray-700">
-                                                    <strong>Review Notes:</strong> {requestStatus.review_notes}
-                                                </p>
+                                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
+                                            <FileText className="w-4 h-4 mr-2" /> Request Details
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="p-4 bg-white/40 border border-white/60 rounded-xl">
+                                                <span className="text-xs text-gray-500 block mb-1">Experience Level</span>
+                                                <span className="font-semibold text-gray-900">{requestStatus.experience_level}</span>
+                                            </div>
+                                            {requestStatus.organization && (
+                                                <div className="p-4 bg-white/40 border border-white/60 rounded-xl">
+                                                    <span className="text-xs text-gray-500 block mb-1 flex items-center"><Building className="w-3 h-3 mr-1" /> Organization</span>
+                                                    <span className="font-semibold text-gray-900">{requestStatus.organization}</span>
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                )}
-
-                                {requestStatus.status === 'PENDING' && (
-                                    <div className="border-t pt-6">
-                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                                            <div className="flex">
-                                                <svg className="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                </svg>
-                                                <div>
-                                                    <h4 className="text-sm font-medium text-yellow-800">Request Under Review</h4>
-                                                    <p className="text-sm text-yellow-700 mt-1">
-                                                        Your admin request is currently being reviewed by our administrators. 
-                                                        You will be notified once a decision has been made.
-                                                    </p>
-                                                </div>
-                                            </div>
+                                        <div className="mt-4 p-5 bg-white/40 border border-white/60 rounded-xl">
+                                            <span className="text-xs text-gray-500 block mb-2">Reason for Request</span>
+                                            <p className="text-gray-700 italic">"{requestStatus.reason}"</p>
                                         </div>
-                                        
-                                        <Button
-                                            variant="outline"
-                                            onClick={handleCancelRequest}
-                                            disabled={cancelling}
-                                            className="w-full"
-                                        >
-                                            {cancelling ? 'Cancelling...' : 'Cancel Request'}
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {requestStatus.status === 'APPROVED' && (
-                                    <div className="border-t pt-6">
-                                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                            <div className="flex">
-                                                <svg className="w-5 h-5 text-green-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                </svg>
-                                                <div>
-                                                    <h4 className="text-sm font-medium text-green-800">Request Approved!</h4>
-                                                    <p className="text-sm text-green-700 mt-1">
-                                                        Congratulations! Your admin request has been approved. 
-                                                        You now have admin privileges and can access the admin dashboard.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <Button
-                                            onClick={() => window.location.href = '/admin/dashboard'}
-                                            className="w-full mt-4"
-                                        >
-                                            Go to Admin Dashboard
-                                        </Button>
-                                    </div>
-                                )}
-
-                                {requestStatus.status === 'REJECTED' && (
-                                    <div className="border-t pt-6">
-                                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                            <div className="flex">
-                                                <svg className="w-5 h-5 text-red-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                </svg>
-                                                <div>
-                                                    <h4 className="text-sm font-medium text-red-800">Request Rejected</h4>
-                                                    <p className="text-sm text-red-700 mt-1">
-                                                        Your admin request has been rejected. Please contact support for more information.
-                                                    </p>
-                                                </div>
-                                            </div>
+                                        <div className="mt-4 flex items-center gap-2 text-sm text-gray-500 justify-end">
+                                            <Clock className="w-4 h-4" />
+                                            <span>Submitted on {new Date(requestStatus.created_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                )}
 
-                                {requestStatus.status === 'CANCELLED' && (
-                                    <div className="border-t pt-6">
-                                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                            <div className="flex">
-                                                <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                </svg>
-                                                <div>
-                                                    <h4 className="text-sm font-medium text-gray-800">Request Cancelled</h4>
-                                                    <p className="text-sm text-gray-700 mt-1">
-                                                        Your admin request has been cancelled. You can submit a new request if needed.
-                                                    </p>
+                                    {/* Review Info Section */}
+                                    {requestStatus.reviewed_at && (
+                                        <div className="border-t border-gray-100 pt-8">
+                                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Review Information</h3>
+                                            <div className="bg-gray-50/50 p-5 rounded-xl border border-gray-100">
+                                                <div className="mb-4">
+                                                    <span className="text-xs text-gray-500 block mb-1">Reviewed on</span>
+                                                    <span className="font-semibold text-gray-900">{new Date(requestStatus.reviewed_at).toLocaleDateString()}</span>
                                                 </div>
+                                                {requestStatus.review_notes && (
+                                                    <div>
+                                                        <span className="text-xs text-gray-500 block mb-2">Reviewer Notes</span>
+                                                        <p className="text-gray-700">{requestStatus.review_notes}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        
-                                        <Button
-                                            onClick={() => window.location.href = '/register'}
-                                            className="w-full mt-4"
-                                        >
-                                            Submit New Request
-                                        </Button>
+                                    )}
+
+                                    {/* Actions Section */}
+                                    <div className="border-t border-gray-100 pt-6 flex justify-end">
+                                        {requestStatus.status === 'PENDING' && (
+                                            <Button
+                                                variant="destructive"
+                                                onClick={handleCancelRequest}
+                                                disabled={cancelling}
+                                                className="bg-red-50 text-red-600 hover:bg-red-100 border-red-100 hover:border-red-200 shadow-none hover:shadow-sm"
+                                            >
+                                                {cancelling ? 'Cancelling...' : 'Cancel Request'}
+                                            </Button>
+                                        )}
+
+                                        {requestStatus.status === 'APPROVED' && (
+                                            <Button
+                                                onClick={() => window.location.href = '/admin/dashboard'}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 px-8"
+                                            >
+                                                Go to Admin Dashboard
+                                            </Button>
+                                        )}
+
+                                        {requestStatus.status === 'CANCELLED' && (
+                                            <Button
+                                                onClick={() => window.location.href = '/register'}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200"
+                                            >
+                                                Submit New Request
+                                            </Button>
+                                        )}
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                                </div>
+                            </GlassTile>
+                        </motion.div>
                     )}
-                </div>
-            </main>
-            
-            <Footer />
+                </main>
+
+                <Footer />
+            </div>
         </div>
     )
-} 
+}

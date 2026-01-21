@@ -1,0 +1,852 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "user_profiles",
+    "policyname": "Admin can view all profiles",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "Admins can modify all events",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "categories",
+    "policyname": "Categories are viewable by everyone",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Enable insert for authenticated users only",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Enable read access for all users",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Enable update for users based on id",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Event creators can view bookings for their events",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM events\n  WHERE ((events.id = bookings.event_id) AND (events.created_by = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "categories",
+    "policyname": "Only admins can modify categories",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_spaces",
+    "policyname": "Organization admins can create event spaces",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY (ARRAY[('OWNER'::character varying)::text, ('ADMIN'::character varying)::text])))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_spaces",
+    "policyname": "Organization admins can delete event spaces",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY (ARRAY[('OWNER'::character varying)::text, ('ADMIN'::character varying)::text])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "policyname": "Users can delete their own reviews",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notification_preferences",
+    "policyname": "Users can insert their own notification preferences",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organizations",
+    "policyname": "Public organizations are viewable by everyone",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_public = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organizations",
+    "policyname": "Users can create organizations",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = created_by)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organizations",
+    "policyname": "Owners can update their own organizations",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = created_by)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organizations",
+    "policyname": "Owners can delete their own organizations",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() = created_by)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_requests",
+    "policyname": "Users can update their own admin requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_requests",
+    "policyname": "Organization owners can update admin requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_requests",
+    "policyname": "Organization owners can view admin requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "System can insert notifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "true"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_reports",
+    "policyname": "Users can create reports",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = reporter_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_requests",
+    "policyname": "Users can create their own admin requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Users can create their own bookings",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can create their own follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = follower_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_helpful_votes",
+    "policyname": "Users can create their own helpful votes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "policyname": "Users can create their own reviews",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can delete their own follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() = follower_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Users can update their own bookings",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_helpful_votes",
+    "policyname": "Users can update their own helpful votes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notification_preferences",
+    "policyname": "Users can update their own notification preferences",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "Users can update their own notifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "user_profiles",
+    "policyname": "Users can update their own profile",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "policyname": "Users can update their own reviews",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_helpful_votes",
+    "policyname": "Users can view all helpful votes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "reviews",
+    "policyname": "Users can view all reviews",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view category follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((target_type)::text = 'CATEGORY'::text) AND (EXISTS ( SELECT 1\n   FROM categories\n  WHERE (categories.id = follows.target_id))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view event follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((target_type)::text = 'EVENT'::text) AND (EXISTS ( SELECT 1\n   FROM events\n  WHERE (events.id = follows.target_id))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "review_reports",
+    "policyname": "Users can view their own reports",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = reporter_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_spaces",
+    "policyname": "Users can view their organization's event spaces",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid())))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_requests",
+    "policyname": "Users can view their own admin requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Users can view their own bookings",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view their own follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = follower_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notification_preferences",
+    "policyname": "Users can view their own notification preferences",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "Users can view their own notifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "user_profiles",
+    "policyname": "Users can view their own profile",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view who follows them",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((target_type)::text = 'USER'::text) AND (target_id = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Authenticated users can upload event images",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((bucket_id = 'event-images'::text) AND (auth.role() = 'authenticated'::text))"
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Event images are publicly accessible",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(bucket_id = 'event-images'::text)",
+    "with_check": null
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Users can delete their own uploads",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() = owner)",
+    "with_check": null
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Users can update their own uploads",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = owner)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "migration_log",
+    "policyname": "migration_log_admin_access",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_settings",
+    "policyname": "organization_settings_select",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE (users.id = auth.uid())))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_settings",
+    "policyname": "organization_settings_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_settings",
+    "policyname": "organization_settings_update",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_settings",
+    "policyname": "organization_settings_delete",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "DELETE",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notification_templates",
+    "policyname": "notification_templates_select",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notification_templates",
+    "policyname": "notification_templates_admin_full_access",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "subscription_plans",
+    "policyname": "subscription_plans_select",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "subscription_plans",
+    "policyname": "subscription_plans_admin_full_access",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_audit_log",
+    "policyname": "Admins can view audit logs",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "admin_audit_log",
+    "policyname": "System can insert audit logs",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "true"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "invoices",
+    "policyname": "Owners and Admis can view their organization's invoices",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_members",
+    "policyname": "Users can view their own organization memberships",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_members",
+    "policyname": "Admins can view all members of their organization",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT organization_members_1.organization_id\n   FROM organization_members organization_members_1\n  WHERE ((organization_members_1.user_id = auth.uid()) AND (organization_members_1.is_org_admin = true))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Allow users to access their own record",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((id = auth.uid()) OR (auth.uid() IS NOT NULL))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "categories",
+    "policyname": "Allow category access",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Anyone can view follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can follow/unfollow",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(auth.uid() = follower_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Authenticated users can upload logos",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(bucket_id = 'org-logos'::text)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_invitations",
+    "policyname": "Users can view their own pending invitations",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((auth.email() = (email)::text) AND ((status)::text = 'PENDING'::text) AND (expires_at > now()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_invitations",
+    "policyname": "Organization admins can view all invitations",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = organization_invitations.organization_id) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_invitations",
+    "policyname": "Organization admins can create invitations",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = organization_invitations.organization_id) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[]))))) AND (invited_by = auth.uid()))"
+  },
+  {
+    "schemaname": "storage",
+    "tablename": "objects",
+    "policyname": "Public can view logos",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(bucket_id = 'org-logos'::text)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_invitations",
+    "policyname": "Organization admins can update invitations",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "((EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = organization_invitations.organization_id) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[]))))) AND (invited_by = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_invitations",
+    "policyname": "Organization admins can delete invitations",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "((EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND (users.organization_id = organization_invitations.organization_id) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[]))))) AND (invited_by = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_activity_log",
+    "policyname": "Org admins can view their org activity logs",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "organization_activity_log",
+    "policyname": "System can insert activity logs",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "true"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "events_select_organization",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL)))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Admins can view any booking",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Admins can update any booking",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "bookings",
+    "policyname": "Admins can delete any booking",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "events_select_proper_visibility",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((is_public = true) OR (created_by = auth.uid()) OR ((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL))))) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text)))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "events_insert_proper_organization",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((auth.uid() IS NOT NULL) AND (created_by = auth.uid()) AND ((organization_id IS NULL) OR (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL))))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "events_update_organization_controlled",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "((created_by = auth.uid()) OR ((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL) AND ((u.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text)))))",
+    "with_check": "((created_by = auth.uid()) OR ((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL) AND ((u.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text)))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "events",
+    "policyname": "events_delete_organization_controlled",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "((created_by = auth.uid()) OR ((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL) AND ((u.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))) OR (EXISTS ( SELECT 1\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role)::text = 'ADMIN'::text)))))",
+    "with_check": null
+  }
+]

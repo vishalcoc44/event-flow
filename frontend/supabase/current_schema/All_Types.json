@@ -1,0 +1,258 @@
+[
+  {
+    "type_name": "_admin_audit_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "_admin_dashboard_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "_admin_request_history",
+    "enum_value": null
+  },
+  {
+    "type_name": "_admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "_bookings",
+    "enum_value": null
+  },
+  {
+    "type_name": "_categories",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_rating_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_spaces",
+    "enum_value": null
+  },
+  {
+    "type_name": "_events",
+    "enum_value": null
+  },
+  {
+    "type_name": "_follows",
+    "enum_value": null
+  },
+  {
+    "type_name": "_invoices",
+    "enum_value": null
+  },
+  {
+    "type_name": "_migration_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "_notification_preferences",
+    "enum_value": null
+  },
+  {
+    "type_name": "_notification_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "_notification_templates",
+    "enum_value": null
+  },
+  {
+    "type_name": "_notifications",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_activity_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_dashboard_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_event_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_invitations",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_members",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organization_settings",
+    "enum_value": null
+  },
+  {
+    "type_name": "_organizations",
+    "enum_value": null
+  },
+  {
+    "type_name": "_pending_admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "_review_helpful_votes",
+    "enum_value": null
+  },
+  {
+    "type_name": "_review_reports",
+    "enum_value": null
+  },
+  {
+    "type_name": "_reviews",
+    "enum_value": null
+  },
+  {
+    "type_name": "_subscription_plans",
+    "enum_value": null
+  },
+  {
+    "type_name": "_user_profiles",
+    "enum_value": null
+  },
+  {
+    "type_name": "_user_review_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "_users",
+    "enum_value": null
+  },
+  {
+    "type_name": "admin_audit_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "admin_dashboard_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "admin_request_history",
+    "enum_value": null
+  },
+  {
+    "type_name": "admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "bookings",
+    "enum_value": null
+  },
+  {
+    "type_name": "categories",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_rating_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_spaces",
+    "enum_value": null
+  },
+  {
+    "type_name": "events",
+    "enum_value": null
+  },
+  {
+    "type_name": "follows",
+    "enum_value": null
+  },
+  {
+    "type_name": "invoices",
+    "enum_value": null
+  },
+  {
+    "type_name": "migration_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "notification_preferences",
+    "enum_value": null
+  },
+  {
+    "type_name": "notification_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "notification_templates",
+    "enum_value": null
+  },
+  {
+    "type_name": "notifications",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_activity_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_dashboard_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_event_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_invitations",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_members",
+    "enum_value": null
+  },
+  {
+    "type_name": "organization_settings",
+    "enum_value": null
+  },
+  {
+    "type_name": "organizations",
+    "enum_value": null
+  },
+  {
+    "type_name": "pending_admin_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "review_helpful_votes",
+    "enum_value": null
+  },
+  {
+    "type_name": "review_reports",
+    "enum_value": null
+  },
+  {
+    "type_name": "reviews",
+    "enum_value": null
+  },
+  {
+    "type_name": "subscription_plans",
+    "enum_value": null
+  },
+  {
+    "type_name": "user_profiles",
+    "enum_value": null
+  },
+  {
+    "type_name": "user_review_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "users",
+    "enum_value": null
+  }
+]

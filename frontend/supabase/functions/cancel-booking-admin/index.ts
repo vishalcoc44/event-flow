@@ -28,13 +28,9 @@ serve(async (req) => {
 
     console.log('Admin cancelling booking:', booking_id)
 
-    // Update the booking status using admin client (bypasses RLS)
+    // Use the RPC function for proper admin validation and business logic
     const { data, error } = await supabaseAdmin
-      .from('bookings')
-      .update({ status: 'CANCELLED' })
-      .eq('id', booking_id)
-      .select('id, event_id, user_id, booking_date, status, created_at')
-      .single()
+      .rpc('cancel_booking_admin', { booking_id })
 
     if (error) {
       console.error('Error cancelling booking:', error)

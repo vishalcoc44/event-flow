@@ -6,15 +6,15 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/contexts/EventContext'
 import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, DollarSign, Users, ArrowLeft, Plus, Minus, CheckCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, DollarSign, Users, ArrowLeft, Plus, Minus, CheckCircle, Ticket } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
+import { GlassTile } from '@/components/ui/glass-tile'
+import { cn } from '@/lib/utils'
 
 type Event = {
     id: string
@@ -36,7 +36,7 @@ export default function BookEventClient() {
     const { user } = useAuth()
     const { events, loading: eventsLoading } = useEvents()
     const { addBooking } = useBookings()
-    
+
     const [event, setEvent] = useState<Event | null>(null)
     const [ticketCount, setTicketCount] = useState(1)
     const [loading, setLoading] = useState(false)
@@ -53,9 +53,9 @@ export default function BookEventClient() {
 
     const handleTicketChange = (increment: boolean) => {
         if (increment) {
-            setTicketCount(prev => Math.min(prev + 1, 10)) // Max 10 tickets
+            setTicketCount(prev => Math.min(prev + 1, 10))
         } else {
-            setTicketCount(prev => Math.max(prev - 1, 1)) // Min 1 ticket
+            setTicketCount(prev => Math.max(prev - 1, 1))
         }
     }
 
@@ -66,21 +66,19 @@ export default function BookEventClient() {
 
         setLoading(true)
         try {
-            // Create multiple bookings for the number of tickets
             for (let i = 0; i < ticketCount; i++) {
                 await addBooking(event.id)
             }
-            
+
             setBookingSuccess(true)
             toast({
                 title: "Booking Successful!",
                 description: `You've successfully booked ${ticketCount} ticket(s) for ${event.title}`,
             })
-            
-            // Redirect to bookings page after 2 seconds
+
             setTimeout(() => {
                 router.push('/customer/bookings')
-            }, 2000)
+            }, 2500)
         } catch (error) {
             console.error('Booking error:', error)
             toast({
@@ -95,61 +93,48 @@ export default function BookEventClient() {
 
     if (eventsLoading) {
         return (
-            <div className="min-h-screen flex flex-col bg-white">
-                <Header />
-                <main className="flex-grow container mx-auto px-4 py-8">
-                    <div className="flex justify-center items-center h-64">
-                        <motion.div
-                            className="w-12 h-12 border-4 border-t-[#6CDAEC] rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        />
-                    </div>
+            <div className="min-h-screen flex flex-col bg-background">
+                <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+                <main className="flex-grow flex items-center justify-center">
+                    <motion.div
+                        className="w-16 h-16 border-4 border-t-blue-500 rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    />
                 </main>
                 <Footer />
             </div>
         )
     }
 
-    if (!event) {
-        return (
-            <div className="min-h-screen flex flex-col bg-white">
-                <Header />
-                <main className="flex-grow container mx-auto px-4 py-8">
-                    <div className="text-center py-12">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
-                        <p className="text-gray-600 mb-6">The event you're looking for doesn't exist or has been removed.</p>
-                        <Link href="/customer/dashboard">
-                            <Button>Back to Dashboard</Button>
-                        </Link>
-                    </div>
-                </main>
-                <Footer />
-            </div>
-        )
-    }
+    if (!event) return null
 
     if (bookingSuccess) {
         return (
-            <div className="min-h-screen flex flex-col bg-white">
-                <Header />
-                <main className="flex-grow container mx-auto px-4 py-8">
-                    <div className="text-center py-12">
+            <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+                <div className="absolute inset-0 z-[-1] opacity-30 pointer-events-none">
+                    <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-green-400/20 blur-[120px]" />
+                </div>
+                <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+                <main className="flex-grow flex items-center justify-center px-4">
+                    <GlassTile className="p-12 max-w-xl text-center" interactive={false}>
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-green-500/40"
                         >
-                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <CheckCircle className="h-8 w-8 text-green-600" />
-                            </div>
+                            <CheckCircle className="h-12 w-12 text-white" />
                         </motion.div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Booking Successful!</h1>
-                        <p className="text-gray-600 mb-6">
-                            You've successfully booked {ticketCount} ticket(s) for {event.title}
+                        <h1 className="text-4xl font-black tracking-tighter mb-4">You're Going!</h1>
+                        <p className="text-xl text-neutral-500 mb-8 font-medium">
+                            Successfully booked {ticketCount} {ticketCount > 1 ? 'tickets' : 'ticket'} for <br />
+                            <span className="text-foreground font-bold">{event.title}</span>
                         </p>
-                        <p className="text-sm text-gray-500">Redirecting to your bookings...</p>
-                    </div>
+                        <div className="py-4 px-6 rounded-2xl bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-white/5 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400">
+                            Redirecting to your digital vault...
+                        </div>
+                    </GlassTile>
                 </main>
                 <Footer />
             </div>
@@ -157,167 +142,193 @@ export default function BookEventClient() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
-            <Header />
-            
-            <main className="flex-grow container mx-auto px-4 py-8">
-                {/* Back Button */}
-                <div className="mb-6">
-                    <Link href="/customer/dashboard">
-                        <Button variant="outline" size="sm" className="flex items-center">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back to Dashboard
-                        </Button>
+        <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
+            {/* Mesh Background */}
+            <div className="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
+            </div>
+
+            <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+
+            <main className="flex-grow pt-32 pb-20">
+                <div className="container mx-auto px-4 max-w-6xl">
+                    <Link href={`/events/${event.id}`} className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-neutral-500 hover:text-blue-500 transition-colors mb-8 group">
+                        <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
+                        Return to Event
                     </Link>
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Event Details */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <Card className="overflow-hidden border border-gray-200 shadow-sm">
-                            <div className="relative h-64">
-                                <img 
-                                    src={event.image_url || 'https://via.placeholder.com/600x300?text=Event'} 
-                                    alt={event.title}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.currentTarget.src = 'https://via.placeholder.com/600x300?text=Event';
-                                    }}
-                                />
-                                {event.category && (
-                                    <div className="absolute top-4 left-4">
-                                        <Badge className="bg-[#6CDAEC] text-white">
-                                            {event.category.name}
-                                        </Badge>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="p-6">
-                                <h1 className="text-2xl font-bold text-gray-900 mb-4">{event.title}</h1>
-                                
-                                <div className="space-y-3 mb-6">
-                                    <div className="flex items-center text-gray-600">
-                                        <Calendar className="h-5 w-5 mr-3 text-[#6CDAEC]" />
-                                        <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                                            weekday: 'long',
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
-                                        })}</span>
-                                    </div>
-                                    <div className="flex items-center text-gray-600">
-                                        <Clock className="h-5 w-5 mr-3 text-[#6CDAEC]" />
-                                        <span>{event.time}</span>
-                                    </div>
-                                    <div className="flex items-center text-gray-600">
-                                        <MapPin className="h-5 w-5 mr-3 text-[#6CDAEC]" />
-                                        <span>{event.location}</span>
-                                    </div>
-                                    <div className="flex items-center text-gray-600">
-                                        <DollarSign className="h-5 w-5 mr-3 text-[#6CDAEC]" />
-                                        <span>${event.price} per ticket</span>
-                                    </div>
-                                </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                        {/* Summary Column */}
+                        <motion.div
+                            className="lg:col-span-7"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 leading-[0.9]">
+                                Secure Your Experience.
+                            </h1>
 
-                                {event.description && (
-                                    <div className="mb-6">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">About This Event</h3>
-                                        <p className="text-gray-600 leading-relaxed">{event.description}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
-                    </motion.div>
-
-                    {/* Booking Form */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                        <Card className="p-6 border border-gray-200 shadow-sm">
-                            <h2 className="text-xl font-semibold text-gray-900 mb-6">Book Your Tickets</h2>
-                            
-                            {/* Ticket Selection */}
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-3">
-                                    Number of Tickets
-                                </label>
-                                <div className="flex items-center space-x-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleTicketChange(false)}
-                                        disabled={ticketCount <= 1}
-                                        className="w-10 h-10 p-0"
-                                    >
-                                        <Minus className="h-4 w-4" />
-                                    </Button>
-                                    <div className="flex items-center space-x-2">
-                                        <Users className="h-5 w-5 text-[#6CDAEC]" />
-                                        <span className="text-lg font-semibold text-gray-900">{ticketCount}</span>
-                                    </div>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleTicketChange(true)}
-                                        disabled={ticketCount >= 10}
-                                        className="w-10 h-10 p-0"
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-2">Maximum 10 tickets per booking</p>
-                            </div>
-
-                            {/* Price Breakdown */}
-                            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                                <h3 className="text-sm font-medium text-gray-700 mb-3">Price Breakdown</h3>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Price per ticket:</span>
-                                        <span>${event.price}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span>Number of tickets:</span>
-                                        <span>{ticketCount}</span>
-                                    </div>
-                                    <div className="border-t pt-2 flex justify-between font-semibold">
-                                        <span>Total:</span>
-                                        <span className="text-lg text-[#6CDAEC]">${totalPrice}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Booking Button */}
-                            <Button
-                                onClick={handleBooking}
-                                disabled={loading}
-                                className="w-full bg-[#6CDAEC] hover:bg-[#5BC8D9] text-white py-3"
-                            >
-                                {loading ? (
-                                    <motion.div
-                                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            <GlassTile className="p-0 overflow-hidden" interactive={false}>
+                                <div className="relative h-64">
+                                    <img
+                                        src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop'}
+                                        alt={event.title}
+                                        className="w-full h-full object-cover"
                                     />
-                                ) : (
-                                    `Book ${ticketCount} Ticket${ticketCount > 1 ? 's' : ''} - $${totalPrice}`
-                                )}
-                            </Button>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                    <div className="absolute bottom-8 left-8 right-8">
+                                        <div className="flex gap-2 mb-3">
+                                            {event.category && (
+                                                <span className="px-3 py-1 rounded-lg bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest">
+                                                    {event.category.name}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h2 className="text-3xl font-bold text-white tracking-tight">{event.title}</h2>
+                                    </div>
+                                </div>
+                                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-4 group">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 transition-colors">
+                                                <Calendar className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Date</div>
+                                                <div className="text-sm font-bold">
+                                                    {new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 group">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                                <Clock className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Check-in</div>
+                                                <div className="text-sm font-bold">{event.time}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-4 group">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                                <MapPin className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Venue</div>
+                                                <div className="text-sm font-bold">{event.location}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 group">
+                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                                <Ticket className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Entry</div>
+                                                <div className="text-sm font-bold">Standard Pass</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </GlassTile>
+                        </motion.div>
 
-                            <p className="text-xs text-gray-500 mt-3 text-center">
-                                By booking, you agree to our terms and conditions
-                            </p>
-                        </Card>
-                    </motion.div>
+                        {/* Checkout Column */}
+                        <motion.div
+                            className="lg:col-span-5"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                            <GlassTile className="p-10" interactive={false}>
+                                <h3 className="text-2xl font-black tracking-tighter mb-8">Checkout Summary</h3>
+
+                                <div className="space-y-10">
+                                    {/* Ticket Selector */}
+                                    <div className="space-y-4">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Quantity</div>
+                                        <div className="flex items-center justify-between p-4 rounded-3xl bg-neutral-100 dark:bg-black/40 border border-neutral-200 dark:border-white/5">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleTicketChange(false)}
+                                                disabled={ticketCount <= 1}
+                                                className="w-12 h-12 rounded-2xl hover:bg-white dark:hover:bg-white/10"
+                                            >
+                                                <Minus className="h-5 w-5" />
+                                            </Button>
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-4xl font-black">{ticketCount}</span>
+                                                <span className="text-sm font-bold text-neutral-400">PCS</span>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleTicketChange(true)}
+                                                disabled={ticketCount >= 10}
+                                                className="w-12 h-12 rounded-2xl hover:bg-white dark:hover:bg-white/10"
+                                            >
+                                                <Plus className="h-5 w-5" />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    {/* Billing Breakdown */}
+                                    <div className="space-y-4 border-t border-neutral-100 dark:border-white/5 pt-8">
+                                        <div className="flex justify-between items-center text-sm font-medium">
+                                            <span className="text-neutral-500">Standard Base (×{ticketCount})</span>
+                                            <span className="font-bold">${event.price * ticketCount}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm font-medium">
+                                            <span className="text-neutral-500">Platform Fee</span>
+                                            <span className="text-blue-500 font-bold">FREE</span>
+                                        </div>
+                                        <div className="flex justify-between items-end pt-4">
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">Total Amount</div>
+                                                <div className="text-5xl font-black tracking-tighter">${totalPrice}</div>
+                                            </div>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 pb-2">USD</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action */}
+                                    <div className="space-y-4">
+                                        <Button
+                                            onClick={handleBooking}
+                                            disabled={loading}
+                                            className="w-full h-20 rounded-[1.75rem] bg-black dark:bg-white text-white dark:text-black text-xl font-black tracking-tight hover:scale-[1.02] transition-transform shadow-xl shadow-black/10 dark:shadow-white/10"
+                                        >
+                                            {loading ? (
+                                                <motion.div
+                                                    className="w-6 h-6 border-3 border-white dark:border-black border-t-transparent rounded-full"
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                />
+                                            ) : (
+                                                `Complete Reservation`
+                                            )}
+                                        </Button>
+                                        <p className="text-[10px] text-center text-neutral-400 font-bold uppercase tracking-widest leading-relaxed">
+                                            Non-refundable • Digital Assets ONLY<br /> Terms of Service Apply
+                                        </p>
+                                    </div>
+                                </div>
+                            </GlassTile>
+
+                            {/* Trust Badge */}
+                            <div className="mt-8 flex items-center justify-center gap-3 text-neutral-400">
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Encrypted Checkout • Powered by Stripe</span>
+                            </div>
+                        </motion.div>
+                    </div>
                 </div>
             </main>
-            
+
             <Footer />
         </div>
     )

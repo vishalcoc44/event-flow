@@ -26,7 +26,7 @@ import ClientProviders from '@/components/ClientProviders';
 // Prevent authentication errors from being logged to console
 if (typeof window !== 'undefined') {
     const originalConsoleError = console.error;
-    console.error = function(...args: any[]) {
+    console.error = function (...args: any[]) {
         // Check if this is an authentication-related error
         const errorMessage = args.join(' ');
         if (errorMessage.includes('Invalid login credentials') ||
@@ -44,6 +44,10 @@ if (typeof window !== 'undefined') {
 export const metadata: Metadata = {
     title: "EventFlow - Event Management System",
     description: "A comprehensive platform for managing events and bookings",
+    icons: {
+        icon: '/logo.svg',
+        apple: '/logo.svg',
+    },
     robots: {
         index: true,
         follow: true,

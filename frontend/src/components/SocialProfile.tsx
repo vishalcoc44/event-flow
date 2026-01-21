@@ -50,11 +50,11 @@ export const SocialProfile: React.FC<SocialProfileProps> = ({
       const [profileData, followersData, followingUsersData, followingEventsData, followingCategoriesData] = await Promise.all([
         getUserProfile(userId),
         getUserFollowers(userId),
-        getUserFollows('USER'),
-        getUserFollows('EVENT'),
-        getUserFollows('CATEGORY')
+        getUserFollows(userId, 'USER'),
+        getUserFollows(userId, 'EVENT'),
+        getUserFollows(userId, 'CATEGORY')
       ]);
-      
+
       setProfile(profileData);
       setFollowers(followersData);
       setFollowingUsers(followingUsersData);
@@ -161,21 +161,19 @@ export const SocialProfile: React.FC<SocialProfileProps> = ({
           <div className="flex space-x-1 border-b">
             <button
               onClick={() => setActiveTab('followers')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'followers'
+              className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'followers'
                   ? 'border-b-2 border-primary text-primary'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               Followers ({followers.length})
             </button>
             <button
               onClick={() => setActiveTab('following')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'following'
+              className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'following'
                   ? 'border-b-2 border-primary text-primary'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               Following ({followingUsers.length + followingEvents.length + followingCategories.length})
             </button>
@@ -259,7 +257,7 @@ export const SocialProfile: React.FC<SocialProfileProps> = ({
                         ))}
                       </div>
                     )}
-                    
+
                     {/* Following Events */}
                     {followingEvents.length > 0 && (
                       <div className="mb-4">
@@ -289,7 +287,7 @@ export const SocialProfile: React.FC<SocialProfileProps> = ({
                         ))}
                       </div>
                     )}
-                    
+
                     {/* Following Categories */}
                     {followingCategories.length > 0 && (
                       <div className="mb-4">

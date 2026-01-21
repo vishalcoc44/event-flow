@@ -48,7 +48,7 @@ interface NotificationContextType {
   summary: NotificationSummary | null;
   loading: boolean;
   unreadCount: number;
-  
+
   // Actions
   loadNotifications: () => Promise<void>;
   loadPreferences: () => Promise<void>;
@@ -59,7 +59,7 @@ interface NotificationContextType {
   createNotification: (notification: Partial<Notification>) => Promise<string>;
   deleteNotification: (notificationId: string) => Promise<boolean>;
   clearOldNotifications: () => Promise<number>;
-  
+
   // Real-time
   subscribeToNotifications: () => void;
   unsubscribeFromNotifications: () => void;
@@ -70,7 +70,24 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
+    return {
+      notifications: [],
+      preferences: null,
+      summary: null,
+      loading: false,
+      unreadCount: 0,
+      loadNotifications: async () => { },
+      loadPreferences: async () => { },
+      loadSummary: async () => { },
+      markAsRead: async () => false,
+      markAllAsRead: async () => 0,
+      updatePreferences: async () => false,
+      createNotification: async () => '',
+      deleteNotification: async () => false,
+      clearOldNotifications: async () => 0,
+      subscribeToNotifications: () => { },
+      unsubscribeFromNotifications: () => { }
+    } as NotificationContextType;
   }
   return context;
 };
@@ -110,7 +127,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   };
 
   // Load notification preferences
-  const loadPreferences = async () => {
+  const loadPreferences = async (retryCount = 0) => {
     if (!user) return;
 
     try {
@@ -120,8 +137,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
-      
+      if (error && error.code !== 'PGRST116') {
+        // If it's a transient error or the user profile doesn't exist yet, retry
+        if (retryCount < 3) {
+          console.log(`⚠️ Retrying loadPreferences (attempt ${retryCount + 1})...`);
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          return loadPreferences(retryCount + 1);
+        }
+        throw error;
+      }
+
       if (data) {
         setPreferences(data);
       } else {
@@ -141,11 +166,19 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           .select()
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          // If creation fails (e.g., due to FK constraint on users table), retry
+          if (retryCount < 3) {
+            console.log(`⚠️ Retrying createPreferences (attempt ${retryCount + 1})...`);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            return loadPreferences(retryCount + 1);
+          }
+          throw createError;
+        }
         setPreferences(newPrefs);
       }
     } catch (error) {
-      console.error('Error loading notification preferences:', error);
+      console.error('❌ Error loading notification preferences:', error);
     }
   };
 
@@ -159,7 +192,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       });
 
       if (error) throw error;
-      
+
       // The function returns an array, so we take the first (and only) result
       const summaryData = data && data.length > 0 ? data[0] : null;
       setSummary(summaryData);
@@ -169,7 +202,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       const unreadCount = notifications.filter(n => !n.is_read).length;
       const reminderCount = notifications.filter(n => n.type === 'EVENT_REMINDER').length;
       const bookingCount = notifications.filter(n => n.type === 'BOOKING_CONFIRMED').length;
-      
+
       setSummary({
         user_id: user.id,
         total_notifications: notifications.length,
@@ -193,9 +226,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       if (error) throw error;
 
       // Update local state
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId
             ? { ...notification, is_read: true }
             : notification
         )
@@ -222,7 +255,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       if (error) throw error;
 
       // Update local state
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(notification => ({ ...notification, is_read: true }))
       );
 
@@ -293,7 +326,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
       // Update local state
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      
+
       // Reload summary
       await loadSummary();
       return true;
@@ -354,7 +387,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         },
         (payload) => {
           const updatedNotification = payload.new as Notification;
-          setNotifications(prev => 
+          setNotifications(prev =>
             prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
           );
           loadSummary();

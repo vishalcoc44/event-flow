@@ -64,16 +64,16 @@ export function HoverBorderGradient({
       }}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        "relative flex rounded-lg border-0 content-center bg-transparent transition duration-500 items-center flex-col flex-nowrap gap-10 h-min justify-center overflow-visible p-[1px] decoration-clone w-fit shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] transition-shadow duration-300 m-2 group",
+        "relative flex rounded-[inherit] border-0 content-center bg-transparent transition duration-500 items-center flex-col flex-nowrap gap-10 h-min justify-center overflow-visible p-[1px] decoration-clone w-fit transition-shadow duration-300 group",
         containerClassName
       )}
       {...props}
     >
       <div
-              className={cn(
-        "w-auto z-10 px-4 py-2 rounded-[inherit] relative shadow-inner group-hover:shadow-[inset_0_1px_3px_rgba(108,218,236,0.3)]",
-        className
-      )}
+        className={cn(
+          "w-auto z-10 px-4 py-2 rounded-[inherit] relative shadow-inner group-hover:shadow-[inset_0_1px_3px_rgba(108,218,236,0.3)]",
+          className
+        )}
       >
         {children}
       </div>
@@ -109,11 +109,11 @@ export function HoverBorderGradient({
         animate={{
           background: hovered
             ? [
-                `radial-gradient(15% 40% at 50% 50%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
-                `radial-gradient(15% 40% at 80% 20%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
-                `radial-gradient(15% 40% at 20% 80%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
-                `radial-gradient(15% 40% at 50% 50%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`
-              ]
+              `radial-gradient(15% 40% at 50% 50%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
+              `radial-gradient(15% 40% at 80% 20%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
+              `radial-gradient(15% 40% at 20% 80%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
+              `radial-gradient(15% 40% at 50% 50%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`
+            ]
             : `radial-gradient(15% 40% at 50% 50%, ${shineColor === "#6CDAEC" ? "rgba(255, 255, 255, 0.9)" : "rgba(128, 128, 128, 0.7)"} 0%, rgba(255, 255, 255, 0) 100%)`,
         }}
         transition={{ ease: "linear", duration: (duration ?? 1) * 0.8 }}

@@ -2,7 +2,9 @@
 
 import { ReactNode } from 'react'
 import dynamic from 'next/dynamic'
+import { usePathname } from 'next/navigation'
 import AuthDebugger from './AuthDebugger'
+import { SideNavbar } from './SideNavbar'
 
 // Dynamically import providers that aren't needed immediately
 // These are client-side only and don't need SSR
@@ -57,6 +59,35 @@ interface ClientProvidersProps {
 }
 
 export default function ClientProviders({ children }: ClientProvidersProps) {
+  const pathname = usePathname()
+
+  // Public pages that don't need any of the heavy providers
+  const isLandingPage = pathname === '/'
+  const isAuthPage = pathname.startsWith('/auth') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/reset-password')
+  const isLegalPage = pathname.startsWith('/privacy') || pathname.startsWith('/terms')
+
+  const isBasicPublicPage = isLandingPage || isAuthPage || isLegalPage
+
+  // Content always wrapped in PageTransition
+  const content = (
+    <OptimizedPageTransition>
+      {children}
+    </OptimizedPageTransition>
+  )
+
+  if (isBasicPublicPage) {
+    return (
+      <>
+        {content}
+        <AuthDebugger />
+      </>
+    )
+  }
+
   return (
     <OrganizationProvider>
       <CategoryProvider>
@@ -66,10 +97,11 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
               <SocialProvider>
                 <NotificationProvider>
                   <ReviewProvider>
-                    {/* Optimized page transition with reduced animations */}
-                    <OptimizedPageTransition>
-                      {children}
-                    </OptimizedPageTransition>
+                    {/* Global Side Navbar */}
+                    <SideNavbar />
+                    <div className="pl-0 md:pl-[80px] transition-all duration-300"> {/* Add padding for side navbar */}
+                      {content}
+                    </div>
                     {/* Auth debugger for development */}
                     <AuthDebugger />
                   </ReviewProvider>

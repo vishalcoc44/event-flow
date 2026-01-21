@@ -10,6 +10,10 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useOrganizationData, useOrganizationPermissions } from '@/hooks/useOrganizationData'
 import { HoverShadowEffect } from './ui/hover-shadow-effect'
+import { cn } from '@/lib/utils'
+import { OrgNavigation } from './OrgNavigation'
+import { OrgSwitcher } from './OrgSwitcher'
+import { adminLinks, customerLinks, guestLinks } from '@/config/navigation'
 
 // Lazy load NotificationBell for better performance
 const NotificationBell = dynamic(() => import('./NotificationBell').then(mod => ({ default: mod.NotificationBell })), {
@@ -20,6 +24,95 @@ const NotificationBell = dynamic(() => import('./NotificationBell').then(mod => 
         </div>
     )
 })
+
+// Shared navigation link configurations
+
+const organizationLinks = [
+    { href: '/organization/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { href: '/organization/events', label: 'Events', icon: 'events' },
+    { href: '/organization/members', label: 'Members', icon: 'members', permission: 'canManageMembers' },
+    { href: '/organization/spaces', label: 'Event Spaces', icon: 'spaces', permission: 'canManageEventSpaces' },
+    { href: '/organization/plans', label: 'Plans & Pricing', icon: 'plans', permission: 'isOwner' },
+    { href: '/organization/settings', label: 'Settings', icon: 'settings', permission: 'isOwner' },
+    { href: '/organization/onboarding', label: 'Onboarding', icon: 'onboarding', permission: 'isOwner' }
+]
+
+// Reusable NavItem component for consistent styling
+interface NavItemProps {
+    href: string
+    label: string
+    isActive: boolean
+    isSpecial?: boolean
+    className?: string
+    onClick?: () => void
+}
+
+function NavItem({ href, label, isActive, isSpecial = false, className, onClick }: NavItemProps) {
+    return (
+        <Link
+            href={href}
+            onClick={onClick}
+            className={cn(
+                "group relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out",
+                isActive
+                    ? "text-white"
+                    : isSpecial
+                        ? "text-gray-700 dark:text-gray-200 hover:text-primary"
+                        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
+                className
+            )}
+        >
+            {/* Active background with gradient */}
+            {isActive && (
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/25 animate-in fade-in duration-300" />
+            )}
+            {/* Hover background */}
+            {!isActive && (
+                <span className="absolute inset-0 rounded-full bg-gray-900/0 group-hover:bg-gray-900/5 dark:group-hover:bg-white/10 transition-all duration-300" />
+            )}
+            {/* Label */}
+            <span className="relative z-10">{label}</span>
+            {/* Special indicator dot */}
+            {isSpecial && !isActive && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 shadow-lg shadow-cyan-400/50" />
+            )}
+        </Link>
+    )
+}
+
+// Mobile NavItem for touch-friendly interactions
+function MobileNavItem({ href, label, isActive, isSpecial = false, onClick }: NavItemProps) {
+    return (
+        <Link
+            href={href}
+            onClick={onClick}
+            className={cn(
+                "group relative block px-4 py-3.5 text-sm font-medium rounded-2xl transition-all duration-300 overflow-hidden",
+                isActive
+                    ? "text-white"
+                    : isSpecial
+                        ? "text-gray-700 dark:text-gray-200"
+                        : "text-gray-600 dark:text-gray-300"
+            )}
+        >
+            {/* Active background */}
+            {isActive && (
+                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/25" />
+            )}
+            {/* Hover background */}
+            {!isActive && (
+                <span className="absolute inset-0 rounded-2xl bg-gray-900/0 group-hover:bg-gray-900/5 dark:group-hover:bg-white/10 transition-all duration-300" />
+            )}
+            <span className="relative z-10 flex items-center justify-between">
+                {label}
+                {isSpecial && !isActive && (
+                    <span className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 shadow-lg shadow-cyan-400/50" />
+                )}
+            </span>
+        </Link>
+    )
+}
+
 // Icons as SVG components
 const ChevronDownIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
@@ -71,28 +164,12 @@ interface HeaderProps {
 export default function Header({ onRegisterClick, onLoginClick, user: propUser }: HeaderProps) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false)
     const { logout, user: authUser } = useAuth()
     const { organization, orgLoading } = useOrganizationData()
     const { isOwner, isAdmin, canManageMembers, canManageEventSpaces } = useOrganizationPermissions()
 
     // Use the passed user prop if available, otherwise use the auth context user
     const user = propUser !== undefined ? propUser : authUser
-    const orgDropdownRef = useRef<HTMLDivElement>(null)
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (orgDropdownRef.current && !orgDropdownRef.current.contains(event.target as Node)) {
-                setIsOrgDropdownOpen(false)
-            }
-        }
-
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [])
 
     const handleLogout = async () => {
         try {
@@ -103,549 +180,288 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
     }
 
     return (
-        <header className="bg-background border-b border-border py-3">
-            <div className="container mx-auto px-2 flex items-center">
-                {/* Logo - Moved further left with reduced padding */}
-                <Link href="/" className="flex items-center flex-shrink-0 mr-6">
-                    <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-4 h-4">
-                            <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" />
-                            <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <span className="text-lg font-semibold text-foreground">EventFlow</span>
-                </Link>
+        <>
+            {/* Navbar wrapper with subtle side shadows */}
+            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] group/nav">
+                {/* Left side dark shadow */}
+                <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-3/4 bg-black/5 dark:bg-black/20 blur-xl rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500" />
+                {/* Right side dark shadow */}
+                <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-3/4 bg-black/5 dark:bg-black/20 blur-xl rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500" />
 
-                {/* Organization Dropdown */}
-                {user && organization && (
-                    <div className="hidden md:block relative mr-4" ref={orgDropdownRef}>
-                        <button
-                            onClick={() => setIsOrgDropdownOpen(!isOrgDropdownOpen)}
-                            className="flex items-center space-x-2 px-2 py-1.5 text-sm font-medium text-foreground bg-muted rounded-lg hover:bg-muted/80 transition-colors"
-                        >
-                            <BuildingOfficeIcon />
-                            <span className="max-w-[120px] truncate">{organization.name}</span>
-                            <ChevronDownIcon />
-                        </button>
+                <header className="relative w-fit mx-auto max-w-[95vw] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 py-2.5 px-3 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:bg-white/80 dark:hover:bg-gray-900/80">
+                    <div className="flex items-center justify-center gap-6 whitespace-nowrap">
+                        {/* Logo */}
+                        <Link href="/" className="flex items-center flex-shrink-0 pl-3 pr-4 group/logo">
+                            <div className="relative">
+                                <img src="/logo.svg" alt="EventFlow Logo" className="h-8 w-auto transition-transform duration-300 group-hover/logo:scale-110" />
+                                <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300" />
+                            </div>
+                            <span className="ml-2.5 text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-all duration-300">EventFlow</span>
+                        </Link>
 
-                        {isOrgDropdownOpen && (
-                            <div className="absolute top-full left-0 mt-1 w-64 bg-background border border-border rounded-lg shadow-lg z-50">
-                                <div className="p-4 border-b border-border">
-                                    <div className="flex items-center space-x-2">
-                                        <BuildingOfficeIcon />
-                                        <div>
-                                            <p className="font-medium text-foreground">{organization.name}</p>
-                                            <p className="text-xs text-muted-foreground">{organization.subscription_plan} Plan</p>
+
+                        {/* Desktop Navigation */}
+                        <nav className="hidden md:flex items-center justify-center">
+                            {!user ? (
+                                <div className="flex items-center bg-gray-100/50 dark:bg-white/5 rounded-full p-1">
+                                    {guestLinks.map((link) => (
+                                        <NavItem
+                                            key={link.href}
+                                            href={link.href}
+                                            label={link.label}
+                                            isActive={
+                                                link.href === '/'
+                                                    ? pathname === link.href
+                                                    : pathname.includes(link.href)
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    {user.role === 'customer' || user.role === 'USER' || user.role === 'ADMIN' ? (
+                                        <>
+                                            <OrgSwitcher />
+                                            {/* Show Organization Menu only when an organization is active */}
+                                            <OrgNavigation />
+                                        </>
+                                    ) : null}
+                                </div>
+                            )}
+                        </nav>
+
+                        <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
+                            {user ? (
+                                <>
+                                    <NotificationBell />
+
+                                    {/* Create Organization Button for users without an org */}
+                                    {!organization && !orgLoading && (
+                                        <div className="mr-2">
+                                            <GradientButton
+                                                href="/create-organization"
+                                                variant="primary"
+                                                size="sm"
+                                                className="px-4 py-1.5 text-sm rounded-full"
+                                                containerClassName="rounded-full"
+                                            >
+                                                Create Organization
+                                            </GradientButton>
                                         </div>
+                                    )}
+
+                                    <HoverShadowEffect className="cursor-pointer rounded-full" shadowColor="rgba(239, 68, 68, 0.1)" shadowIntensity={0.2} hoverScale={1.05} hoverLift={-1} transitionDuration={200}>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={handleLogout}
+                                            className="px-5 py-1.5 text-sm rounded-full bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20 transition-all font-medium"
+                                        >
+                                            Logout
+                                        </Button>
+                                    </HoverShadowEffect>
+                                </>
+                            ) : (
+                                <>
+                                    <GradientButton
+                                        href="/auth"
+                                        variant="outline"
+                                        size="sm"
+                                        className="px-5 py-1.5 text-sm rounded-full bg-transparent border-neutral-200 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-white/5 transition-all"
+                                        containerClassName="rounded-full"
+                                    >
+                                        Login
+                                    </GradientButton>
+                                    <GradientButton
+                                        href="/auth"
+                                        variant="primary"
+                                        size="sm"
+                                        className="px-6 py-1.5 text-sm rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border-none shadow-lg shadow-blue-500/20 transition-all"
+                                        containerClassName="rounded-full"
+                                        shineColor="#818cf8"
+                                    >
+                                        Sign Up
+                                    </GradientButton>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Mobile menu button */}
+                        <button
+                            className="md:hidden flex items-center"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+                                {isMobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Mobile menu */}
+                    {isMobileMenuOpen && (
+                        <div className="md:hidden fixed inset-x-0 top-[88px] bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border-t border-white/20 dark:border-white/10 shadow-2xl z-40 animate-in slide-in-from-top-2 duration-300">
+                            <div className="container mx-auto px-4 py-6 max-h-[calc(100vh-88px)] overflow-y-auto">
+                                <div className="space-y-6">
+                                    {(() => {
+                                        if (!user) {
+                                            return (
+                                                <div className="space-y-3">
+                                                    <div className="px-3 py-2">
+                                                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Navigation</h3>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        {guestLinks.map((link) => (
+                                                            <MobileNavItem
+                                                                key={link.href}
+                                                                href={link.href}
+                                                                label={link.label}
+                                                                isActive={
+                                                                    link.href === '/'
+                                                                        ? pathname === link.href
+                                                                        : pathname.includes(link.href)
+                                                                }
+                                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        // Determine links based on role priority
+                                        let linksToRender: any[] = [];
+                                        let label = "Navigation";
+                                        let isSpecialCheck = false;
+
+                                        if (user.role === 'ADMIN' || user.is_org_admin) {
+                                            linksToRender = adminLinks;
+                                            label = "Admin Tools";
+                                            isSpecialCheck = true;
+                                        } else if (user.role === 'customer' || user.role === 'USER') {
+                                            linksToRender = customerLinks;
+                                            label = "User Menu";
+                                        }
+
+                                        return (
+                                            <div className="space-y-3">
+                                                <div className="px-3 py-2">
+                                                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</h3>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    {linksToRender.map((link) => (
+                                                        <MobileNavItem
+                                                            key={link.href}
+                                                            href={link.href}
+                                                            label={link.label}
+                                                            isActive={
+                                                                isSpecialCheck && !link.isSpecial
+                                                                    ? link.href === '/admin/bookings'
+                                                                        ? pathname.includes('/admin/bookings')
+                                                                        : pathname === link.href
+                                                                    : pathname.includes(link.href)
+                                                            }
+                                                            isSpecial={link.isSpecial}
+                                                            onClick={() => setIsMobileMenuOpen(false)}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+
+                                    {/* Organization Navigation */}
+                                    {user && organization && (
+                                        <div className="space-y-3">
+                                            <div className="px-3 py-2">
+                                                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Organization</h3>
+                                            </div>
+                                            <div className="space-y-1">
+                                                {organizationLinks.map((link) => {
+                                                    // Check permissions if required
+                                                    if (link.permission) {
+                                                        const permissions: Record<string, boolean> = {
+                                                            canManageMembers,
+                                                            canManageEventSpaces,
+                                                            isOwner
+                                                        }
+                                                        if (!permissions[link.permission]) return null
+                                                    }
+
+                                                    return (
+                                                        <MobileNavItem
+                                                            key={link.href}
+                                                            href={link.href}
+                                                            label={link.label}
+                                                            isActive={pathname.includes(link.href)}
+                                                            onClick={() => {
+                                                                setIsMobileMenuOpen(false)
+                                                            }}
+                                                        />
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Auth Actions */}
+                                    <div className="pt-4 border-t border-white/20 dark:border-white/10">
+                                        {user ? (
+                                            <div className="space-y-3">
+                                                {!organization && !orgLoading && (
+                                                    <GradientButton
+                                                        href="/create-organization"
+                                                        variant="primary"
+                                                        size="sm"
+                                                        className="w-full rounded-xl"
+                                                        containerClassName="rounded-xl"
+                                                    >
+                                                        Create Organization
+                                                    </GradientButton>
+                                                )}
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={handleLogout}
+                                                    className="w-full rounded-xl bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20"
+                                                >
+                                                    Logout
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                <GradientButton
+                                                    href="/auth"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full rounded-xl bg-transparent border-neutral-200 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-white/5"
+                                                    containerClassName="rounded-xl"
+                                                >
+                                                    Login
+                                                </GradientButton>
+                                                <GradientButton
+                                                    href="/auth"
+                                                    variant="primary"
+                                                    size="sm"
+                                                    className="w-full rounded-xl"
+                                                    containerClassName="rounded-xl"
+                                                >
+                                                    Sign Up
+                                                </GradientButton>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-
-                                <div className="p-2">
-                                    <Link
-                                        href="/organization/dashboard"
-                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                        onClick={() => setIsOrgDropdownOpen(false)}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
-                                        </svg>
-                                        <span>Dashboard</span>
-                                    </Link>
-
-                                    <Link
-                                        href="/organization/events"
-                                        className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                        onClick={() => setIsOrgDropdownOpen(false)}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 9l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 15a6 6 0 1012 0v-3H3v3z" />
-                                        </svg>
-                                        <span>Events</span>
-                                    </Link>
-
-                                    {canManageMembers && (
-                                        <Link
-                                            href="/organization/members"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                            onClick={() => setIsOrgDropdownOpen(false)}
-                                        >
-                                            <UserGroupIcon />
-                                            <span>Members</span>
-                                        </Link>
-                                    )}
-
-                                    {canManageEventSpaces && (
-                                        <Link
-                                            href="/organization/spaces"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                            onClick={() => setIsOrgDropdownOpen(false)}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                            <span>Event Spaces</span>
-                                        </Link>
-                                    )}
-
-                                    {isOwner && (
-                                        <Link
-                                            href="/organization/plans"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                            onClick={() => setIsOrgDropdownOpen(false)}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z" />
-                                            </svg>
-                                            <span>Plans & Pricing</span>
-                                        </Link>
-                                    )}
-
-                                    {isOwner && (
-                                        <Link
-                                            href="/organization/settings"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                            onClick={() => setIsOrgDropdownOpen(false)}
-                                        >
-                                            <CogIcon />
-                                            <span>Settings</span>
-                                        </Link>
-                                    )}
-                                    {isOwner && (
-                                        <Link
-                                            href="/organization/onboarding"
-                                            className="flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md"
-                                            onClick={() => setIsOrgDropdownOpen(false)}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                            </svg>
-                                            <span>Onboarding</span>
-                                        </Link>
-                                    )}
-                                </div>
                             </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center space-x-3 flex-1">
-                    {(user?.role === 'ADMIN' || user?.is_org_admin) && (
-                        <div className="flex items-center space-x-3 flex-wrap">
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/dashboard"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                >
-                                    Dashboard
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/event"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/event') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Add Event
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/category"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/category') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Categories
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/events"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Events
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/bookings"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Bookings
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/customers"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/customers') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Customers
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/admin-requests"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/admin-requests') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Requests
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/admin/register"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/admin/register') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Register
-                                </Link>
-                            </HoverShadowEffect>
                         </div>
                     )}
-
-                    {user?.role === 'customer' || user?.role === 'USER' && (
-                        <div className="flex items-center space-x-3 flex-wrap">
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/customer/dashboard"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/dashboard') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Dashboard
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/events"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/events') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Events
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/social"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/social') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Social
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/customer/bookings"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/bookings') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Bookings
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/customer/profile"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/profile') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Profile
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/invitations"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/invitations') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Invitations
-                                </Link>
-                            </HoverShadowEffect>
-                            <HoverShadowEffect className="px-2 py-1.5 rounded-lg cursor-pointer block" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.1} hoverScale={1.01} hoverLift={-0.5} transitionDuration={100}>
-                                <Link
-                                    href="/customer/admin-request-status"
-                                    className={`text-sm font-medium block w-full h-full ${pathname.includes('/customer/admin-request-status') ? 'text-primary' : 'text-gray-600 hover:text-gray-900'}`}
-                                >
-                                    Admin Request
-                                </Link>
-                            </HoverShadowEffect>
-                        </div>
-                    )}
-
-                    {!user && (
-                        <div className="flex items-center space-x-4">
-                            <Link href="/">
-                                <Button variant="ghost" className={`rounded-full px-4 ${pathname === '/' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-                                    Home
-                                </Button>
-                            </Link>
-                            <Link href="/events">
-                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/events') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-                                    Events
-                                </Button>
-                            </Link>
-                            <Link href="/about">
-                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/about') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-                                    About Us
-                                </Button>
-                            </Link>
-                            <Link href="/contact">
-                                <Button variant="ghost" className={`rounded-full px-4 ${pathname.includes('/contact') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
-                                    Contact
-                                </Button>
-                            </Link>
-                        </div>
-                    )}
-                </nav>
-
-                <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
-                    {user ? (
-                        <>
-                            <NotificationBell />
-                            <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={handleLogout}
-                                    className="px-4 py-1.5 text-sm rounded-full"
-                                >
-                                    Logout
-                                </Button>
-                            </HoverShadowEffect>
-                        </>
-                    ) : (
-                        <>
-                            <GradientButton
-                                href="/auth"
-                                variant="outline"
-                                size="sm"
-                                className="px-4 py-1.5 text-sm rounded-full"
-                                containerClassName="rounded-full"
-                            >
-                                Login
-                            </GradientButton>
-                            <GradientButton
-                                href="/auth"
-                                variant="primary"
-                                size="sm"
-                                className="px-4 py-1.5 text-sm rounded-full"
-                                containerClassName="rounded-full"
-                            >
-                                Sign Up
-                            </GradientButton>
-                        </>
-                    )}
-                </div>
-
-                {/* Mobile menu button */}
-                <button
-                    className="md:hidden flex items-center"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-                        {isMobileMenuOpen ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        ) : (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        )}
-                    </svg>
-                </button>
+                </header>
             </div>
-
-            {/* Mobile menu */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden bg-background border-t border-border py-3">
-                    <div className="container mx-auto px-2 flex flex-col space-y-3">
-                        {(user?.role === 'ADMIN' || user?.is_org_admin) && (
-                            <>
-                                <Link
-                                    href="/admin/dashboard"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname?.includes('/admin/dashboard') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
-                                >
-                                    Dashboard
-                                </Link>
-                                <Link
-                                    href="/admin/event"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-muted ${pathname.includes('/admin/event') ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
-                                >
-                                    Add Event
-                                </Link>
-                                <Link
-                                    href="/admin/category"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/category') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Categories
-                                </Link>
-                                <Link
-                                    href="/admin/events"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Events
-                                </Link>
-                                <Link
-                                    href="/admin/bookings"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Bookings
-                                </Link>
-                                <Link
-                                    href="/admin/customers"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/customers') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Customers
-                                </Link>
-                                <Link
-                                    href="/admin/register"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/admin/register') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Register
-                                </Link>
-                            </>
-                        )}
-
-                        {user?.role === 'customer' || user?.role === 'USER' && (
-                            <>
-                                <Link
-                                    href="/customer/dashboard"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Dashboard
-                                </Link>
-                                <Link
-                                    href="/events"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Events
-                                </Link>
-                                <Link
-                                    href="/social"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/social') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Social
-                                </Link>
-                                <Link
-                                    href="/customer/bookings"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/bookings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Bookings
-                                </Link>
-                                <Link
-                                    href="/customer/profile"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/customer/profile') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Profile
-                                </Link>
-                                <Link
-                                    href="/invitations"
-                                    className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/invitations') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Invitations
-                                </Link>
-                            </>
-                        )}
-
-                        {/* Organization Navigation for Mobile */}
-                        {user && organization && (
-                            <>
-                                <div className="border-t border-gray-200 pt-4 mt-4">
-                                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                        Organization
-                                    </div>
-                                    <Link
-                                        href="/organization/dashboard"
-                                        className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname?.includes('/organization/dashboard') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                    >
-                                        Dashboard
-                                    </Link>
-                                    <Link
-                                        href="/organization/events"
-                                        className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname?.includes('/organization/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                    >
-                                        Events
-                                    </Link>
-                                    {canManageMembers && (
-                                        <Link
-                                            href="/organization/members"
-                                            className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/members') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                        >
-                                            Members
-                                        </Link>
-                                    )}
-                                    {canManageEventSpaces && (
-                                        <Link
-                                            href="/organization/spaces"
-                                            className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/spaces') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                        >
-                                            Event Spaces
-                                        </Link>
-                                    )}
-                                    {isOwner && (
-                                        <Link
-                                            href="/organization/settings"
-                                            className={`text-sm font-medium block py-1.5 px-2 rounded-lg hover:bg-gray-50 ${pathname.includes('/organization/settings') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                        >
-                                            Settings
-                                        </Link>
-                                    )}
-                                </div>
-                            </>
-                        )}
-
-                        {!user && (
-                            <>
-                                <Link
-                                    href="/"
-                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-muted ${pathname === '/' ? 'text-primary bg-primary/10' : 'text-muted-foreground'}`}
-                                >
-                                    Home
-                                </Link>
-                                <Link
-                                    href="/events"
-                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/events') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Events
-                                </Link>
-                                <Link
-                                    href="/about"
-                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/about') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    About Us
-                                </Link>
-                                <Link
-                                    href="/contact"
-                                    className={`text-sm font-medium block py-2 px-3 rounded-lg hover:bg-gray-50 ${pathname.includes('/contact') ? 'text-primary bg-primary/10' : 'text-gray-600'}`}
-                                >
-                                    Contact
-                                </Link>
-                            </>
-                        )}
-
-                        {user ? (
-                            <HoverShadowEffect className="w-full mt-4 cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={handleLogout}
-                                    className="w-full mt-4 rounded-full"
-                                >
-                                    Logout
-                                </Button>
-                            </HoverShadowEffect>
-                        ) : (
-                            <div className="flex flex-col space-y-2 mt-4">
-                                <GradientButton
-                                    href="/auth"
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full rounded-full"
-                                    containerClassName="rounded-full"
-                                >
-                                    Login
-                                </GradientButton>
-                                <GradientButton
-                                    href="/auth"
-                                    variant="primary"
-                                    size="sm"
-                                    className="w-full rounded-full"
-                                    containerClassName="rounded-full"
-                                >
-                                    Sign Up
-                                </GradientButton>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-        </header>
+            {pathname !== '/' && <div className="h-28" />}
+        </>
     )
 }
 

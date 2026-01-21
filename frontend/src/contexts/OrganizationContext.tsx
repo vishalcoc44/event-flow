@@ -52,15 +52,36 @@ export interface EventSpace {
 }
 
 export interface OrganizationMember {
-  id: string;
-  email: string;
-  username?: string;
-  first_name?: string;
-  last_name?: string;
+  id: string; // membership id
+  user_id: string;
+  organization_id: string;
   role_in_org: 'OWNER' | 'ADMIN' | 'USER';
   is_org_admin: boolean;
   joined_at: string;
-  created_at: string;
+  // User details
+  profiles?: {
+    email: string;
+    username?: string;
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+  };
+  // Organization details (joined)
+  organizations?: Organization;
+}
+
+export interface UserMembership {
+  id: string;
+  organization_id: string;
+  role_in_org: 'OWNER' | 'ADMIN' | 'USER';
+  is_org_admin: boolean;
+  joined_at: string;
+  organizations: {
+    id: string;
+    name: string;
+    slug: string;
+    logo_url?: string;
+  };
 }
 
 export interface OrganizationStats {
@@ -86,10 +107,13 @@ interface OrganizationContextType {
   eventSpaces: EventSpace[];
   members: OrganizationMember[];
   stats: OrganizationStats | null;
+  userMemberships: UserMembership[];
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
+  loadUserMemberships: (userId: string) => Promise<void>;
+  switchOrganization: (organizationId: string) => Promise<void>;
   loadOrganization: (userId: string) => Promise<void>;
   loadOrganizationById: (organizationId: string) => Promise<void>;
   loadEventSpaces: () => Promise<void>;
@@ -104,7 +128,7 @@ interface OrganizationContextType {
   clearOrganization: () => void;
 }
 
-const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
+export const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
 
 export const useOrganization = () => {
   const context = useContext(OrganizationContext);
@@ -122,9 +146,77 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [eventSpaces, setEventSpaces] = useState<EventSpace[]>([]);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [userMemberships, setUserMemberships] = useState<UserMembership[]>([]);
   const [stats, setStats] = useState<OrganizationStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [loadingMemberships, setLoadingMemberships] = useState(false);
+
+  // Load all memberships for a user
+  const loadUserMemberships = async (userId: string) => {
+    if (loadingMemberships) return;
+
+    try {
+      setIsLoading(true);
+      setLoadingMemberships(true);
+      const { data, error } = await supabase.rpc('get_user_memberships', {
+        user_uuid: userId
+      });
+
+      if (error) throw error;
+      setUserMemberships(data || []);
+    } catch (err: any) {
+      console.error('Error loading memberships:', err);
+      setError(err.message || 'Failed to load organization memberships');
+    } finally {
+      setIsLoading(false);
+      setLoadingMemberships(false);
+    }
+  };
+
+  // Switch the active organization
+  const switchOrganization = async (organizationId: string) => {
+    try {
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // 1. Get membership details for the target org
+      const { data: membership, error: memError } = await supabase
+        .from('organization_members')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('organization_id', organizationId)
+        .single();
+
+      if (memError) throw memError;
+
+      // 2. Update the "Active Organization Context" in the users table
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          organization_id: organizationId,
+          role_in_org: membership.role_in_org,
+          is_org_admin: membership.is_org_admin,
+          last_active_organization_id: organizationId
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // 3. Load the new organization details
+      await loadOrganizationById(organizationId);
+
+      // 4. Force a reload of the layout (optional but safer)
+      window.location.reload();
+    } catch (err: any) {
+      console.error('Error switching organization:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Load organization data for a user
   const loadOrganization = async (userId: string) => {
@@ -132,7 +224,7 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
       setIsLoading(true);
       setError(null);
 
-      // Get user's organization
+      // Get user's active organization from users table
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('organization_id')
@@ -143,22 +235,11 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
 
       if (!userData?.organization_id) {
         setOrganization(null);
-        setEventSpaces([]);
-        setMembers([]);
-        setStats(null);
         return;
       }
 
-      // Get organization details
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('id', userData.organization_id)
-        .single();
-
-      if (orgError) throw orgError;
-
-      setOrganization(orgData);
+      await loadOrganizationById(userData.organization_id);
+      await loadUserMemberships(userId);
     } catch (err) {
       console.error('Error loading organization:', err);
       setError(err instanceof Error ? err.message : 'Failed to load organization');
@@ -167,43 +248,24 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
     }
   };
 
-  // Load organization data directly by organization ID (more efficient when we already have the ID)
+  // Load organization data directly by organization ID
   const loadOrganizationById = async (organizationId: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // AVOID RLS CIRCULAR DEPENDENCY: Use RPC or direct query that bypasses RLS
-      // Instead of direct table query, try using a view or RPC that doesn't trigger circular dependency
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
-        .select('id, name, slug, description, logo_url, website_url, contact_email, contact_phone, address, city, state, country, postal_code, subscription_plan, subscription_status, subscription_start_date, subscription_end_date, max_events, max_users, max_storage_mb, current_events_count, current_users_count, is_public, allow_public_events, require_approval_for_events, allow_user_registration, created_by, created_at, updated_at')
+        .select('*')
         .eq('id', organizationId)
         .single();
 
-      if (orgError) {
-        // If direct query fails, try a more targeted approach
-        console.warn('Direct organization query failed, trying alternative:', orgError);
-
-        // Try with limited fields to avoid RLS issues
-        const { data: altOrgData, error: altError } = await supabase
-          .from('organizations')
-          .select('id, name, is_public, created_by')
-          .eq('id', organizationId)
-          .single();
-
-        if (altError) throw altError;
-        setOrganization(altOrgData);
-      } else {
-        setOrganization(orgData);
-      }
+      if (orgError) throw orgError;
+      setOrganization(orgData);
     } catch (err) {
       console.error('Error loading organization by ID:', err);
       setError(err instanceof Error ? err.message : 'Failed to load organization');
       setOrganization(null);
-      setEventSpaces([]);
-      setMembers([]);
-      setStats(null);
     } finally {
       setIsLoading(false);
     }
@@ -222,28 +284,32 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
 
       if (error) throw error;
       setEventSpaces(data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading event spaces:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load event spaces');
+      setError(err.message || 'Failed to load event spaces');
     }
   };
 
-  // Load organization members
+  // Load organization members from the membership table
   const loadMembers = async () => {
     if (!organization) return;
 
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('organization_id', organization.id)
-        .order('joined_at', { ascending: true });
+      const { data, error } = await supabase.rpc('get_organization_members', {
+        org_id: organization.id
+      });
 
       if (error) throw error;
       setMembers(data || []);
-    } catch (err) {
-      console.error('Error loading members:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load members');
+    } catch (err: any) {
+      console.error('Error loading members:', {
+        message: err.message,
+        details: err.details,
+        hint: err.hint,
+        code: err.code,
+        full_error: err
+      });
+      setError(err.message || 'Failed to load organization members');
     }
   };
 
@@ -260,9 +326,9 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
 
       if (error) throw error;
       setStats(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading stats:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load stats');
+      // Stats failure is less critical, don't set error state
     }
   };
 
@@ -361,12 +427,12 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
 
     try {
       const { error } = await supabase
-        .from('users')
+        .from('organization_members')
         .update({
           role_in_org: role,
           is_org_admin: role === 'OWNER' || role === 'ADMIN'
         })
-        .eq('id', userId)
+        .eq('user_id', userId)
         .eq('organization_id', organization.id);
 
       if (error) throw error;
@@ -402,12 +468,53 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
 
   // Load organization data when organization changes
   useEffect(() => {
-    if (organization) {
-      loadEventSpaces();
-      loadMembers();
-      loadStats();
-    }
+    if (!organization?.id) return;
+
+    loadEventSpaces();
+    loadMembers();
+    loadStats();
+
+    // Set up Realtime Subscriptions
+    const orgId = organization.id;
+    console.log('📡 Setting up realtime listeners for organization:', orgId);
+
+    const channel = supabase
+      .channel(`org-updates-${orgId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'organizations',
+        filter: `id=eq.${orgId}`
+      }, () => {
+        console.log('♻️ Organization updated, refreshing...');
+        loadOrganization(organization.created_by);
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'event_spaces',
+        filter: `organization_id=eq.${orgId}`
+      }, () => {
+        console.log('♻️ Event spaces changed, refreshing...');
+        loadEventSpaces();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'organization_members',
+        filter: `organization_id=eq.${orgId}`
+      }, () => {
+        console.log('♻️ Members changed, refreshing...');
+        loadMembers();
+      })
+      .subscribe();
+
+    return () => {
+      console.log('🔌 Tearing down realtime listeners for organization:', orgId);
+      supabase.removeChannel(channel);
+    };
   }, [organization?.id]);
+
 
   const value: OrganizationContextType = {
     // State
@@ -415,10 +522,13 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
     eventSpaces,
     members,
     stats,
+    userMemberships,
     isLoading,
     error,
-    
+
     // Actions
+    loadUserMemberships,
+    switchOrganization,
     loadOrganization,
     loadOrganizationById,
     loadEventSpaces,

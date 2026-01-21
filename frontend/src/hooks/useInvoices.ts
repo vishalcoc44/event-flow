@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useOrganization } from '@/contexts/OrganizationContext';
+import { OrganizationContext } from '@/contexts/OrganizationContext';
 
 export interface Invoice {
   id: string;
@@ -20,56 +20,29 @@ export interface Invoice {
 }
 
 export function useInvoices() {
-  const { organization } = useOrganization();
+  const context = useContext(OrganizationContext);
+  const organization = context?.organization;
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
-    if (!organization) return;
+    if (!organization?.id) return;
 
     try {
       setLoading(true);
-      
-      // For now, we'll create mock invoice data based on organization subscription
-      // In a real implementation, you'd have an invoices table
-      const mockInvoices: Invoice[] = [
-        {
-          id: '1',
-          invoice_number: 'INV-2024-001',
-          amount: organization.subscription_plan === 'BASIC' ? 19.99 : 
-                 organization.subscription_plan === 'PRO' ? 49.99 : 
-                 organization.subscription_plan === 'ENTERPRISE' ? 99.99 : 0,
-          currency: 'USD',
-          status: 'PAID',
-          issue_date: '2024-04-01',
-          due_date: '2024-04-01',
-          paid_date: '2024-04-01',
-          payment_method: 'Credit Card **** 4242',
-          plan_name: organization.subscription_plan,
-          billing_period_start: '2024-04-01',
-          billing_period_end: '2024-05-01',
-        },
-        {
-          id: '2',
-          invoice_number: 'INV-2024-002',
-          amount: organization.subscription_plan === 'BASIC' ? 19.99 : 
-                 organization.subscription_plan === 'PRO' ? 49.99 : 
-                 organization.subscription_plan === 'ENTERPRISE' ? 99.99 : 0,
-          currency: 'USD',
-          status: 'PAID',
-          issue_date: '2024-03-01',
-          due_date: '2024-03-01',
-          paid_date: '2024-03-01',
-          payment_method: 'Credit Card **** 4242',
-          plan_name: organization.subscription_plan,
-          billing_period_start: '2024-03-01',
-          billing_period_end: '2024-04-01',
-        },
-      ];
+      setError(null);
 
-      setInvoices(mockInvoices);
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('organization_id', organization.id)
+        .order('issue_date', { ascending: false });
+
+      if (error) throw error;
+      setInvoices(data || []);
     } catch (err: any) {
+      console.error('Error fetching invoices:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -77,37 +50,59 @@ export function useInvoices() {
   };
 
   const generateInvoice = async (planName: string, amount: number) => {
-    if (!organization) throw new Error('No organization context');
+    if (!organization?.id) throw new Error('No organization context');
 
-    // In a real implementation, this would create an actual invoice record
-    const newInvoice: Invoice = {
-      id: Date.now().toString(),
-      invoice_number: `INV-${new Date().getFullYear()}-${String(invoices.length + 1).padStart(3, '0')}`,
-      amount,
-      currency: 'USD',
-      status: 'PENDING',
-      issue_date: new Date().toISOString().split('T')[0],
-      due_date: new Date().toISOString().split('T')[0],
-      plan_name: planName,
-      billing_period_start: new Date().toISOString().split('T')[0],
-      billing_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    };
+    try {
+      const invoice_number = `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const issue_date = new Date().toISOString().split('T')[0];
+      const due_date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    setInvoices(prev => [newInvoice, ...prev]);
-    return newInvoice;
+      const { data, error } = await supabase
+        .from('invoices')
+        .insert({
+          organization_id: organization.id,
+          invoice_number,
+          amount,
+          currency: 'USD',
+          status: 'PENDING',
+          plan_name: planName,
+          issue_date,
+          due_date,
+          billing_period_start: issue_date,
+          billing_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setInvoices(prev => [data, ...prev]);
+      return data;
+    } catch (err: any) {
+      console.error('Error generating invoice:', err);
+      throw err;
+    }
   };
 
   const markInvoiceAsPaid = async (invoiceId: string, paymentMethod?: string) => {
-    setInvoices(prev => prev.map(invoice => 
-      invoice.id === invoiceId 
-        ? {
-            ...invoice,
-            status: 'PAID' as const,
-            paid_date: new Date().toISOString().split('T')[0],
-            payment_method: paymentMethod || 'Credit Card',
-          }
-        : invoice
-    ));
+    try {
+      const { data, error } = await supabase
+        .from('invoices')
+        .update({
+          status: 'PAID',
+          paid_date: new Date().toISOString(),
+          payment_method: paymentMethod || 'Credit Card'
+        })
+        .eq('id', invoiceId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setInvoices(prev => prev.map(inv => inv.id === invoiceId ? data : inv));
+      return data;
+    } catch (err: any) {
+      console.error('Error marking invoice as paid:', err);
+      throw err;
+    }
   };
 
   useEffect(() => {

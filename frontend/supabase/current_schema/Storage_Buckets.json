@@ -1,0 +1,28 @@
+[
+  {
+    "id": "event-images",
+    "name": "event-images",
+    "owner": null,
+    "created_at": "2025-07-19 05:47:50.61743+00",
+    "updated_at": "2025-07-19 05:47:50.61743+00",
+    "public": true,
+    "avif_autodetection": false,
+    "file_size_limit": null,
+    "allowed_mime_types": null,
+    "owner_id": null,
+    "type": "STANDARD"
+  },
+  {
+    "id": "org-logos",
+    "name": "org-logos",
+    "owner": null,
+    "created_at": "2026-01-21 06:19:45.381544+00",
+    "updated_at": "2026-01-21 06:19:45.381544+00",
+    "public": true,
+    "avif_autodetection": false,
+    "file_size_limit": null,
+    "allowed_mime_types": null,
+    "owner_id": null,
+    "type": "STANDARD"
+  }
+]

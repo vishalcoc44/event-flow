@@ -13,10 +13,15 @@ export function EventCardDemo() {
 				"bg-white/40 dark:bg-black/40 backdrop-blur-xl shadow-2xl shadow-black/5",
 				"flex flex-col p-4 gap-4"
 			)}>
-				{/* Fake Image Area */}
-				<div className="h-32 rounded-2xl bg-gradient-to-br from-pastel-sky/50 to-pastel-lavender/50 relative overflow-hidden">
-					<div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-					<div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm">
+				{/* Real Image Area */}
+				<div className="h-32 rounded-2xl relative overflow-hidden">
+					<img
+						src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=300&auto=format&fit=crop"
+						className="absolute inset-0 h-full w-full object-cover"
+						alt="Event"
+					/>
+					<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+					<div className="absolute top-2 right-2 bg-white/90 dark:bg-black/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm">
 						Oct 24
 					</div>
 				</div>
@@ -31,8 +36,12 @@ export function EventCardDemo() {
 
 				<div className="flex items-center justify-between pt-2 border-t border-white/10">
 					<div className="flex -space-x-2">
-						{[1, 2, 3].map(i => (
-							<div key={i} className="h-6 w-6 rounded-full border border-white bg-gray-200" />
+						{[
+							"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
+							"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop",
+							"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop"
+						].map((src, i) => (
+							<img key={i} src={src} className="h-6 w-6 rounded-full border border-white dark:border-black object-cover" alt="Avatar" />
 						))}
 					</div>
 					<span className="text-xs font-bold text-pastel-sky-dark bg-pastel-sky/30 px-2 py-1 rounded-full">Coming Soon</span>
@@ -70,7 +79,11 @@ export function BookingTableDemo() {
 				{attendees.map((att, i) => (
 					<div key={i} className="flex items-center justify-between p-2 rounded-xl hover:bg-white/50 transition-colors">
 						<div className="flex items-center gap-3">
-							<div className="h-8 w-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200" />
+							<img
+								src={i === 0 ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" : i === 1 ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" : "https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=100&auto=format&fit=crop"}
+								className="h-8 w-8 rounded-full object-cover"
+								alt={att.name}
+							/>
 							<div>
 								<p className="text-xs font-bold">{att.name}</p>
 								<p className="text-[10px] text-muted-foreground">{att.type}</p>
@@ -115,14 +128,26 @@ export function SocialDemo() {
 	return (
 		<div className="w-full max-w-sm mx-auto p-4 rounded-3xl border border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-xl shadow-xl space-y-3">
 			<div className="flex gap-3">
-				<div className="h-10 w-10 rounded-full bg-pastel-rose/30" />
+				<div className="h-10 w-10 rounded-full bg-pastel-rose/30 flex items-center justify-center text-xs font-bold text-pink-600">
+					EF
+				</div>
 				<div className="flex-1 bg-white/50 rounded-2xl p-3 text-xs leading-relaxed">
 					<p>Just launched our new event page! 🚀 Check it out directly on EventFlow.</p>
 				</div>
 			</div>
-			<div className="flex justify-end gap-2 pr-2">
-				<div className="h-6 w-16 bg-pastel-rose/20 rounded-full" />
-				<div className="h-6 w-6 bg-pastel-sky/20 rounded-full" />
+			<div className="flex justify-end gap-3 pr-2 items-center">
+				<div className="flex items-center gap-1">
+					<div className="h-4 w-4 rounded-full bg-pink-500/20 flex items-center justify-center">
+						<div className="h-2 w-2 rounded-full bg-pink-500" />
+					</div>
+					<span className="text-[10px] font-bold text-muted-foreground">1.2k</span>
+				</div>
+				<div className="flex items-center gap-1">
+					<div className="h-4 w-4 rounded-full bg-blue-500/20 flex items-center justify-center">
+						<div className="h-2 w-2 rounded-full bg-blue-500" />
+					</div>
+					<span className="text-[10px] font-bold text-muted-foreground">450</span>
+				</div>
 			</div>
 		</div>
 	)
@@ -134,8 +159,17 @@ export function SupportDemo() {
 			{/* Visual Header */}
 			<div className="h-24 bg-gradient-to-br from-orange-400/20 to-pink-500/20 relative flex items-center justify-center">
 				<div className="flex -space-x-3">
-					{[1, 2, 3].map(i => (
-						<div key={i} className="h-10 w-10 rounded-full border-2 border-white dark:border-black bg-gray-200" />
+					{[
+						"https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
+						"https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop",
+						"https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"
+					].map((src, i) => (
+						<img
+							key={i}
+							src={src}
+							className="h-10 w-10 rounded-full border-2 border-white dark:border-black object-cover shadow-sm"
+							alt="Support Staff"
+						/>
 					))}
 				</div>
 				<div className="absolute bottom-2 right-10 h-3 w-3 bg-green-500 border-2 border-white dark:border-black rounded-full" />
@@ -229,7 +263,11 @@ export function TeamDemo() {
 				{members.map((m, i) => (
 					<div key={i} className="flex items-center justify-between">
 						<div className="flex items-center gap-2">
-							<div className={`h-8 w-8 rounded-full ${m.img} flex items-center justify-center text-[10px] font-bold`}>{m.name[0]}</div>
+							<img
+								src={i === 0 ? "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=100&auto=format&fit=crop" : i === 1 ? "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100&auto=format&fit=crop" : "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&auto=format&fit=crop"}
+								className="h-8 w-8 rounded-full object-cover"
+								alt={m.name}
+							/>
 							<div className="flex flex-col">
 								<span className="text-xs font-bold">{m.name}</span>
 								<span className="text-[10px] text-muted-foreground">{m.role}</span>
