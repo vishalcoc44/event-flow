@@ -24,11 +24,35 @@
     "enum_value": null
   },
   {
+    "type_name": "_event_booking_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_checkins",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_discovery_stats",
+    "enum_value": null
+  },
+  {
     "type_name": "_event_rating_summary",
     "enum_value": null
   },
   {
+    "type_name": "_event_sessions",
+    "enum_value": null
+  },
+  {
     "type_name": "_event_spaces",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_speakers",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_tags",
     "enum_value": null
   },
   {
@@ -112,7 +136,19 @@
     "enum_value": null
   },
   {
+    "type_name": "_speakers",
+    "enum_value": null
+  },
+  {
     "type_name": "_subscription_plans",
+    "enum_value": null
+  },
+  {
+    "type_name": "_tags",
+    "enum_value": null
+  },
+  {
+    "type_name": "_ticket_types",
     "enum_value": null
   },
   {
@@ -125,6 +161,14 @@
   },
   {
     "type_name": "_users",
+    "enum_value": null
+  },
+  {
+    "type_name": "_venues",
+    "enum_value": null
+  },
+  {
+    "type_name": "_waitlist_entries",
     "enum_value": null
   },
   {
@@ -152,11 +196,35 @@
     "enum_value": null
   },
   {
+    "type_name": "event_booking_summary",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_checkins",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_discovery_stats",
+    "enum_value": null
+  },
+  {
     "type_name": "event_rating_summary",
     "enum_value": null
   },
   {
+    "type_name": "event_sessions",
+    "enum_value": null
+  },
+  {
     "type_name": "event_spaces",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_speakers",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_tags",
     "enum_value": null
   },
   {
@@ -240,7 +308,19 @@
     "enum_value": null
   },
   {
+    "type_name": "speakers",
+    "enum_value": null
+  },
+  {
     "type_name": "subscription_plans",
+    "enum_value": null
+  },
+  {
+    "type_name": "tags",
+    "enum_value": null
+  },
+  {
+    "type_name": "ticket_types",
     "enum_value": null
   },
   {
@@ -253,6 +333,14 @@
   },
   {
     "type_name": "users",
+    "enum_value": null
+  },
+  {
+    "type_name": "venues",
+    "enum_value": null
+  },
+  {
+    "type_name": "waitlist_entries",
     "enum_value": null
   }
 ]

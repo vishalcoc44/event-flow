@@ -1,23 +1,81 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
+import { Calendar, Users, Zap, Shield, BarChart3, Globe, Layout, UserPlus, Sparkles, Megaphone, Settings, CheckCircle2, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { GlassTile } from '@/components/ui/glass-tile'
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { Spotlight } from "@/components/ui/spotlight";
 import { GradientButton } from "@/components/ui/gradient-button";
-import { motion } from "framer-motion";
-
-
-
-import { Calendar, Users, Zap, Shield, BarChart3, Globe, Layout, UserPlus, Sparkles, Megaphone, Settings, CheckCircle2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { GlassTile } from '@/components/ui/glass-tile'
-
 import { ActivityDemo, BookingTableDemo, EventCardDemo, SocialDemo, SupportDemo, SecurityDemo, GlobalDemo, VenueDemo, TeamDemo } from '@/components/ui/feature-demos'
+
+const StackingCard = ({ feature, index, total, progress }: { feature: any, index: number, total: number, progress: any }) => {
+    const targetScale = 1 - ((total - index) * 0.05);
+    const range = [index * (1 / total), (index + 1) * (1 / total)];
+    const scale = useTransform(progress, range, [1, targetScale]);
+    const opacity = useTransform(progress, range, [1, 0.8]);
+
+    return (
+        <div className="sticky top-[15vh] w-full flex items-center justify-center pb-20">
+            <motion.div
+                style={{
+                    scale,
+                    opacity,
+                    top: `calc(15vh + ${index * 20}px)`,
+                }}
+                className="w-full max-w-5xl h-[600px] rounded-[48px] bg-white/80 dark:bg-neutral-900/80 backdrop-blur-3xl border border-white/20 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col md:flex-row p-8 md:p-12 gap-12"
+            >
+                <div className="flex-1 flex flex-col justify-center space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="h-16 w-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500"
+                    >
+                        {feature.icon}
+                    </motion.div>
+                    <div className="space-y-4">
+                        <h3 className="text-4xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-neutral-950 to-neutral-500 dark:from-white dark:to-neutral-500">
+                            {feature.title}
+                        </h3>
+                        <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 font-medium leading-tight max-w-md">
+                            {feature.description}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4 pt-4">
+                        {['Fast', 'Secure', 'Global'].map((tag, i) => (
+                            <span key={i} className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-white/5 text-xs font-bold uppercase tracking-widest text-neutral-500">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+
+                    <Button variant="link" className="w-fit p-0 h-auto text-blue-500 font-bold group">
+                        Learn more <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
+                    </Button>
+                </div>
+
+                <div className="flex-1 bg-neutral-100/50 dark:bg-black/50 rounded-[32px] border border-black/5 dark:border-white/5 relative overflow-hidden flex items-center justify-center p-8 group overflow-y-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10" />
+                    <motion.div
+                        whileHover={{ scale: 1.05, rotate: 2 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="relative z-10 w-full"
+                    >
+                        {feature.header}
+                    </motion.div>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
 
 const FloatingAsset = ({ children, className, delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) => (
     <motion.div
@@ -42,6 +100,12 @@ const FloatingAsset = ({ children, className, delay = 0 }: { children: React.Rea
 export default function Home() {
     const { user, isLoading } = useAuth()
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ['start start', 'end end']
+    });
 
     const handleMouseMove = (e: React.MouseEvent) => {
         const { clientX, clientY } = e
@@ -123,7 +187,7 @@ export default function Home() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-6xl md:text-[10rem] font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-800 to-neutral-500 dark:from-white dark:via-neutral-200 dark:to-neutral-500 tracking-tighter mb-10 leading-[0.85]">
+                            className="text-7xl md:text-[12rem] font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-800 to-neutral-500 dark:from-white dark:via-neutral-200 dark:to-neutral-500 tracking-tighter mb-10 leading-[0.8]">
                             Elevate Every <br /> Experience.
                         </motion.h1>
 
@@ -131,7 +195,7 @@ export default function Home() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                            className="mt-6 font-medium text-base md:text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+                            className="mt-6 font-medium text-lg md:text-2xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed">
                             The personal management platform for organizers <br className="hidden md:block" /> who value clarity, speed, and premium aesthetics.
                         </motion.p>
 
@@ -168,67 +232,27 @@ export default function Home() {
             </div>
 
 
-            <section className="py-32 w-full max-w-7xl mx-auto px-4 md:px-8">
-                <div className="text-center mb-24">
-                    <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Powerful Tools. Seamless Flow.</h2>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-lg md:text-xl font-medium">Everything you need to orchestrate unforgettable events.</p>
+            <section className="relative w-full max-w-7xl mx-auto px-4 md:px-8 py-32">
+                <div className="text-center mb-32 h-[30vh] flex flex-col justify-center">
+                    <motion.h2
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        className="text-5xl md:text-8xl font-black mb-8 tracking-tighter"
+                    >
+                        Tools Built <br /> For Performance.
+                    </motion.h2>
+                    <p className="text-xl md:text-2xl text-neutral-500 font-medium">Scroll to explore the ecosystem.</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-12">
+                <div ref={containerRef} className="relative">
                     {features.map((feature, idx) => (
-                        <div key={idx} className="group">
-                            <GlassTile
-                                className={cn(
-                                    "w-full flex flex-col gap-12 items-center min-h-[350px] max-w-5xl mx-auto",
-                                    idx % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"
-                                )}
-                                interactive={false}
-                                hoverScale={1}
-                            >
-                                <div className="flex-1 space-y-6">
-                                    <motion.div
-                                        initial={{ opacity: 0, x: idx % 2 === 1 ? 20 : -20 }}
-                                        whileInView={{ opacity: 1, x: 0 }}
-                                        viewport={{ once: true }}
-                                        className="h-12 w-12 rounded-2xl bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 shadow-xl flex items-center justify-center"
-                                    >
-                                        {feature.icon}
-                                    </motion.div>
-                                    <div className="space-y-4">
-                                        <h3 className="text-3xl md:text-5xl font-bold tracking-tight flex items-center gap-4">
-                                            {feature.title}
-                                            {feature.comingSoon && (
-                                                <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 uppercase tracking-widest">
-                                                    Beta
-                                                </span>
-                                            )}
-                                        </h3>
-                                        <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-md font-medium">
-                                            {feature.description}
-                                        </p>
-                                    </div>
-                                    <ul className="space-y-3">
-                                        {['Lightning fast', 'Intuitive UI', 'Scalable'].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-sm font-semibold text-neutral-500">
-                                                <CheckCircle2 className="h-4 w-4 text-blue-500" />
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="flex-1 w-full bg-white/20 dark:bg-black/20 rounded-2xl border border-white/40 dark:border-white/10 overflow-hidden relative min-h-[350px] flex items-center justify-center p-8 group-hover:bg-white/40 dark:group-hover:bg-black/40 transition-colors duration-500">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-50" />
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        whileInView={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.5 }}
-                                        className="relative z-10 w-full"
-                                    >
-                                        {feature.header}
-                                    </motion.div>
-                                </div>
-                            </GlassTile>
-                        </div>
+                        <StackingCard
+                            key={idx}
+                            feature={feature}
+                            index={idx}
+                            total={features.length}
+                            progress={scrollYProgress}
+                        />
                     ))}
                 </div>
             </section>
