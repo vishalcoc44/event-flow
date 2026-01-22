@@ -72,5 +72,25 @@ export const bookingsAPI = {
 			console.error('Cancel booking error:', error);
 			throw error;
 		}
+	},
+
+	requestRefund: async (bookingId: string, reason: string) => {
+		try {
+			const { data, error } = await supabase
+				.from('refund_requests')
+				.insert([{
+					booking_id: bookingId,
+					reason: reason,
+					status: 'PENDING'
+				}])
+				.select('*')
+				.single();
+
+			if (error) throw error;
+			return data;
+		} catch (error) {
+			console.error('Request refund error:', error);
+			throw error;
+		}
 	}
 };

@@ -11,18 +11,34 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
-import { Calendar, Clock, MapPin, DollarSign, Search, Filter, Ticket, ArrowRight, XCircle, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, DollarSign, Search, Filter, Ticket, ArrowRight, XCircle, CheckCircle2, AlertCircle, RefreshCcw, MessageSquare } from 'lucide-react'
 import { GlassTile } from '@/components/ui/glass-tile'
 import { cn } from '@/lib/utils'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 export default function CustomerBookings() {
     const { user } = useAuth()
-    const { bookings, loading, error, cancelBooking } = useBookings()
+    const { bookings, loading, error, cancelBooking, requestRefund } = useBookings()
     const { toast } = useToast()
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState<string>('all')
     const [cancellingId, setCancellingId] = useState<string | null>(null)
     const [userBookings, setUserBookings] = useState<any[]>([])
+
+    // Refund state
+    const [showRefundDialog, setShowRefundDialog] = useState(false)
+    const [selectedGroup, setSelectedGroup] = useState<any>(null)
+    const [refundReason, setRefundReason] = useState('')
+    const [isSubmittingRefund, setIsSubmittingRefund] = useState(false)
 
     useEffect(() => {
         if (user && bookings) {
@@ -79,6 +95,33 @@ export default function CustomerBookings() {
             })
         } finally {
             setCancellingId(null)
+        }
+    }
+
+    const handleRequestRefund = async () => {
+        if (!selectedGroup || !refundReason.trim()) return
+        
+        setIsSubmittingRefund(true)
+        try {
+            // For now, we request refund for the first booking in the group as a proxy
+            // In a more complex system, we'd handle multi-ticket refunds
+            await requestRefund(selectedGroup.firstBookingId, refundReason)
+            
+            toast({
+                title: "Refund Requested",
+                description: "Your request has been submitted to the organizer for review.",
+            })
+            setShowRefundDialog(false)
+            setRefundReason('')
+            setSelectedGroup(null)
+        } catch (error: any) {
+            toast({
+                title: "Request Failed",
+                description: error.message || "Unable to submit refund request.",
+                variant: "destructive"
+            })
+        } finally {
+            setIsSubmittingRefund(false)
         }
     }
 
@@ -269,6 +312,21 @@ export default function CustomerBookings() {
                                                             View Pass <ArrowRight className="h-3.5 w-3.5 ml-2" />
                                                         </Button>
                                                     </Link>
+                                                    
+                                                    {group.status === 'CONFIRMED' && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            onClick={() => {
+                                                                setSelectedGroup(group)
+                                                                setShowRefundDialog(true)
+                                                            }}
+                                                            className="h-12 px-4 rounded-xl text-neutral-400 hover:text-blue-500 hover:bg-blue-500/10 font-bold text-[10px] uppercase tracking-widest"
+                                                        >
+                                                            <RefreshCcw className="h-4 w-4 mr-2" />
+                                                            Refund
+                                                        </Button>
+                                                    )}
+
                                                     {group.status !== 'CANCELLED' && (
                                                         <Button
                                                             variant="ghost"
@@ -293,6 +351,43 @@ export default function CustomerBookings() {
                     )}
                 </div>
             </main>
+
+            <Dialog open={showRefundDialog} onOpenChange={setShowRefundDialog}>
+                <DialogContent className="rounded-3xl border-white/20 backdrop-blur-2xl bg-background/80 max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Request Refund.</DialogTitle>
+                        <DialogDescription className="font-bold text-neutral-500 uppercase tracking-widest text-[10px]">
+                            Event: {selectedGroup?.event?.title}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6 pt-4">
+                        <div className="space-y-2">
+                            <Label className="uppercase tracking-[0.2em] text-[10px] font-black opacity-50 flex items-center gap-2">
+                                <MessageSquare className="h-3 w-3" /> Reason for Refund
+                            </Label>
+                            <Textarea
+                                value={refundReason}
+                                onChange={(e) => setRefundReason(e.target.value)}
+                                placeholder="Why are you requesting a refund? (e.g., change of plans, event reschedule...)"
+                                className="min-h-[120px] rounded-2xl bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 font-bold p-6 focus:ring-blue-500/50"
+                            />
+                        </div>
+                        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                            Refund requests are subject to organizer approval. You will be notified once a decision is made.
+                        </div>
+                    </div>
+                    <DialogFooter className="pt-8">
+                        <Button variant="ghost" onClick={() => setShowRefundDialog(false)} className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px]">Cancel</Button>
+                        <Button 
+                            onClick={handleRequestRefund} 
+                            disabled={isSubmittingRefund || !refundReason.trim()} 
+                            className="h-14 px-8 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-blue-500/20"
+                        >
+                            {isSubmittingRefund ? "Submitting..." : "Submit Request"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Footer />
         </div>

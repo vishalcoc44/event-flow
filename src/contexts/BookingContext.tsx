@@ -33,6 +33,7 @@ type BookingContextType = {
   error: string | null
   addBooking: (eventId: string, ticketTypeId?: string | null) => Promise<Booking | null>
   cancelBooking: (id: string) => Promise<Booking | null>
+  requestRefund: (bookingId: string, reason: string) => Promise<any>
   getUserBookings: () => Promise<Booking[]>
   getAllBookings: () => Promise<Booking[]>
   fetchBookings: () => Promise<void>
@@ -131,6 +132,21 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }
 
+  const requestRefund = async (bookingId: string, reason: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      const result = await bookingsAPI.requestRefund(bookingId, reason)
+      return result
+    } catch (err: any) {
+      console.error('Error requesting refund:', err)
+      setError(err.message || 'Failed to request refund')
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <BookingContext.Provider value={{ 
       bookings, 
@@ -138,6 +154,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       error, 
       addBooking, 
       cancelBooking, 
+      requestRefund,
       getUserBookings, 
       getAllBookings,
       fetchBookings
