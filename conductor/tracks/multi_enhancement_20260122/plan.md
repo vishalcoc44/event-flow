@@ -13,7 +13,7 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 - [x] Task: Database - Implement Refund Management System (7559043)
     - [x] Create `refund_requests` table linked to `bookings`.
     - [x] Add RLS and functions for status transitions.
-- [x] Task: Frontend - Coupon Application UI (2a4b36c)
+- [x] Task: Frontend - Coupon Application UI (4b6f3e9)
     - [x] Add coupon code field to booking flow.
     - [x] Implement real-time validation and price update.
 - [x] Task: Frontend - Organizer Refund Dashboard (7559043)
