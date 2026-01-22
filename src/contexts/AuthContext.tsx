@@ -591,19 +591,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = async () => {
         try {
-            await supabase.auth.signOut();
+            // Optimistic update: Clear state immediately
             setUser(null);
 
-            // Clear all auth-related storage
+            // Clear all auth-related storage immediately
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('supabase.auth.token');
                 sessionStorage.removeItem('passwordResetMode');
+                
+                // Comprehensive cleanup matching clearInvalidSession
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('supabase.auth.') || key.startsWith('sb-')) {
+                        localStorage.removeItem(key);
+                    }
+                });
             }
 
-            // Use replace to prevent user from going back to dashboard
+            // Navigate immediately
             router.replace('/auth');
+
+            // Perform server-side sign out in background
+            // We don't await this to prevent blocking the UI
+            supabase.auth.signOut().catch(err => {
+                console.error('Background sign out error:', err);
+            });
         } catch (error) {
-            // Logout error - still redirect to auth page
+            console.error('Logout error:', error);
+            // Fallback redirect
             router.replace('/auth');
         }
     };

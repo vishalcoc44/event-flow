@@ -177,6 +177,19 @@ export default function OrganizationEvents() {
     fetchEventSpaces()
   }, [organization?.id])
 
+  if (orgLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden pt-32 pb-20 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <div className="h-12 w-64 bg-neutral-100 dark:bg-white/5 rounded-xl animate-pulse mb-12" />
+          <EventListSkeleton count={4} />
+        </div>
+      </div>
+    )
+  }
+
+  if (!organization) return null;
+
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -332,7 +345,7 @@ export default function OrganizationEvents() {
               )}
             </GlassTile>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <AnimatePresence mode="popLayout">
                 {filteredEvents.map((event, index) => {
                   const status = getStatusConfig(event)
@@ -343,9 +356,13 @@ export default function OrganizationEvents() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.6, delay: index * 0.05 }}
+                      className={cn("h-full", openMenuEventId === event.id ? "z-50 relative" : "z-0")}
                     >
-                      <GlassTile className="p-0 overflow-hidden flex flex-col h-full group" hoverScale={1.02}>
-                        <div className="relative h-40 overflow-hidden">
+                      <GlassTile 
+                        className={cn("p-0 flex flex-col h-full group", openMenuEventId === event.id ? "overflow-visible" : "overflow-hidden")} 
+                        hoverScale={1.02}
+                      >
+                        <div className="relative h-32 overflow-hidden rounded-t-[24px]">
                           {event.image_url ? (
                             <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                           ) : (

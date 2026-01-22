@@ -19,10 +19,23 @@ export const socialAPI = {
 				.select('*')
 				.single();
 
-			if (error) throw error;
+			if (error) {
+				if (error.code === '23505') {
+					// Already following, return existing record
+					const { data: existing } = await supabase
+						.from('follows')
+						.select('*')
+						.eq('follower_id', user.id)
+						.eq('target_id', targetUserId)
+						.eq('target_type', 'USER')
+						.single();
+					return existing;
+				}
+				throw error;
+			}
 			return data;
-		} catch (error) {
-			console.error('Follow user error:', error);
+		} catch (error: any) {
+			console.error('Follow user error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -41,8 +54,8 @@ export const socialAPI = {
 
 			if (error) throw error;
 			return { success: true };
-		} catch (error) {
-			console.error('Unfollow user error:', error);
+		} catch (error: any) {
+			console.error('Unfollow user error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -62,10 +75,22 @@ export const socialAPI = {
 				.select('*')
 				.single();
 
-			if (error) throw error;
+			if (error) {
+				if (error.code === '23505') {
+					const { data: existing } = await supabase
+						.from('follows')
+						.select('*')
+						.eq('follower_id', user.id)
+						.eq('target_id', eventId)
+						.eq('target_type', 'EVENT')
+						.single();
+					return existing;
+				}
+				throw error;
+			}
 			return data;
-		} catch (error) {
-			console.error('Follow event error:', error);
+		} catch (error: any) {
+			console.error('Follow event error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -84,8 +109,8 @@ export const socialAPI = {
 
 			if (error) throw error;
 			return { success: true };
-		} catch (error) {
-			console.error('Unfollow event error:', error);
+		} catch (error: any) {
+			console.error('Unfollow event error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -105,10 +130,22 @@ export const socialAPI = {
 				.select('*')
 				.single();
 
-			if (error) throw error;
+			if (error) {
+				if (error.code === '23505') {
+					const { data: existing } = await supabase
+						.from('follows')
+						.select('*')
+						.eq('follower_id', user.id)
+						.eq('target_id', categoryId)
+						.eq('target_type', 'CATEGORY')
+						.single();
+					return existing;
+				}
+				throw error;
+			}
 			return data;
-		} catch (error) {
-			console.error('Follow category error:', error);
+		} catch (error: any) {
+			console.error('Follow category error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -127,8 +164,8 @@ export const socialAPI = {
 
 			if (error) throw error;
 			return { success: true };
-		} catch (error) {
-			console.error('Unfollow category error:', error);
+		} catch (error: any) {
+			console.error('Unfollow category error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	},
@@ -149,8 +186,8 @@ export const socialAPI = {
 
 			if (error && error.code !== 'PGRST116') throw error;
 			return !!data;
-		} catch (error) {
-			console.error('Check follow status error:', error);
+		} catch (error: any) {
+			console.error('Check follow status error:', JSON.stringify(error, null, 2));
 			return false;
 		}
 	},

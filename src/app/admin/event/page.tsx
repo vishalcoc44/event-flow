@@ -17,7 +17,7 @@ import { HoverShadowEffect } from '@/components/ui/hover-shadow-effect'
 import { eventsAPI } from '@/lib/api'
 import { GlassTile } from '@/components/ui/glass-tile'
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, DollarSign, Clock, Image as ImageIcon, Type, FileText, Tag, ArrowLeft } from 'lucide-react'
+import { Calendar, MapPin, DollarSign, Clock, Image as ImageIcon, Type, FileText, Tag, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function EventFormComponent() {
@@ -127,241 +127,248 @@ function EventFormComponent() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#f3f4f6]">
-            {/* Mesh Gradient Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-purple-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob"></div>
-                <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] rounded-full bg-pink-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-4000"></div>
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]"></div>
+        <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden font-sans">
+            {/* Mesh Background */}
+            <div className="fixed inset-0 z-[-1] opacity-30 dark:opacity-20 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
             </div>
 
-            <div className="relative z-10 flex flex-col min-h-screen">
-                <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+            <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
-                <main className="flex-grow container mx-auto px-4 py-12 max-w-4xl">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <div className="flex items-center gap-4 mb-8">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full hover:bg-white/50"
-                                onClick={() => router.push('/admin/events')}
-                            >
-                                <ArrowLeft className="w-5 h-5 text-gray-600" />
-                            </Button>
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                                    {eventId ? 'Edit Event' : 'Create New Event'}
-                                </h1>
-                                <p className="text-gray-600 mt-1">
-                                    {eventId ? 'Update existing event details.' : 'Fill in the details to publish a new event.'}
-                                </p>
-                            </div>
+            <main className="flex-grow pt-32 pb-20 container mx-auto px-4 max-w-5xl">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <div className="flex items-center gap-6 mb-12">
+                         <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-2xl h-12 w-12 hover:bg-black/5 dark:hover:bg-white/5 border border-transparent hover:border-black/10 dark:hover:border-white/10"
+                            onClick={() => router.push('/admin/events')}
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </Button>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2 leading-[0.9]">
+                                {eventId ? 'Edit Protocol' : 'Initialize Event'}
+                            </h1>
+                            <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">
+                                {eventId ? 'Update mission parameters.' : 'Define new mission parameters.'}
+                            </p>
                         </div>
+                    </div>
 
-                        <GlassTile className="p-8 relative overflow-hidden" interactive={false}>
-                            {isLoading ? (
-                                <div className="flex flex-col justify-center items-center h-96 space-y-4">
-                                    <div className="w-10 h-10 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
-                                    <p className="text-gray-500 animate-pulse">Loading event details...</p>
-                                </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} className="space-y-8">
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="title" className="text-gray-700 font-medium flex items-center gap-2">
-                                                <Type className="w-4 h-4 text-blue-500" /> Event Title
+                    <GlassTile className="p-8 md:p-12 relative overflow-hidden rounded-[32px]" interactive={false}>
+                        {isLoading ? (
+                            <div className="flex flex-col justify-center items-center h-96 space-y-6">
+                                <div className="w-12 h-12 border-4 border-t-black dark:border-t-white border-black/10 dark:border-white/10 rounded-full animate-spin"></div>
+                                <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs animate-pulse">Retrieving Data...</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="space-y-10">
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                            <Type className="w-3 h-3" /> Event Designation
+                                        </Label>
+                                        <Input
+                                            id="title"
+                                            name="title"
+                                            placeholder="ENTER TITLE"
+                                            value={event.title}
+                                            onChange={handleChange}
+                                            required
+                                            className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl font-bold text-xl h-14 placeholder:text-neutral-300"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                            <FileText className="w-3 h-3" /> Mission Brief
+                                        </Label>
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            placeholder="Enter detailed description..."
+                                            value={event.description}
+                                            onChange={handleChange}
+                                            required
+                                            className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl min-h-[160px] resize-y font-medium text-base placeholder:text-neutral-300 p-4"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3">
+                                            <Label htmlFor="category" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                                <Tag className="w-3 h-3" /> Classification
                                             </Label>
-                                            <Input
-                                                id="title"
-                                                name="title"
-                                                placeholder="Enter a catchy title for your event"
-                                                value={event.title}
-                                                onChange={handleChange}
-                                                required
-                                                className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all font-medium text-lg h-12"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="description" className="text-gray-700 font-medium flex items-center gap-2">
-                                                <FileText className="w-4 h-4 text-blue-500" /> Description
-                                            </Label>
-                                            <Textarea
-                                                id="description"
-                                                name="description"
-                                                placeholder="Describe what your event is about..."
-                                                value={event.description}
-                                                onChange={handleChange}
-                                                required
-                                                className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all min-h-[150px] resize-y"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="category" className="text-gray-700 font-medium flex items-center gap-2">
-                                                    <Tag className="w-4 h-4 text-blue-500" /> Category
-                                                </Label>
-                                                <div className="relative">
-                                                    {categoriesLoading ? (
-                                                        <div className="h-11 w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm flex items-center text-gray-500 animate-pulse">
-                                                            Loading categories...
-                                                        </div>
-                                                    ) : (
+                                            <div className="relative">
+                                                {categoriesLoading ? (
+                                                    <div className="h-14 w-full rounded-xl bg-neutral-100/50 dark:bg-white/5 px-4 flex items-center text-xs font-bold uppercase tracking-widest text-neutral-400 animate-pulse">
+                                                        Loading...
+                                                    </div>
+                                                ) : (
+                                                    <div className="relative">
                                                         <select
                                                             id="category"
                                                             value={event.category_id || ''}
                                                             onChange={(e) => {
                                                                 setEvent({ ...event, category_id: e.target.value || null })
                                                             }}
-                                                            className="h-11 w-full rounded-md border border-gray-200 bg-white/50 px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer hover:bg-white/80"
+                                                            className="h-14 w-full rounded-xl bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 px-4 text-sm font-bold focus:outline-none appearance-none cursor-pointer"
                                                         >
-                                                            <option value="">Select a category</option>
+                                                            <option value="">SELECT CATEGORY</option>
                                                             {(categories && Array.isArray(categories)) ? categories.filter(category => category && typeof category === 'object' && category.id && category.name).map((category) => (
                                                                 <option key={category.id} value={category.id}>
                                                                     {category.name}
                                                                 </option>
                                                             )) : null}
                                                         </select>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="location" className="text-gray-700 font-medium flex items-center gap-2">
-                                                    <MapPin className="w-4 h-4 text-blue-500" /> Location
-                                                </Label>
-                                                <Input
-                                                    id="location"
-                                                    name="location"
-                                                    placeholder="Venue name or address"
-                                                    value={event.location}
-                                                    onChange={handleChange}
-                                                    required
-                                                    className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all h-11"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="price" className="text-gray-700 font-medium flex items-center gap-2">
-                                                    <DollarSign className="w-4 h-4 text-blue-500" /> Price
-                                                </Label>
-                                                <Input
-                                                    id="price"
-                                                    name="price"
-                                                    type="number"
-                                                    step="0.01"
-                                                    placeholder="0.00"
-                                                    value={event.price}
-                                                    onChange={handleChange}
-                                                    required
-                                                    className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all h-11"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="date" className="text-gray-700 font-medium flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-blue-500" /> Date
-                                                </Label>
-                                                <Input
-                                                    id="date"
-                                                    name="date"
-                                                    type="date"
-                                                    value={event.date}
-                                                    onChange={handleChange}
-                                                    required
-                                                    className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all h-11"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="time" className="text-gray-700 font-medium flex items-center gap-2">
-                                                    <Clock className="w-4 h-4 text-blue-500" /> Time
-                                                </Label>
-                                                <Input
-                                                    id="time"
-                                                    name="time"
-                                                    type="time"
-                                                    value={event.time}
-                                                    onChange={handleChange}
-                                                    required
-                                                    className="bg-white/50 border-gray-200 focus:border-blue-400 focus:ring-blue-100 transition-all h-11"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="image" className="text-gray-700 font-medium flex items-center gap-2">
-                                                <ImageIcon className="w-4 h-4 text-blue-500" /> Event Image
-                                            </Label>
-                                            <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-300 px-6 py-10 hover:bg-gray-50 transition-colors bg-white/30">
-                                                <div className="text-center w-full">
-                                                    {event.image_url && !event.image ? (
-                                                        <div className="relative mb-4 mx-auto w-full max-w-sm overflow-hidden rounded-lg shadow-md group">
-                                                            <img
-                                                                src={event.image_url}
-                                                                alt="Current event"
-                                                                className="h-48 w-full object-cover transition-transform group-hover:scale-105"
-                                                            />
-                                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <span className="text-white text-sm font-medium">Current Image</span>
-                                                            </div>
+                                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
+                                                            <ArrowLeft className="w-4 h-4 -rotate-90" />
                                                         </div>
-                                                    ) : null}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
 
-                                                    <div className="mt-4 flex flex-col items-center">
-                                                        <Input
+                                        <div className="space-y-3">
+                                            <Label htmlFor="location" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                                <MapPin className="w-3 h-3" /> Coordinates
+                                            </Label>
+                                            <Input
+                                                id="location"
+                                                name="location"
+                                                placeholder="VENUE OR ADDRESS"
+                                                value={event.location}
+                                                onChange={handleChange}
+                                                required
+                                                className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl font-bold h-14 placeholder:text-neutral-300"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        <div className="space-y-3">
+                                            <Label htmlFor="price" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                                <DollarSign className="w-3 h-3" /> Admission
+                                            </Label>
+                                            <Input
+                                                id="price"
+                                                name="price"
+                                                type="number"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                value={event.price}
+                                                onChange={handleChange}
+                                                required
+                                                className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl font-bold h-14 placeholder:text-neutral-300"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <Label htmlFor="date" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                                <Calendar className="w-3 h-3" /> Date
+                                            </Label>
+                                            <Input
+                                                id="date"
+                                                name="date"
+                                                type="date"
+                                                value={event.date}
+                                                onChange={handleChange}
+                                                required
+                                                className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl font-bold h-14"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <Label htmlFor="time" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                                <Clock className="w-3 h-3" /> Time
+                                            </Label>
+                                            <Input
+                                                id="time"
+                                                name="time"
+                                                type="time"
+                                                value={event.time}
+                                                onChange={handleChange}
+                                                required
+                                                className="bg-neutral-100/50 dark:bg-white/5 border-transparent focus:border-black/10 dark:focus:border-white/10 focus:ring-0 rounded-xl font-bold h-14"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label htmlFor="image" className="text-xs font-black uppercase tracking-widest text-neutral-500 flex items-center gap-2">
+                                            <ImageIcon className="w-3 h-3" /> Visual Asset
+                                        </Label>
+                                        <div className="mt-2 rounded-2xl border-2 border-dashed border-neutral-200 dark:border-white/10 p-8 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
+                                            <div className="text-center w-full">
+                                                {event.image_url && !event.image ? (
+                                                    <div className="relative mb-6 mx-auto w-full max-w-md overflow-hidden rounded-xl shadow-2xl group">
+                                                        <img
+                                                            src={event.image_url}
+                                                            alt="Current event"
+                                                            className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <span className="text-white text-xs font-black uppercase tracking-widest">Current Asset</span>
+                                                        </div>
+                                                    </div>
+                                                ) : null}
+
+                                                <div className="flex flex-col items-center">
+                                                    <label htmlFor="image" className="cursor-pointer">
+                                                        <div className="h-14 px-6 rounded-xl bg-neutral-100 dark:bg-white/10 text-neutral-900 dark:text-white font-bold flex items-center gap-2 hover:scale-[1.02] transition-transform">
+                                                            Upload File
+                                                        </div>
+                                                        <input
                                                             id="image"
                                                             name="image"
                                                             type="file"
                                                             accept="image/*"
                                                             onChange={handleChange}
-                                                            className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 w-full max-w-xs"
+                                                            className="hidden"
                                                         />
-                                                        <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
-                                                    </div>
+                                                    </label>
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mt-4">PNG, JPG, GIF (Max 10MB)</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className="pt-6 flex justify-end gap-3 border-t border-gray-100">
-                                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => router.push('/admin/events')}
-                                                className="border-gray-200 text-gray-700 hover:bg-gray-50 bg-white"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </HoverShadowEffect>
-                                        <HoverShadowEffect className="cursor-pointer" shadowColor="rgba(0,0,0,0.1)" shadowIntensity={0.15} hoverScale={1.02} hoverLift={-1} transitionDuration={150}>
-                                            <Button
-                                                type="submit"
-                                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 px-8"
-                                                disabled={loading}
-                                            >
-                                                {loading ? (eventId ? 'Updating...' : 'Creating...') : (eventId ? 'Update Event' : 'Create Event')}
-                                            </Button>
-                                        </HoverShadowEffect>
-                                    </div>
-                                </form>
-                            )}
-                        </GlassTile>
-                    </motion.div>
-                </main>
+                                <div className="pt-8 flex justify-end gap-4 border-t border-neutral-100 dark:border-white/5">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => router.push('/admin/events')}
+                                        className="h-14 px-8 rounded-2xl font-black tracking-tight hover:bg-neutral-100 dark:hover:bg-white/5"
+                                    >
+                                        Abort
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="h-14 px-10 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight hover:scale-[1.02] transition-transform shadow-2xl"
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <span className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Processing...
+                                            </span>
+                                        ) : (eventId ? 'Update Mission' : 'Launch Mission')}
+                                    </Button>
+                                </div>
+                            </form>
+                        )}
+                    </GlassTile>
+                </motion.div>
+            </main>
 
-                <Footer />
-            </div>
+            <Footer />
         </div>
     )
 }
@@ -369,10 +376,10 @@ function EventFormComponent() {
 export default function EventForm() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center space-y-4">
-                    <div className="w-10 h-10 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
-                    <p className="text-gray-500 font-medium animate-pulse">Initializing editor...</p>
+                    <div className="w-12 h-12 border-4 border-t-black dark:border-t-white border-black/10 dark:border-white/10 rounded-full animate-spin"></div>
+                    <p className="text-neutral-400 font-bold uppercase tracking-widest text-xs animate-pulse">Initializing System...</p>
                 </div>
             </div>
         }>

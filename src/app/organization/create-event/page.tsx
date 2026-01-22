@@ -133,7 +133,7 @@ function EventArchitectComponent() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!organization) {
+		if (!organization || !organization.id) {
 			toast({ title: "Sync Required", description: "Establish organization synchronization before event deployment.", variant: "destructive" });
 			return;
 		}
@@ -158,6 +158,8 @@ function EventArchitectComponent() {
 				tags: tags.length > 0 ? tags : null
 			};
 
+			console.log('Submitting event data:', eventData);
+
 			if (eventId) {
 				// events table doesn't have a `tags` column; tags are managed via `event_tags`
 				// (creation uses the safe RPC to attach tags; update skips tag writes for now)
@@ -171,6 +173,7 @@ function EventArchitectComponent() {
 			}
 			router.push('/organization/events');
 		} catch (error: any) {
+			console.error('Submission error:', error);
 			toast({ title: "Deployment Failure", description: error.message || "Network interference during deployment.", variant: "destructive" });
 		} finally {
 			setIsSubmitting(false);

@@ -443,13 +443,13 @@ export default function EventClient() {
 
             <main className="flex-grow pt-32 pb-20">
                 {/* Hero Section */}
-                <div className="container mx-auto px-4 mb-16">
-                    <Link href="/events" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-neutral-500 hover:text-blue-500 transition-colors mb-8 group">
-                        <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
-                        Back to Collection
+                <div className="container mx-auto px-4 max-w-7xl mb-12">
+                    <Link href="/events" className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 hover:text-black dark:hover:text-white transition-colors mb-6 group">
+                        <ArrowLeft className="h-3 w-3 mr-2 transition-transform group-hover:-translate-x-1" />
+                        Back to Matrix
                     </Link>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         {/* Event Visuals */}
                         <motion.div
                             className="lg:col-span-8"
@@ -457,103 +457,102 @@ export default function EventClient() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8 }}
                         >
-                            <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
+                            <div className="relative h-[400px] rounded-[2rem] overflow-hidden shadow-2xl group mb-8">
                                 <img
                                     src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop'}
                                     alt={event.title}
                                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                                <div className="absolute bottom-12 left-12 right-12">
-                                    <div className="flex gap-4 mb-6">
+                                <div className="absolute bottom-8 left-8 right-8">
+                                    <div className="flex gap-3 mb-4">
                                         {event.categories && (
-                                            <span className="px-4 py-2 rounded-xl bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
+                                            <span className="px-3 py-1 rounded-lg bg-white/10 text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md border border-white/10">
                                                 {event.categories.name}
                                             </span>
                                         )}
                                         {isPastEvent && (
-                                            <span className="px-4 py-2 rounded-xl bg-white/20 text-white text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border border-white/20">
+                                            <span className="px-3 py-1 rounded-lg bg-white/10 text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md border border-white/10">
                                                 Past Event
                                             </span>
                                         )}
                                     </div>
-                                    <h1 className="text-4xl md:text-7xl font-bold text-white tracking-tighter mb-4 leading-[0.9]">
+                                    <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-3 leading-[0.9]">
                                         {event.title}
                                     </h1>
-                                    <div className="flex flex-wrap gap-8 text-white/80 font-medium">
+                                    <div className="flex flex-wrap gap-6 text-white/80 font-bold text-xs uppercase tracking-wide">
                                         <div className="flex items-center gap-2">
-                                            <Calendar className="h-5 w-5 text-blue-400" />
-                                            {eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                                            <Calendar className="h-4 w-4 text-white" />
+                                            {eventDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <MapPin className="h-5 w-5 text-blue-400" />
+                                            <MapPin className="h-4 w-4 text-white" />
                                             {event.location}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-12 space-y-8">
-                                <div className="flex gap-8 border-b border-neutral-100 dark:border-neutral-800 pb-4">
+                            <div className="space-y-6">
+                                <div className="flex gap-6 border-b border-neutral-100 dark:border-white/5 pb-2">
                                         <button
                                             onClick={() => setActiveTab('overview')}
-                                            className={cn("text-sm font-bold uppercase tracking-widest pb-4 relative", activeTab === 'overview' ? 'text-blue-500' : 'text-neutral-400')}
+                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'overview' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
                                         >
                                         Overview
                                     </button>
                                         <button
                                             onClick={() => setActiveTab('speakers')}
-                                            className={cn("text-sm font-bold uppercase tracking-widest pb-4 relative", activeTab === 'speakers' ? 'text-blue-500' : 'text-neutral-400')}
+                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'speakers' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
                                         >
                                         Speakers
                                     </button>
                                         <button
                                             onClick={() => setActiveTab('schedule')}
-                                            className={cn("text-sm font-bold uppercase tracking-widest pb-4 relative", activeTab === 'schedule' ? 'text-blue-500' : 'text-neutral-400')}
+                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'schedule' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
                                         >
                                         Schedule
                                     </button>
                                 </div>
                                     {activeTab === 'overview' && (
-                                        <div className="prose prose-neutral dark:prose-invert max-w-none">
-                                            <h3 className="text-2xl font-bold mb-4">About the Event</h3>
-                                            <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap font-medium">
+                                        <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                                            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap font-medium">
                                                 {event.description}
                                             </p>
                                         </div>
                                     )}
 
                                     {activeTab === 'speakers' && (
-                                        <div className="space-y-4">
+                                        <div className="space-y-3">
                                             {speakers.length === 0 ? (
-                                                <GlassTile className="p-8" interactive={false}>
-                                                    <div className="text-sm font-bold uppercase tracking-widest text-neutral-400">No speakers listed yet.</div>
+                                                <GlassTile className="p-6" interactive={false}>
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No speakers listed yet.</div>
                                                 </GlassTile>
                                             ) : (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     {speakers.map((row, idx) => {
                                                         const sp = row.speaker
                                                         if (!sp) return null
                                                         return (
-                                                            <GlassTile key={sp.id} className="p-6" interactive={false}>
-                                                                <div className="flex items-start gap-4">
-                                                                    <div className="h-14 w-14 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 flex items-center justify-center">
+                                                            <GlassTile key={sp.id} className="p-4" interactive={false}>
+                                                                <div className="flex items-start gap-3">
+                                                                    <div className="h-10 w-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-white/5 flex items-center justify-center shrink-0">
                                                                         {sp.avatar_url ? (
                                                                             <img src={sp.avatar_url} className="h-full w-full object-cover" alt={sp.name} />
                                                                         ) : (
-                                                                            <Mic className="h-5 w-5 text-neutral-400" />
+                                                                            <Mic className="h-4 w-4 text-neutral-400" />
                                                                         )}
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <div className="text-lg font-black tracking-tight">{sp.name}</div>
+                                                                        <div className="text-sm font-black tracking-tight leading-tight">{sp.name}</div>
                                                                         {row.role && (
-                                                                            <div className="text-[10px] font-black uppercase tracking-widest text-blue-500 mt-1">
+                                                                            <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-0.5">
                                                                                 {row.role}
                                                                             </div>
                                                                         )}
                                                                         {sp.bio && (
-                                                                            <p className="text-sm text-neutral-500 font-medium mt-3 line-clamp-4">
+                                                                            <p className="text-xs text-neutral-500 font-medium mt-1.5 line-clamp-2">
                                                                                 {sp.bio}
                                                                             </p>
                                                                         )}
@@ -568,38 +567,38 @@ export default function EventClient() {
                                     )}
 
                                     {activeTab === 'schedule' && (
-                                        <div className="space-y-4">
+                                        <div className="space-y-3">
                                             {sessions.length === 0 ? (
-                                                <GlassTile className="p-8" interactive={false}>
-                                                    <div className="text-sm font-bold uppercase tracking-widest text-neutral-400">No sessions scheduled yet.</div>
+                                                <GlassTile className="p-6" interactive={false}>
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No sessions scheduled yet.</div>
                                                 </GlassTile>
                                             ) : (
-                                                <div className="space-y-3">
+                                                <div className="space-y-2">
                                                     {sessions.map(s => {
                                                         const start = s.start_at ? new Date(s.start_at) : null
                                                         const end = s.end_at ? new Date(s.end_at) : null
                                                         return (
-                                                            <GlassTile key={s.id} className="p-6" interactive={false}>
-                                                                <div className="flex items-start justify-between gap-6">
+                                                            <GlassTile key={s.id} className="p-4" interactive={false}>
+                                                                <div className="flex items-start justify-between gap-4">
                                                                     <div className="min-w-0">
-                                                                        <div className="text-lg font-black tracking-tight">{s.title}</div>
+                                                                        <div className="text-sm font-black tracking-tight leading-tight">{s.title}</div>
                                                                         {s.description && (
-                                                                            <p className="text-sm text-neutral-500 font-medium mt-2 whitespace-pre-wrap">
+                                                                            <p className="text-xs text-neutral-500 font-medium mt-1 whitespace-pre-wrap line-clamp-2">
                                                                                 {s.description}
                                                                             </p>
                                                                         )}
                                                                         {(s.location || start) && (
-                                                                            <div className="mt-3 flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                                                            <div className="mt-2 flex flex-wrap gap-3 text-[8px] font-black uppercase tracking-widest text-neutral-400">
                                                                                 {start && (
-                                                                                    <span className="inline-flex items-center gap-2">
-                                                                                        <Clock className="h-3.5 w-3.5 text-blue-500" />
-                                                                                        {start.toLocaleString()}
-                                                                                        {end ? ` → ${end.toLocaleTimeString()}` : ''}
+                                                                                    <span className="inline-flex items-center gap-1.5">
+                                                                                        <Clock className="h-3 w-3 text-blue-500" />
+                                                                                        {start.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                                        {end ? ` → ${end.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
                                                                                     </span>
                                                                                 )}
                                                                                 {s.location && (
-                                                                                    <span className="inline-flex items-center gap-2">
-                                                                                        <MapPin className="h-3.5 w-3.5 text-blue-500" />
+                                                                                    <span className="inline-flex items-center gap-1.5">
+                                                                                        <MapPin className="h-3 w-3 text-blue-500" />
                                                                                         {s.location}
                                                                                     </span>
                                                                                 )}
@@ -618,17 +617,17 @@ export default function EventClient() {
                                     {/* Tags */}
                                     {Array.isArray(event.event_tags) && event.event_tags.length > 0 && (
                                         <div className="pt-2">
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
+                                            <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-2">
                                                 Tags
                                             </div>
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-1.5">
                                                 {event.event_tags
                                                     .map(et => et?.tag)
                                                     .filter(Boolean)
                                                     .map((tag: any) => (
                                                         <span
                                                             key={tag.id}
-                                                            className="px-3 py-1 rounded-full bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-300"
+                                                            className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/5 border border-transparent text-[8px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-300"
                                                         >
                                                             {tag.name}
                                                         </span>
@@ -646,48 +645,48 @@ export default function EventClient() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            <GlassTile className="p-8 mb-8" interactive={false}>
-                                <div className="space-y-8">
+                            <GlassTile className="p-6 mb-4 rounded-[2rem]" interactive={false}>
+                                <div className="space-y-6">
                                     <div className="flex items-center justify-between gap-3">
-                                        <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                                            Hosted by <span className="text-neutral-600 dark:text-neutral-300">{hostLabel}</span>
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400">
+                                            Hosted by <span className="text-black dark:text-white">{hostLabel}</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5">
                                             <button
                                                 type="button"
                                                 onClick={handleToggleSave}
                                                 className={cn(
-                                                    'h-10 w-10 rounded-2xl border flex items-center justify-center transition-all',
+                                                    'h-8 w-8 rounded-xl border flex items-center justify-center transition-all',
                                                     isSaved
                                                         ? 'bg-red-500/10 border-red-500/20 text-red-500'
-                                                        : 'bg-white/40 dark:bg-black/40 border-white/60 dark:border-white/10 text-neutral-500 hover:text-red-500'
+                                                        : 'bg-transparent border-neutral-200 dark:border-white/10 text-neutral-400 hover:text-red-500'
                                                 )}
                                                 aria-label={isSaved ? 'Unsave event' : 'Save event'}
                                             >
-                                                <Heart className={cn('h-4 w-4', isSaved ? 'fill-red-500' : '')} />
+                                                <Heart className={cn('h-3.5 w-3.5', isSaved ? 'fill-red-500' : '')} />
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={handleShare}
-                                                className="h-10 w-10 rounded-2xl border bg-white/40 dark:bg-black/40 border-white/60 dark:border-white/10 text-neutral-500 hover:text-blue-500 flex items-center justify-center transition-colors"
+                                                className="h-8 w-8 rounded-xl border border-neutral-200 dark:border-white/10 text-neutral-400 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors"
                                                 aria-label="Share event"
                                             >
-                                                <Share2 className="h-4 w-4" />
+                                                <Share2 className="h-3.5 w-3.5" />
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={handleAddToCalendar}
-                                                className="h-10 w-10 rounded-2xl border bg-white/40 dark:bg-black/40 border-white/60 dark:border-white/10 text-neutral-500 hover:text-blue-500 flex items-center justify-center transition-colors"
+                                                className="h-8 w-8 rounded-xl border border-neutral-200 dark:border-white/10 text-neutral-400 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors"
                                                 aria-label="Add to calendar"
                                             >
-                                                <CalendarDays className="h-4 w-4" />
+                                                <CalendarDays className="h-3.5 w-3.5" />
                                             </button>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">Admission</div>
-                                        <div className="text-5xl font-black tracking-tighter">
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-1">Admission</div>
+                                        <div className="text-4xl font-black tracking-tighter">
                                             {event.price === 0 ? 'Free' : `$${event.price}`}
                                         </div>
                                     </div>
@@ -699,92 +698,84 @@ export default function EventClient() {
                                             reviewCount={eventStats?.total_reviews ?? 0}
                                             size="sm"
                                             showCount={true}
-                                            className="text-[10px] font-black uppercase tracking-widest text-neutral-400"
+                                            className="text-[9px] font-black uppercase tracking-widest text-neutral-400"
                                         />
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center p-4 rounded-2xl bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/10">
-                                            <div className="flex items-center gap-3">
-                                                <Clock className="h-5 w-5 text-blue-500" />
-                                                <span className="text-sm font-bold uppercase tracking-widest">Time</span>
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center p-3 rounded-xl bg-neutral-100/50 dark:bg-white/5 border border-transparent">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-4 w-4 text-neutral-400" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Time</span>
                                             </div>
-                                            <span className="text-sm font-bold text-neutral-500">{event.time}</span>
+                                            <span className="text-xs font-bold text-black dark:text-white">{event.time}</span>
                                         </div>
-                                        <div className="flex justify-between items-center p-4 rounded-2xl bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/10">
-                                            <div className="flex items-center gap-3">
-                                                <Users className="h-5 w-5 text-blue-500" />
-                                                <span className="text-sm font-bold uppercase tracking-widest">Capacity</span>
+                                        <div className="flex justify-between items-center p-3 rounded-xl bg-neutral-100/50 dark:bg-white/5 border border-transparent">
+                                            <div className="flex items-center gap-2">
+                                                <Users className="h-4 w-4 text-neutral-400" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Capacity</span>
                                             </div>
-                                            <span className="text-sm font-bold text-neutral-500">
+                                            <span className="text-xs font-bold text-black dark:text-white">
                                                 {maxAttendees ? `${attendeesCount}/${maxAttendees}` : `${attendeesCount}`}
                                             </span>
                                         </div>
 
                                         {maxAttendees && (
-                                            <div className="h-2 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+                                            <div className="h-1.5 rounded-full bg-neutral-100 dark:bg-white/5 overflow-hidden">
                                                 <div
-                                                    className="h-full bg-blue-500 rounded-full transition-all"
+                                                    className="h-full bg-black dark:bg-white rounded-full transition-all"
                                                     style={{ width: `${Math.min(100, Math.round((attendeesCount / maxAttendees) * 100))}%` }}
                                                 />
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="space-y-3">
+                                    <div className="space-y-2 pt-2">
                                         {!isPastEvent && !isBooked && !isSoldOut ? (
-                                            <Link href={`/customer/book-event/${event.id}${ticketTypes[0]?.id ? `?ticketTypeId=${ticketTypes[0].id}` : ''}`}>
-                                                <Button className="w-full h-16 rounded-[1.25rem] bg-black dark:bg-white text-white dark:text-black text-lg font-black tracking-tight hover:scale-[1.02] transition-transform">
-                                                    Secure Your Ticket
+                                            <Link href={`/customer/book-event/${event.id}${ticketTypes[0]?.id ? `?ticketTypeId=${ticketTypes[0].id}` : ''}`} className="block">
+                                                <Button className="w-full h-12 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-black uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-xl">
+                                                    Secure Ticket
                                                 </Button>
                                             </Link>
                                         ) : isSoldOut ? (
                                             <Button
                                                 onClick={handleJoinWaitlist}
-                                                className="w-full h-16 rounded-[1.25rem] bg-blue-600 text-white text-lg font-black tracking-tight hover:scale-[1.02] transition-transform"
+                                                className="w-full h-12 rounded-xl bg-blue-600 text-white text-sm font-black uppercase tracking-widest hover:scale-[1.02] transition-transform"
                                             >
                                                 {waitlistStatus === 'joined' ? 'Waitlist Joined' : 'Join Waitlist'}
                                             </Button>
                                         ) : isBooked ? (
-                                            <Link href="/customer/bookings">
-                                                <Button variant="outline" className="w-full h-16 rounded-[1.25rem] border-green-500/50 text-green-500 font-black tracking-tight bg-green-500/5 hover:bg-green-500/10 transition-colors">
-                                                    Reserved → View Details
+                                            <Link href="/customer/bookings" className="block">
+                                                <Button variant="outline" className="w-full h-12 rounded-xl border-green-500/30 text-green-600 dark:text-green-400 font-black uppercase tracking-widest bg-green-500/5 hover:bg-green-500/10">
+                                                    Access Ticket
                                                 </Button>
                                             </Link>
                                         ) : (
-                                            <Button disabled className="w-full h-16 rounded-[1.25rem] bg-neutral-100 dark:bg-neutral-800 text-neutral-400 font-black tracking-tight cursor-not-allowed">
-                                                Event Completed
+                                            <Button disabled className="w-full h-12 rounded-xl bg-neutral-100 dark:bg-white/5 text-neutral-400 font-black uppercase tracking-widest cursor-not-allowed">
+                                                Mission Ended
                                             </Button>
                                         )}
                                     </div>
 
                                     {/* Ticket tiers */}
                                     {ticketTypes.length > 0 && (
-                                        <div className="pt-2 space-y-3">
-                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                                                Ticket Tiers
+                                        <div className="pt-4 space-y-2 border-t border-neutral-100 dark:border-white/5">
+                                            <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-2">
+                                                Available Tiers
                                             </div>
                                             <div className="space-y-2">
-                                                {ticketTypes.slice(0, 4).map(t => (
+                                                {ticketTypes.slice(0, 3).map(t => (
                                                     <div
                                                         key={t.id}
-                                                        className="p-4 rounded-2xl bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/10"
+                                                        className="p-3 rounded-xl bg-neutral-100/50 dark:bg-white/5 border border-transparent"
                                                     >
                                                         <div className="flex items-center justify-between gap-3">
                                                             <div className="min-w-0">
-                                                                <div className="text-sm font-black tracking-tight">{t.name}</div>
-                                                                {t.description && (
-                                                                    <div className="text-xs text-neutral-500 font-medium mt-1 line-clamp-2">
-                                                                        {t.description}
-                                                                    </div>
-                                                                )}
+                                                                <div className="text-xs font-black tracking-tight leading-tight">{t.name}</div>
                                                             </div>
-                                                            <div className="text-right">
-                                                                <div className="text-sm font-black text-blue-500">
+                                                            <div className="text-right shrink-0">
+                                                                <div className="text-xs font-black text-black dark:text-white">
                                                                     {t.price === 0 ? 'Free' : `$${t.price}`}
-                                                                </div>
-                                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                                                                    {t.currency}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -794,21 +785,25 @@ export default function EventClient() {
                                         </div>
                                     )}
 
-                                    <p className="text-[10px] text-center text-neutral-400 font-bold uppercase tracking-widest leading-relaxed">
-                                        Instant confirmation • Digital Mobile Entry<br /> Secure checkout via EventFlow Pay
+                                    <p className="text-[8px] text-center text-neutral-400 font-bold uppercase tracking-widest leading-relaxed">
+                                        Instant Access • Secure Processing
                                     </p>
                                 </div>
                             </GlassTile>
 
-                            <GlassTile className="p-6" interactive={false}>
-                                <h4 className="text-sm font-bold uppercase tracking-widest mb-4">Location Focus</h4>
-                                <div className="h-40 rounded-2xl bg-neutral-100 dark:bg-neutral-900 overflow-hidden relative border border-neutral-100 dark:border-neutral-800">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <MapPin className="h-8 w-8 text-red-500 animate-bounce" />
-                                    </div>
-                                    <div className="absolute bottom-0 inset-x-0 p-3 bg-white/60 dark:bg-black/60 backdrop-blur-md text-[10px] font-bold uppercase text-center border-t border-white/20">
-                                        {event.location}
-                                    </div>
+                            <GlassTile className="p-5 rounded-[2rem]" interactive={false}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Location Focus</h4>
+                                    <MapPin className="h-3 w-3 text-neutral-400" />
+                                </div>
+                                <div className="h-24 rounded-xl bg-neutral-100 dark:bg-white/5 relative border border-transparent flex items-center justify-center overflow-hidden">
+                                     <div className="absolute inset-0 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=40.7128,-74.0060&zoom=13&size=600x300&maptype=roadmap&style=feature:all|element:all|saturation:-100&key=YOUR_API_KEY')] bg-cover opacity-20 grayscale" />
+                                     <div className="relative z-10 flex flex-col items-center">
+                                        <MapPin className="h-5 w-5 text-black dark:text-white mb-1" />
+                                        <div className="text-[9px] font-black uppercase text-center max-w-[150px] leading-tight px-2">
+                                            {event.location}
+                                        </div>
+                                     </div>
                                 </div>
                             </GlassTile>
                         </motion.div>
@@ -816,7 +811,7 @@ export default function EventClient() {
                 </div>
 
                 {/* Reviews Section */}
-                <div className="container mx-auto px-4 mt-20">
+                <div className="container mx-auto px-4 max-w-5xl mt-12">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}

@@ -259,17 +259,40 @@ export const organizationAPI = {
 	// Get organization activity log
 	getActivityLog: async (organizationId: string, limit: number = 20) => {
 		try {
-			const { data, error } = await supabase
+			// First fetch the logs
+			const { data: logs, error: logsError } = await supabase
 				.from('organization_activity_log')
-				.select('*, actor:users!actor_id(first_name, last_name, email, avatar_url)')
+				.select('*')
 				.eq('organization_id', organizationId)
 				.order('created_at', { ascending: false })
 				.limit(limit);
 
-			if (error) throw error;
-			return data;
-		} catch (error) {
-			console.error('Get activity log error:', error);
+			if (logsError) throw logsError;
+			if (!logs || logs.length === 0) return [];
+
+			// Extract unique actor IDs
+			const actorIds = [...new Set(logs.map(log => log.actor_id).filter(Boolean))];
+
+			if (actorIds.length === 0) return logs.map(log => ({ ...log, actor: null }));
+
+			// Fetch actor details
+			const { data: actors, error: actorsError } = await supabase
+				.from('users')
+				.select('id, first_name, last_name, email')
+				.in('id', actorIds);
+
+			if (actorsError) throw actorsError;
+
+			// Create a map for quick lookup
+			const actorMap = new Map(actors?.map(actor => [actor.id, actor]));
+
+			// Attach actor details to logs
+			return logs.map(log => ({
+				...log,
+				actor: log.actor_id ? actorMap.get(log.actor_id) : null
+			}));
+		} catch (error: any) {
+			console.error('Get activity log error:', JSON.stringify(error, null, 2));
 			throw error;
 		}
 	}

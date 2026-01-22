@@ -16,6 +16,7 @@ type Event = {
     image_url?: string
     created_by?: string
     created_at?: string
+    organization_id?: string
     categories?: {
         id: string
         name: string

@@ -23,19 +23,35 @@ interface SidebarProps {
 export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
+	const [date, setDate] = useState<Date | null>(null);
+	const [mounted, setMounted] = useState(false);
+
 	const router = useRouter();
 	const pathname = usePathname();
 	const { user } = useAuth();
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
+		setMounted(true);
+		setDate(new Date());
+
+		// Auto-collapse after delay
+		const collapseTimer = setTimeout(() => {
 			setCollapsed(true);
 		}, 1000);
-		return () => clearTimeout(timer);
+
+		// Clock ticker
+		const clockInterval = setInterval(() => {
+			setDate(new Date());
+		}, 1000);
+
+		return () => {
+			clearTimeout(collapseTimer);
+			clearInterval(clockInterval);
+		};
 	}, []);
 
-	// Don't render for guests
-	if (!user) return null;
+	// Don't render for guests or server-side
+	if (!user || !mounted) return null;
 
 	// Determine which links to show based on role
 	const userRole = user.role as string;
@@ -66,6 +82,12 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 	const isDisplayCollapsed = collapsed && !isHovered;
 	const avatarUrl = (user as any)?.avatar_url as string | undefined;
 
+	// Date/Time Values
+	const dayNum = date ? date.getDate() : '--';
+	const month = date ? date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '---';
+	const time = date ? date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '--:--';
+	const weekday = date ? date.toLocaleDateString('en-US', { weekday: 'long' }) : '---';
+
 	const NavItemComponent = ({ item }: { item: NavItem }) => {
 		const isActive = item.href === currentPath || pathname.startsWith(item.href);
 		const Icon = item.icon;
@@ -74,33 +96,35 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 			<button
 				onClick={() => handleNavigate(item.href)}
 				className={cn(
-					"flex items-center gap-3 py-2 rounded-xl transition-all duration-200 group",
-					isDisplayCollapsed ? "w-auto px-1" : "w-full px-3",
-					isActive && !isDisplayCollapsed && "bg-gradient-to-r from-sky-400/15 to-cyan-400/15",
-					!isActive && "hover:bg-white/50 dark:hover:bg-white/5"
+					"flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 group relative",
+					isDisplayCollapsed ? "justify-center px-2" : "w-full px-4",
+					isActive && "bg-black dark:bg-white text-white dark:text-black",
+					!isActive && "text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/10"
 				)}
 			>
 				<div className={cn(
-					"flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 flex-shrink-0",
-					isActive
-						? "bg-gradient-to-br from-sky-400 to-cyan-400 text-white shadow-[0_0_20px_rgba(56,189,248,0.35)]"
-						: "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 group-hover:bg-white dark:group-hover:bg-white/15"
+					"flex items-center justify-center w-5 h-5 flex-shrink-0 transition-transform duration-200",
+					isActive ? "scale-110" : "group-hover:scale-110"
 				)}>
-					<Icon className="w-5 h-5" />
+					<Icon className="w-full h-full" strokeWidth={isActive ? 2.5 : 2} />
 				</div>
+				
 				<span className={cn(
-					"flex-1 text-left text-sm font-medium transition-all duration-300 overflow-hidden whitespace-nowrap",
-					isActive ? "text-sky-500 dark:text-sky-400" : "text-gray-600 dark:text-gray-400",
-					isDisplayCollapsed ? "w-0 opacity-0 min-w-0" : "w-auto opacity-100"
+					"text-xs font-bold uppercase tracking-widest overflow-hidden whitespace-nowrap transition-all duration-300 origin-left",
+					isDisplayCollapsed ? "w-0 opacity-0 scale-0 hidden" : "w-auto opacity-100 scale-100 block"
 				)}>
 					{item.label}
 				</span>
+
 				{item.badge && (
 					<div className={cn(
-						"transition-all duration-300 overflow-hidden",
-						isDisplayCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+						"absolute right-2 top-1/2 -translate-y-1/2",
+						isDisplayCollapsed ? "right-1 top-2" : ""
 					)}>
-						<Badge className="h-5 w-5 flex items-center justify-center rounded-full bg-purple-500 text-white text-[10px] p-0 shadow-sm">
+						<Badge className={cn(
+							"h-4 min-w-[1rem] flex items-center justify-center rounded-full text-[9px] font-bold p-0 border-none shadow-none",
+							isActive ? "bg-white text-black dark:bg-black dark:text-white" : "bg-black text-white dark:bg-white dark:text-black"
+						)}>
 							{item.badge}
 						</Badge>
 					</div>
@@ -114,61 +138,86 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			className={cn(
-				"fixed left-0 top-0 flex flex-col h-screen z-[90] transition-all duration-300 ease-in-out",
-				"bg-white/60 dark:bg-black/60 backdrop-blur-xl border-r border-white/20 dark:border-white/10",
-				"shadow-[4px_0_24px_-2px_rgba(0,0,0,0.1)]",
-				isDisplayCollapsed ? "w-[80px]" : "w-[280px]"
+				"fixed left-0 top-0 flex flex-col h-screen z-[90] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+				"bg-white/80 dark:bg-black/80 backdrop-blur-xl border-r border-neutral-200 dark:border-white/10",
+				isDisplayCollapsed ? "w-[72px]" : "w-[240px]"
 			)}
 		>
-			{/* Main Navigation */}
-			<nav className={cn(
-				"flex-1 overflow-y-auto pt-6 pb-4 space-y-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-				isDisplayCollapsed ? "px-3" : "px-3"
+			{/* Live Chronometer (Replaces Logo) */}
+			<div className={cn(
+				"h-24 flex items-center px-6 border-b border-neutral-100 dark:border-white/5 mb-2 transition-all duration-300",
+				isDisplayCollapsed ? "justify-center px-0" : "justify-start"
 			)}>
-				<div>
+				{/* Compact Date */}
+				<div className={cn(
+					"h-12 w-12 rounded-2xl bg-neutral-50 dark:bg-white/5 flex flex-col items-center justify-center flex-shrink-0 border border-neutral-200 dark:border-white/10 shadow-sm relative overflow-hidden group hover:border-blue-500/30 transition-colors",
+					isDisplayCollapsed && "bg-black dark:bg-white text-white dark:text-black border-transparent"
+				)}>
 					<div className={cn(
-						"overflow-hidden transition-all duration-300 ease-in-out",
-						isDisplayCollapsed ? "max-h-0 opacity-0 mb-0" : "max-h-10 opacity-100 mb-3"
-					)}>
-						<h3 className="px-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-							{userRole === 'ADMIN' ? 'Admin Tools' : 'Main Menu'}
-						</h3>
-					</div>
-					<div className="space-y-1">
-						{linksToRender.map((item) => (
-							<NavItemComponent key={item.href} item={item} />
-						))}
-					</div>
+						"absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse",
+						isDisplayCollapsed && "bg-white dark:bg-black"
+					)} />
+					<span className={cn(
+						"text-[8px] font-black uppercase leading-none mb-0.5",
+						isDisplayCollapsed ? "text-white/60 dark:text-black/60" : "text-neutral-400"
+					)}>{month}</span>
+					<span className="text-xl font-black leading-none tracking-tight">{dayNum}</span>
 				</div>
+
+				{/* Expanded Time */}
+				<div className={cn(
+					"ml-4 flex flex-col justify-center transition-all duration-300 overflow-hidden whitespace-nowrap",
+					isDisplayCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100 block"
+				)}>
+					<span className="text-2xl font-black tracking-tighter text-black dark:text-white leading-none">
+						{time}
+					</span>
+					<span className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] leading-none mt-1.5">
+						{weekday}
+					</span>
+				</div>
+			</div>
+
+			{/* Main Navigation */}
+			<nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 [&::-webkit-scrollbar]:hidden">
+				{!isDisplayCollapsed && (
+					<h3 className="px-4 mb-3 text-[10px] font-black text-neutral-400 uppercase tracking-widest opacity-50">
+						{userRole === 'ADMIN' ? 'System' : 'Navigation'}
+					</h3>
+				)}
+				{linksToRender.map((item) => (
+					<NavItemComponent key={item.href} item={item} />
+				))}
 			</nav>
 
 			{/* User Profile */}
-			<div className="border-t border-gray-200/50 dark:border-white/10 p-3">
-				<div
+			<div className="p-3 border-t border-neutral-200 dark:border-white/10 bg-white/50 dark:bg-black/50">
+				<button
 					onClick={() => handleNavigate('/customer/profile')}
 					className={cn(
-						"flex items-center gap-3 p-2 rounded-xl hover:bg-white/50 dark:hover:bg-white/5 transition-colors cursor-pointer",
-						isDisplayCollapsed && "justify-center"
+						"flex items-center gap-3 w-full p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors group",
+						isDisplayCollapsed ? "justify-center" : "justify-start"
 					)}
 				>
-					<Avatar className="h-10 w-10 border-2 border-sky-400/20 shadow-sm">
+					<Avatar className="h-9 w-9 rounded-lg border border-neutral-200 dark:border-white/10 transition-transform group-hover:scale-105">
 						<AvatarImage src={avatarUrl} />
-						<AvatarFallback className="bg-gradient-to-br from-sky-400 to-cyan-400 text-white text-sm font-bold">
+						<AvatarFallback className="rounded-lg bg-neutral-100 dark:bg-white/10 text-xs font-bold">
 							{user.first_name?.[0] || user.email?.[0]?.toUpperCase() || "U"}
 						</AvatarFallback>
 					</Avatar>
+					
 					<div className={cn(
-						"flex-1 min-w-0 transition-all duration-300 overflow-hidden whitespace-nowrap",
-						isDisplayCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+						"flex-1 min-w-0 text-left transition-all duration-300 overflow-hidden",
+						isDisplayCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100 block"
 					)}>
-						<p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
+						<p className="text-xs font-bold text-black dark:text-white truncate">
 							{user.first_name || "User"}
 						</p>
-						<p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+						<p className="text-[10px] font-medium text-neutral-500 uppercase tracking-wide truncate">
 							{roleLabel}
 						</p>
 					</div>
-				</div>
+				</button>
 			</div>
 		</aside>
 	);
