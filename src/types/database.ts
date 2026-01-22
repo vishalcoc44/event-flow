@@ -27,6 +27,9 @@ export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 /** Admin request status */
 export type AdminRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
+/** Refund status */
+export type RefundStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSED';
+
 /** Experience level for admin requests */
 export type ExperienceLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
 
@@ -187,6 +190,17 @@ export interface Coupon {
 export interface BookingWithRelations extends Booking {
 	event: Event | null;
 	user: Pick<User, 'id' | 'email' | 'first_name' | 'last_name' | 'role' | 'created_at' | 'follower_count'> | null;
+}
+
+/** refund_requests table */
+export interface RefundRequest {
+	id: string; // uuid, PK, NOT NULL
+	booking_id: string; // uuid, NOT NULL, FK -> bookings
+	reason: string; // text, NOT NULL
+	status: RefundStatus; // varchar, default 'PENDING'
+	admin_notes: string | null; // text
+	created_at: string; // timestamptz, default now()
+	updated_at: string; // timestamptz, default now()
 }
 
 /** event_spaces table */
@@ -698,6 +712,8 @@ export interface Database {
       events: { Row: Event; Insert: Partial<Event>; Update: Partial<Event> };
       categories: { Row: Category; Insert: Partial<Category>; Update: Partial<Category> };
       bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> };
+      coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon> };
+      refund_requests: { Row: RefundRequest; Insert: Partial<RefundRequest>; Update: Partial<RefundRequest> };
       event_spaces: { Row: EventSpace; Insert: Partial<EventSpace>; Update: Partial<EventSpace> };
       follows: { Row: Follow; Insert: Partial<Follow>; Update: Partial<Follow> };
       tags: { Row: Tag; Insert: Partial<Tag>; Update: Partial<Tag> };
