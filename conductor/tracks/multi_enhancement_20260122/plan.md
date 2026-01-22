@@ -10,9 +10,9 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
     - [x] Create `coupons` table with scope (org/event) and validation logic.
     - [x] Add `coupon_id` to `bookings` table.
     - [x] Update `invoices` logic to handle discounts.
-- [~] Task: Database - Implement Refund Management System
-    - [ ] Create `refund_requests` table linked to `bookings`.
-    - [ ] Add RLS and functions for status transitions.
+- [x] Task: Database - Implement Refund Management System (7559043)
+    - [x] Create `refund_requests` table linked to `bookings`.
+    - [x] Add RLS and functions for status transitions.
 - [ ] Task: Frontend - Coupon Application UI
     - [ ] Add coupon code field to booking flow.
     - [ ] Implement real-time validation and price update.
@@ -37,7 +37,7 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 
 ## Phase 3: Community & Engagement
 - [ ] Task: Schema Validation - Verify Phase 3 dependencies against `@supabase/current_schema/**`
-- [ ] Task: Database - Gamification (User Badges)
+- [~] Task: Database - Gamification (User Badges)
     - [ ] Create `user_badges` table.
     - [ ] Implement triggers to award badges based on bookings/reviews.
 - [ ] Task: Frontend - Saved Events Logic

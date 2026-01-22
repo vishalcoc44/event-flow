@@ -30,6 +30,9 @@ export type AdminRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 /** Refund status */
 export type RefundStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSED';
 
+/** User badge types */
+export type BadgeType = 'FREQUENT_FLYER' | 'EVENT_ENTHUSIAST' | 'VIP_MEMBER' | 'EARLY_ADOPTER' | 'TOP_REVIEWER';
+
 /** Experience level for admin requests */
 export type ExperienceLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
 
@@ -201,6 +204,15 @@ export interface RefundRequest {
 	admin_notes: string | null; // text
 	created_at: string; // timestamptz, default now()
 	updated_at: string; // timestamptz, default now()
+}
+
+/** user_badges table */
+export interface UserBadge {
+	id: string; // uuid, PK, NOT NULL
+	user_id: string; // uuid, NOT NULL, FK -> users
+	badge_type: BadgeType; // enum, NOT NULL
+	awarded_at: string; // timestamptz, default now()
+	metadata: Record<string, unknown>; // jsonb, default '{}'
 }
 
 /** event_spaces table */
@@ -714,6 +726,7 @@ export interface Database {
       bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> };
       coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon> };
       refund_requests: { Row: RefundRequest; Insert: Partial<RefundRequest>; Update: Partial<RefundRequest> };
+      user_badges: { Row: UserBadge; Insert: Partial<UserBadge>; Update: Partial<UserBadge> };
       event_spaces: { Row: EventSpace; Insert: Partial<EventSpace>; Update: Partial<EventSpace> };
       follows: { Row: Follow; Insert: Partial<Follow>; Update: Partial<Follow> };
       tags: { Row: Tag; Insert: Partial<Tag>; Update: Partial<Tag> };
