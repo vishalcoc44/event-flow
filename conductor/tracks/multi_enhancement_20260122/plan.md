@@ -37,9 +37,9 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 
 ## Phase 3: Community & Engagement
 - [ ] Task: Schema Validation - Verify Phase 3 dependencies against `@supabase/current_schema/**`
-- [~] Task: Database - Gamification (User Badges)
-    - [ ] Create `user_badges` table.
-    - [ ] Implement triggers to award badges based on bookings/reviews.
+- [x] Task: Database - Gamification (User Badges) (2a4b36c)
+    - [x] Create `user_badges` table.
+    - [x] Implement triggers to award badges based on bookings/reviews.
 - [ ] Task: Frontend - Saved Events Logic
     - [ ] Enhance "Save" toggle using existing `follows` table.
     - [ ] Add "Saved Events" tab to User Profile.
