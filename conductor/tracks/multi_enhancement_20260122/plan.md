@@ -22,8 +22,8 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 
 ## Phase 2: Core Event Experience
 - [x] Task: Schema Validation - Verify Phase 2 dependencies against `@supabase/current_schema/**` (ff57ac2)
-- [ ] Task: Database - QR Code Support
-    - [ ] Add `qr_code_token` to `bookings` table with auto-generation trigger.
+- [x] Task: Database - QR Code Support (268f98e)
+    - [x] Add `qr_code_token` to `bookings` table with auto-generation trigger.
 - [ ] Task: Frontend - QR Code Rendering & Ticket View
     - [ ] Integrate `qrcode.react` and update "My Tickets" page.
 - [ ] Task: Frontend - "Add to Calendar" Utility

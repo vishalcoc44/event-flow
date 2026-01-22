@@ -165,6 +165,7 @@ export interface Booking {
 	user_id: string | null; // uuid, FK -> users
 	ticket_type_id: string | null; // uuid, FK -> ticket_types
 	coupon_id: string | null; // uuid, FK -> coupons
+	qr_code_token: string | null; // uuid, default gen_random_uuid()
 	discount_amount: number; // numeric, default 0
 	total_amount: number | null; // numeric
 	booking_date: string; // timestamptz, default CURRENT_TIMESTAMP
