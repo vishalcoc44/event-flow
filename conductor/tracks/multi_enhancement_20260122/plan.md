@@ -21,7 +21,7 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Revenue' (Protocol in workflow.md) (57209b1)
 
 ## Phase 2: Core Event Experience
-- [ ] Task: Schema Validation - Verify Phase 2 dependencies against `@supabase/current_schema/**`
+- [x] Task: Schema Validation - Verify Phase 2 dependencies against `@supabase/current_schema/**` (ff57ac2)
 - [ ] Task: Database - QR Code Support
     - [ ] Add `qr_code_token` to `bookings` table with auto-generation trigger.
 - [ ] Task: Frontend - QR Code Rendering & Ticket View
