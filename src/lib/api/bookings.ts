@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { cancelBookingAdminSchema } from '../validations/rpc';
 
 export const bookingsAPI = {
 	getUserBookings: async () => {
@@ -59,43 +60,11 @@ export const bookingsAPI = {
 
 	cancelBooking: async (id: string) => {
 		try {
-			// First, check if the booking exists
-			const { data: existingBooking, error: fetchError } = await supabase
-				.from('bookings')
-				.select('id, status, user_id')
-				.eq('id', id)
-				.single();
+			// Validate input
+			const rpcInput = cancelBookingAdminSchema.parse({ booking_id: id });
 
-			if (fetchError) throw new Error(`Failed to find booking: ${fetchError.message}`);
-			if (existingBooking.status === 'CANCELLED') return existingBooking;
-
-			// Try Edge Function approach first
-			const { data: { session } } = await supabase.auth.getSession();
-			if (session?.access_token) {
-				const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-				try {
-					const response = await fetch(`${supabaseUrl}/functions/v1/cancel-booking-admin`, {
-						method: 'POST',
-						headers: {
-							'Authorization': `Bearer ${session.access_token}`,
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({ booking_id: id }),
-					});
-
-					if (response.ok) return await response.json();
-				} catch (e) {
-					console.warn('Edge Function failed, falling back to direct update');
-				}
-			}
-
-			// Fallback to direct update
-			const { data, error } = await supabase
-				.from('bookings')
-				.update({ status: 'CANCELLED' })
-				.eq('id', id)
-				.select('*')
-				.single();
+			// Use the RPC for proper validation and business logic (Thick Database pattern)
+			const { data, error } = await supabase.rpc('cancel_booking_admin', rpcInput);
 
 			if (error) throw error;
 			return data;

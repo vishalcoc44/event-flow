@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { createOrganizationEventSchema } from '../validations/rpc';
 import type { EventSpace } from '@/types/database';
 
 export const eventsAPI = {
@@ -68,27 +69,26 @@ export const eventsAPI = {
 				imageUrl = publicUrl;
 			}
 
-			const { data, error: rpcError } = await supabase.rpc('create_event_safely', {
+			// Validate input for RPC
+			const rpcInput = createOrganizationEventSchema.parse({
 				p_title: eventData.title,
 				p_description: eventData.description,
-				p_category_id: eventData.category_id,
-				p_location: eventData.location,
-				p_price: eventData.price,
+				p_category_id: eventData.category_id || null,
+				p_location: eventData.location || null,
+				p_price: Number(eventData.price) || 0,
 				p_date: eventData.date,
 				p_time: eventData.time,
 				p_image_url: imageUrl,
-				p_created_by: user.id,
-				p_is_public: eventData.is_public,
-				p_requires_approval: eventData.requires_approval,
-				p_event_space_id: eventData.event_space_id,
 				p_organization_id: eventData.organization_id,
-				p_max_attendees: eventData.max_attendees ?? null,
-				p_venue_id: eventData.venue_id ?? null,
-				p_tags: Array.isArray(eventData.tags) ? eventData.tags : null,
+				p_created_by: user.id,
 			});
 
+			const { data: eventId, error: rpcError } = await supabase.rpc('create_organization_event', rpcInput);
+
 			if (rpcError) throw rpcError;
-			return data[0];
+
+			// Fetch the created event to return consistent data
+			return await eventsAPI.getEventById(eventId);
 		} catch (error: any) {
 			console.error('Create event error:', error);
 			throw error;

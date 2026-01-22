@@ -222,6 +222,25 @@ export const organizationAPI = {
 		}
 	},
 
+	// Delete event space (RPC)
+	deleteEventSpace: async (spaceId: string) => {
+		try {
+			const { data: { user } } = await supabase.auth.getUser();
+			if (!user) throw new Error('User not authenticated');
+
+			const { data, error } = await supabase.rpc('delete_event_space', {
+				p_space_id: spaceId,
+				p_user_id: user.id
+			});
+
+			if (error) throw error;
+			return data;
+		} catch (error) {
+			console.error('Delete event space error:', error);
+			throw error;
+		}
+	},
+
 	// Get user memberships (Enhanced RPC)
 	getUserMemberships: async (userId: string) => {
 		try {
