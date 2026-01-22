@@ -6,7 +6,7 @@ This plan implements 10 new features to enhance EventFlow's revenue, engagement,
 
 ## Phase 1: Revenue & Transaction Enhancements
 - [x] Task: Schema Validation - Verify Phase 1 dependencies against `@supabase/current_schema/**`
-- [x] Task: Database - Implement Coupons and Discount Logic (7a63313)
+- [x] Task: Database - Implement Coupons and Discount Logic (cc67721)
     - [x] Create `coupons` table with scope (org/event) and validation logic.
     - [x] Add `coupon_id` to `bookings` table.
     - [x] Update `invoices` logic to handle discounts.
