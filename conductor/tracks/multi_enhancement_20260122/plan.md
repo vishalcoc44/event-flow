@@ -1,0 +1,64 @@
+
+
+# Implementation Plan - Multi-Feature Enhancement Track
+
+This plan implements 10 new features to enhance EventFlow's revenue, engagement, and organizer tools, with rigorous schema validation at every step.
+
+## Phase 1: Revenue & Transaction Enhancements
+- [x] Task: Schema Validation - Verify Phase 1 dependencies against `@supabase/current_schema/**`
+- [x] Task: Database - Implement Coupons and Discount Logic (7a63313)
+    - [x] Create `coupons` table with scope (org/event) and validation logic.
+    - [x] Add `coupon_id` to `bookings` table.
+    - [x] Update `invoices` logic to handle discounts.
+- [ ] Task: Database - Implement Refund Management System
+    - [ ] Create `refund_requests` table linked to `bookings`.
+    - [ ] Add RLS and functions for status transitions.
+- [ ] Task: Frontend - Coupon Application UI
+    - [ ] Add coupon code field to booking flow.
+    - [ ] Implement real-time validation and price update.
+- [ ] Task: Frontend - Organizer Refund Dashboard
+    - [ ] Create UI for organizers to view and process refund requests.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: Revenue' (Protocol in workflow.md)
+
+## Phase 2: Core Event Experience
+- [ ] Task: Schema Validation - Verify Phase 2 dependencies against `@supabase/current_schema/**`
+- [ ] Task: Database - QR Code Support
+    - [ ] Add `qr_code_token` to `bookings` table with auto-generation trigger.
+- [ ] Task: Frontend - QR Code Rendering & Ticket View
+    - [ ] Integrate `qrcode.react` and update "My Tickets" page.
+- [ ] Task: Frontend - "Add to Calendar" Utility
+    - [ ] Implement .ics generation and Google Calendar links.
+- [ ] Task: Database - Interactive Polls
+    - [ ] Create `event_polls` and `event_poll_votes` tables.
+    - [ ] Enable Realtime for these tables.
+- [ ] Task: Frontend - Live Polls UI
+    - [ ] Create Poll creator for organizers and Voting UI for attendees.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Experience' (Protocol in workflow.md)
+
+## Phase 3: Community & Engagement
+- [ ] Task: Schema Validation - Verify Phase 3 dependencies against `@supabase/current_schema/**`
+- [ ] Task: Database - Gamification (User Badges)
+    - [ ] Create `user_badges` table.
+    - [ ] Implement triggers to award badges based on bookings/reviews.
+- [ ] Task: Frontend - Saved Events Logic
+    - [ ] Enhance "Save" toggle using existing `follows` table.
+    - [ ] Add "Saved Events" tab to User Profile.
+- [ ] Task: Database & Realtime - Attendee Networking
+    - [ ] Add `is_networking_enabled` to `bookings`.
+    - [ ] Implement Realtime Chat table/logic for opted-in attendees.
+- [ ] Task: Frontend - Event Networking UI
+    - [ ] Implement Networking opt-in during booking.
+    - [ ] Add real-time chat sidebar to Event Details (attendees only).
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Community' (Protocol in workflow.md)
+
+## Phase 4: Organizer Productivity
+- [ ] Task: Schema Validation - Verify Phase 4 dependencies against `@supabase/current_schema/**`
+- [ ] Task: Database - Bulk Email Campaigns
+    - [ ] Create `email_campaigns` table.
+- [ ] Task: Frontend - Campaign Management UI
+    - [ ] Create email composer and campaign history for organizers.
+- [ ] Task: Backend - Attendee Data Export
+    - [ ] Create secure RPC to generate CSV of event attendees.
+- [ ] Task: Frontend - Export Feature UI
+    - [ ] Add "Export Attendees" button to Organizer Dashboard.
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: Productivity' (Protocol in workflow.md)

@@ -158,9 +158,29 @@ export interface Booking {
 	event_id: string | null; // uuid, FK -> events
 	user_id: string | null; // uuid, FK -> users
 	ticket_type_id: string | null; // uuid, FK -> ticket_types
+	coupon_id: string | null; // uuid, FK -> coupons
+	discount_amount: number; // numeric, default 0
+	total_amount: number | null; // numeric
 	booking_date: string; // timestamptz, default CURRENT_TIMESTAMP
 	status: BookingStatus; // varchar, default 'PENDING'
 	created_at: string; // timestamptz, default CURRENT_TIMESTAMP
+}
+
+/** coupons table */
+export interface Coupon {
+	id: string; // uuid, PK, NOT NULL
+	code: string; // text, NOT NULL
+	discount_type: 'PERCENTAGE' | 'FIXED'; // enum, NOT NULL
+	discount_value: number; // numeric, NOT NULL
+	organization_id: string | null; // uuid, FK -> organizations
+	event_id: string | null; // uuid, FK -> events
+	usage_limit: number | null; // int
+	usage_count: number; // int, default 0
+	valid_from: string | null; // timestamptz
+	valid_until: string | null; // timestamptz
+	is_active: boolean; // boolean, default true
+	created_at: string; // timestamptz, default now()
+	updated_at: string; // timestamptz, default now()
 }
 
 /** Booking with relations */
