@@ -11,7 +11,8 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- Create user_badges table
+-- Create user_badges ta
+ble
 CREATE TABLE IF NOT EXISTS user_badges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
