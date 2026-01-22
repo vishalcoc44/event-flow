@@ -665,3 +665,80 @@ export interface UpdateOrganizationInput {
 	require_approval_for_events?: boolean;
 	allow_user_registration?: boolean;
 }
+
+// ============================================================
+// DATABASE INTERFACE (for Supabase Client)
+// ============================================================
+
+export interface Database {
+  public: {
+    Tables: {
+      users: { Row: User; Insert: Partial<User>; Update: Partial<User> };
+      organizations: { Row: Organization; Insert: Partial<Organization>; Update: Partial<Organization> };
+      events: { Row: Event; Insert: Partial<Event>; Update: Partial<Event> };
+      categories: { Row: Category; Insert: Partial<Category>; Update: Partial<Category> };
+      bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> };
+      event_spaces: { Row: EventSpace; Insert: Partial<EventSpace>; Update: Partial<EventSpace> };
+      follows: { Row: Follow; Insert: Partial<Follow>; Update: Partial<Follow> };
+      tags: { Row: Tag; Insert: Partial<Tag>; Update: Partial<Tag> };
+      event_tags: { Row: EventTag; Insert: Partial<EventTag>; Update: Partial<EventTag> };
+      venues: { Row: Venue; Insert: Partial<Venue>; Update: Partial<Venue> };
+      ticket_types: { Row: TicketType; Insert: Partial<TicketType>; Update: Partial<TicketType> };
+      waitlist_entries: { Row: WaitlistEntry; Insert: Partial<WaitlistEntry>; Update: Partial<WaitlistEntry> };
+      event_sessions: { Row: EventSession; Insert: Partial<EventSession>; Update: Partial<EventSession> };
+      speakers: { Row: Speaker; Insert: Partial<Speaker>; Update: Partial<Speaker> };
+      event_speakers: { Row: EventSpeaker; Insert: Partial<EventSpeaker>; Update: Partial<EventSpeaker> };
+      event_checkins: { Row: EventCheckin; Insert: Partial<EventCheckin>; Update: Partial<EventCheckin> };
+      reviews: { Row: Review; Insert: Partial<Review>; Update: Partial<Review> };
+      review_helpful_votes: { Row: ReviewHelpfulVote; Insert: Partial<ReviewHelpfulVote>; Update: Partial<ReviewHelpfulVote> };
+      review_reports: { Row: ReviewReport; Insert: Partial<ReviewReport>; Update: Partial<ReviewReport> };
+      notifications: { Row: Notification; Insert: Partial<Notification>; Update: Partial<Notification> };
+      notification_preferences: { Row: NotificationPreferences; Insert: Partial<NotificationPreferences>; Update: Partial<NotificationPreferences> };
+      notification_templates: { Row: NotificationTemplate; Insert: Partial<NotificationTemplate>; Update: Partial<NotificationTemplate> };
+      admin_requests: { Row: AdminRequest; Insert: Partial<AdminRequest>; Update: Partial<AdminRequest> };
+      organization_invitations: { Row: OrganizationInvitation; Insert: Partial<OrganizationInvitation>; Update: Partial<OrganizationInvitation> };
+      organization_settings: { Row: OrganizationSetting; Insert: Partial<OrganizationSetting>; Update: Partial<OrganizationSetting> };
+      admin_audit_log: { Row: AdminAuditLog; Insert: Partial<AdminAuditLog>; Update: Partial<AdminAuditLog> };
+      subscription_plans: { Row: SubscriptionPlanDetails; Insert: Partial<SubscriptionPlanDetails>; Update: Partial<SubscriptionPlanDetails> };
+      user_profiles: { Row: UserProfile; Insert: Partial<UserProfile>; Update: Partial<UserProfile> };
+    };
+    Views: {
+      organization_dashboard_stats: { Row: OrganizationDashboardStats };
+      event_rating_summary: { Row: EventRatingSummary };
+      event_booking_summary: { Row: EventBookingSummary };
+      event_discovery_stats: { Row: EventDiscoveryStats };
+      notification_summary: { Row: NotificationSummary };
+      user_review_summary: { Row: UserReviewSummary };
+    };
+    Functions: {
+      create_organization_event: {
+        Args: {
+          p_title: string;
+          p_description: string;
+          p_category_id: string | null;
+          p_location: string | null;
+          p_price: number;
+          p_date: string;
+          p_time: string;
+          p_image_url: string | null;
+          p_organization_id: string;
+          p_created_by: string;
+        };
+        Returns: string;
+      };
+      delete_event_space: {
+        Args: {
+          p_space_id: string;
+          p_user_id: string;
+        };
+        Returns: boolean;
+      };
+      cancel_booking_admin: {
+        Args: {
+          booking_id: string;
+        };
+        Returns: Booking;
+      };
+    };
+  };
+}

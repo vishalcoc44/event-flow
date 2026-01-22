@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/types/database';
 
 // Initialize the Supabase client with proper auth configuration
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -9,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create Supabase client with enhanced auth configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     // Enable automatic token refresh
     autoRefreshToken: true,
