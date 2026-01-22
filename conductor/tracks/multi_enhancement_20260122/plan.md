@@ -4,7 +4,7 @@
 
 This plan implements 10 new features to enhance EventFlow's revenue, engagement, and organizer tools, with rigorous schema validation at every step.
 
-## Phase 1: Revenue & Transaction Enhancements
+## Phase 1: Revenue & Transaction Enhancements [checkpoint: 502a34e]
 - [x] Task: Schema Validation - Verify Phase 1 dependencies against `@supabase/current_schema/**`
 - [x] Task: Database - Implement Coupons and Discount Logic (cc67721)
     - [x] Create `coupons` table with scope (org/event) and validation logic.
