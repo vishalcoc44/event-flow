@@ -171,12 +171,62 @@
   },
   {
     "schemaname": "public",
+    "tablename": "refund_requests",
+    "policyname": "Users can view their own refund requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IN ( SELECT bookings.user_id\n   FROM bookings\n  WHERE (bookings.id = refund_requests.booking_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "refund_requests",
+    "policyname": "Users can create refund requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() IN ( SELECT bookings.user_id\n   FROM bookings\n  WHERE (bookings.id = refund_requests.booking_id)))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "refund_requests",
+    "policyname": "Organizers can view event refund requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IN ( SELECT e.created_by\n   FROM (events e\n     JOIN bookings b ON ((b.event_id = e.id)))\n  WHERE (b.id = refund_requests.booking_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "refund_requests",
+    "policyname": "Organizers can manage event refund requests",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() IN ( SELECT e.created_by\n   FROM (events e\n     JOIN bookings b ON ((b.event_id = e.id)))\n  WHERE (b.id = refund_requests.booking_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
     "tablename": "admin_requests",
     "policyname": "Organization owners can update admin requests",
     "permissive": "PERMISSIVE",
     "roles": "{public}",
     "cmd": "UPDATE",
     "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = 'OWNER'::text))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "user_badges",
+    "policyname": "Users can view their own badges",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
     "with_check": null
   },
   {
@@ -381,6 +431,16 @@
   },
   {
     "schemaname": "public",
+    "tablename": "user_badges",
+    "policyname": "Public can view badges",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
     "tablename": "event_spaces",
     "policyname": "Users can view their organization's event spaces",
     "permissive": "PERMISSIVE",
@@ -448,6 +508,46 @@
     "cmd": "SELECT",
     "qual": "(auth.uid() = user_id)",
     "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_polls",
+    "policyname": "Anyone can view polls",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_polls",
+    "policyname": "Organizers can manage polls",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM (events e\n     JOIN organizations o ON ((e.organization_id = o.id)))\n  WHERE ((e.id = event_polls.event_id) AND ((o.created_by = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM users u\n          WHERE ((u.id = auth.uid()) AND (u.organization_id = o.id) AND ((u.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_poll_votes",
+    "policyname": "Users can view their own votes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "event_poll_votes",
+    "policyname": "Attendees can vote",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(EXISTS ( SELECT 1\n   FROM (bookings b\n     JOIN event_polls p ON ((b.event_id = p.event_id)))\n  WHERE ((p.id = event_poll_votes.poll_id) AND (b.user_id = auth.uid()) AND ((b.status)::text = 'CONFIRMED'::text))))"
   },
   {
     "schemaname": "public",
@@ -611,12 +711,42 @@
   },
   {
     "schemaname": "public",
+    "tablename": "networking_messages",
+    "policyname": "Attendees with networking enabled can view messages",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM bookings b\n  WHERE ((b.event_id = networking_messages.event_id) AND (b.user_id = auth.uid()) AND ((b.status)::text = 'CONFIRMED'::text) AND (b.is_networking_enabled = true))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "networking_messages",
+    "policyname": "Attendees with networking enabled can send messages",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((auth.uid() = user_id) AND (EXISTS ( SELECT 1\n   FROM bookings b\n  WHERE ((b.event_id = networking_messages.event_id) AND (b.user_id = auth.uid()) AND ((b.status)::text = 'CONFIRMED'::text) AND (b.is_networking_enabled = true)))))"
+  },
+  {
+    "schemaname": "public",
     "tablename": "invoices",
     "policyname": "Owners and Admis can view their organization's invoices",
     "permissive": "PERMISSIVE",
     "roles": "{public}",
     "cmd": "SELECT",
     "qual": "(organization_id IN ( SELECT users.organization_id\n   FROM users\n  WHERE ((users.id = auth.uid()) AND ((users.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "email_campaigns",
+    "policyname": "Organizers can manage their email campaigns",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(EXISTS ( SELECT 1\n   FROM organizations o\n  WHERE ((o.id = email_campaigns.organization_id) AND ((o.created_by = auth.uid()) OR (EXISTS ( SELECT 1\n           FROM users u\n          WHERE ((u.id = auth.uid()) AND (u.organization_id = o.id) AND ((u.role_in_org)::text = ANY ((ARRAY['OWNER'::character varying, 'ADMIN'::character varying])::text[])))))))))",
     "with_check": null
   },
   {
@@ -1047,6 +1177,26 @@
     "roles": "{public}",
     "cmd": "SELECT",
     "qual": "((organization_id IS NOT NULL) AND (organization_id IN ( SELECT DISTINCT u.organization_id\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.organization_id IS NOT NULL)))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "coupons",
+    "policyname": "Organizers can view their coupons",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IN ( SELECT organizations.created_by\n   FROM organizations\n  WHERE (organizations.id = coupons.organization_id)\nUNION\n SELECT events.created_by\n   FROM events\n  WHERE (events.id = coupons.event_id)))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "coupons",
+    "policyname": "Organizers can manage their coupons",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(auth.uid() IN ( SELECT organizations.created_by\n   FROM organizations\n  WHERE (organizations.id = coupons.organization_id)\nUNION\n SELECT events.created_by\n   FROM events\n  WHERE (events.id = coupons.event_id)))",
     "with_check": null
   },
   {

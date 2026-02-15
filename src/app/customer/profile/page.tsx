@@ -2,24 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSocial } from '@/contexts/SocialContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
-import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X, Shield, Settings, Briefcase } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X, Shield, Settings, Briefcase, Heart, Award, ArrowRight, Star } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { GlassTile } from '@/components/ui/glass-tile'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export default function CustomerProfile() {
     const { user } = useAuth()
+    const { userFollows, isLoading: socialLoading } = useSocial()
     const { toast } = useToast()
     const [isEditing, setIsEditing] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [activeTab, setActiveTab] = useState<'identity' | 'saved' | 'achievements'>('identity')
+    const [badges, setBadges] = useState<any[]>([])
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -41,8 +46,20 @@ export default function CustomerProfile() {
                 pincode: user.pincode || '',
                 street_address: user.street_address || ''
             })
+            fetchBadges()
         }
     }, [user])
+
+    const fetchBadges = async () => {
+        if (!user) return
+        const { data, error } = await supabase
+            .from('user_badges')
+            .select('*')
+            .eq('user_id', user.id)
+        if (!error && data) setBadges(data)
+    }
+
+    const savedEvents = userFollows.filter(f => f.target_type === 'EVENT' && f.target_event).map(f => f.target_event)
 
     const getInitials = (firstName?: string, lastName?: string, email?: string) => {
         if (firstName && lastName) {
@@ -115,6 +132,14 @@ export default function CustomerProfile() {
         setIsEditing(false)
     }
 
+    const badgeConfig: Record<string, { icon: any, color: string, label: string }> = {
+        'FREQUENT_FLYER': { icon: Briefcase, color: 'text-blue-500', label: 'Frequent Flyer' },
+        'EVENT_ENTHUSIAST': { icon: Heart, color: 'text-red-500', label: 'Event Enthusiast' },
+        'VIP_MEMBER': { icon: Shield, color: 'text-purple-500', label: 'VIP Member' },
+        'EARLY_ADOPTER': { icon: Star, color: 'text-yellow-500', label: 'Early Adopter' },
+        'TOP_REVIEWER': { icon: Award, color: 'text-green-500', label: 'Top Reviewer' }
+    }
+
     return (
         <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
             {/* Mesh Background */}
@@ -180,11 +205,26 @@ export default function CustomerProfile() {
                             </GlassTile>
 
                             <div className="mt-8 space-y-4">
-                                <Button variant="ghost" className="w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px] bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5">
-                                    <Settings className="h-4 w-4" /> Account Settings
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={() => setActiveTab('identity')}
+                                    className={cn("w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px]", activeTab === 'identity' ? "bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5" : "hover:bg-white/40 dark:hover:bg-white/5")}
+                                >
+                                    <User className="h-4 w-4" /> Identity Details
                                 </Button>
-                                <Button variant="ghost" className="w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px] hover:bg-white/40 dark:hover:bg-white/5">
-                                    <Briefcase className="h-4 w-4" /> Security Log
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={() => setActiveTab('saved')}
+                                    className={cn("w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px]", activeTab === 'saved' ? "bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5" : "hover:bg-white/40 dark:hover:bg-white/5")}
+                                >
+                                    <Heart className="h-4 w-4" /> Saved Events
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={() => setActiveTab('achievements')}
+                                    className={cn("w-full justify-start h-14 rounded-2xl gap-4 font-bold uppercase tracking-widest text-[10px]", activeTab === 'achievements' ? "bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5" : "hover:bg-white/40 dark:hover:bg-white/5")}
+                                >
+                                    <Award className="h-4 w-4" /> Achievements
                                 </Button>
                             </div>
                         </motion.div>
@@ -193,109 +233,196 @@ export default function CustomerProfile() {
                         <motion.div
                             className="lg:col-span-8"
                             initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            <GlassTile className="p-10" interactive={false}>
-                                <div className="flex items-center justify-between mb-12">
-                                    <h3 className="text-2xl font-black tracking-tighter">Identity Details</h3>
-                                    {!isEditing ? (
-                                        <Button
-                                            onClick={() => setIsEditing(true)}
-                                            className="h-12 px-6 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight hover:scale-[1.02] transition-transform"
-                                        >
-                                            <Edit className="h-4 w-4 mr-2" /> Modify Profile
-                                        </Button>
-                                    ) : (
-                                        <div className="flex gap-4">
-                                            <Button
-                                                variant="ghost"
-                                                onClick={handleCancel}
-                                                className="h-12 px-6 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
-                                            >
-                                                <X className="h-4 w-4 mr-2" /> Cancel
-                                            </Button>
-                                            <Button
-                                                onClick={handleSave}
-                                                disabled={loading}
-                                                className="h-12 px-8 rounded-2xl bg-blue-500 text-white font-black tracking-tight hover:scale-[1.02] transition-transform shadow-lg shadow-blue-500/20"
-                                            >
-                                                {loading ? (
-                                                    <motion.div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                            <AnimatePresence mode="wait">
+                                {activeTab === 'identity' && (
+                                    <motion.div
+                                        key="identity"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                    >
+                                        <GlassTile className="p-10" interactive={false}>
+                                            <div className="flex items-center justify-between mb-12">
+                                                <h3 className="text-2xl font-black tracking-tighter">Identity Details</h3>
+                                                {!isEditing ? (
+                                                    <Button
+                                                        onClick={() => setIsEditing(true)}
+                                                        className="h-12 px-6 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-black tracking-tight hover:scale-[1.02] transition-transform"
+                                                    >
+                                                        <Edit className="h-4 w-4 mr-2" /> Modify Profile
+                                                    </Button>
                                                 ) : (
-                                                    <Save className="h-4 w-4 mr-2" />
+                                                    <div className="flex gap-4">
+                                                        <Button
+                                                            variant="ghost"
+                                                            onClick={handleCancel}
+                                                            className="h-12 px-6 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
+                                                        >
+                                                            <X className="h-4 w-4 mr-2" /> Cancel
+                                                        </Button>
+                                                        <Button
+                                                            onClick={handleSave}
+                                                            disabled={loading}
+                                                            className="h-12 px-8 rounded-2xl bg-blue-500 text-white font-black tracking-tight hover:scale-[1.02] transition-transform shadow-lg shadow-blue-500/20"
+                                                        >
+                                                            {loading ? (
+                                                                <motion.div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
+                                                            ) : (
+                                                                <Save className="h-4 w-4 mr-2" />
+                                                            )}
+                                                            Update Data
+                                                        </Button>
+                                                    </div>
                                                 )}
-                                                Update Data
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div className="space-y-8">
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">First Name</Label>
-                                            <Input
-                                                value={formData.first_name}
-                                                onChange={(e) => handleInputChange('first_name', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                            />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Last Name</Label>
-                                            <Input
-                                                value={formData.last_name}
-                                                onChange={(e) => handleInputChange('last_name', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                            />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Handle</Label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-bold">@</div>
-                                                <Input
-                                                    value={formData.username}
-                                                    onChange={(e) => handleInputChange('username', e.target.value)}
-                                                    disabled={!isEditing}
-                                                    className="h-14 pl-10 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                                />
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div className="space-y-8">
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Contact Access</Label>
-                                            <Input
-                                                value={formData.contact_number}
-                                                onChange={(e) => handleInputChange('contact_number', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                            />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Origin City</Label>
-                                            <Input
-                                                value={formData.city}
-                                                onChange={(e) => handleInputChange('city', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                            />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Address Matrix</Label>
-                                            <Input
-                                                value={formData.street_address}
-                                                onChange={(e) => handleInputChange('street_address', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </GlassTile>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                <div className="space-y-8">
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">First Name</Label>
+                                                        <Input
+                                                            value={formData.first_name}
+                                                            onChange={(e) => handleInputChange('first_name', e.target.value)}
+                                                            disabled={!isEditing}
+                                                            className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Last Name</Label>
+                                                        <Input
+                                                            value={formData.last_name}
+                                                            onChange={(e) => handleInputChange('last_name', e.target.value)}
+                                                            disabled={!isEditing}
+                                                            className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Handle</Label>
+                                                        <div className="relative">
+                                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-bold">@</div>
+                                                            <Input
+                                                                value={formData.username}
+                                                                onChange={(e) => handleInputChange('username', e.target.value)}
+                                                                disabled={!isEditing}
+                                                                className="h-14 pl-10 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-8">
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Contact Access</Label>
+                                                        <Input
+                                                            value={formData.contact_number}
+                                                            onChange={(e) => handleInputChange('contact_number', e.target.value)}
+                                                            disabled={!isEditing}
+                                                            className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Origin City</Label>
+                                                        <Input
+                                                            value={formData.city}
+                                                            onChange={(e) => handleInputChange('city', e.target.value)}
+                                                            disabled={!isEditing}
+                                                            className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 ml-1">Address Matrix</Label>
+                                                        <Input
+                                                            value={formData.street_address}
+                                                            onChange={(e) => handleInputChange('street_address', e.target.value)}
+                                                            disabled={!isEditing}
+                                                            className="h-14 rounded-2xl bg-neutral-100/50 dark:bg-black/20 border-neutral-200 dark:border-white/5 font-bold focus:ring-blue-500/20"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </GlassTile>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'saved' && (
+                                    <motion.div
+                                        key="saved"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                    >
+                                        <GlassTile className="p-10" interactive={false}>
+                                            <h3 className="text-2xl font-black tracking-tighter mb-8">Saved Events</h3>
+                                            {savedEvents.length === 0 ? (
+                                                <div className="text-center py-20 border-2 border-dashed border-neutral-100 dark:border-white/5 rounded-3xl">
+                                                    <Heart className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
+                                                    <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">No saved experiences found.</p>
+                                                    <Button asChild variant="link" className="mt-2 text-blue-500 font-black uppercase text-[10px]">
+                                                        <Link href="/events">Explore Events</Link>
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {savedEvents.map((event: any) => (
+                                                        <Link key={event.id} href={`/events/${event.id}`}>
+                                                            <GlassTile className="p-4 flex gap-4 items-center group">
+                                                                <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0">
+                                                                    <img src={event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop'} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <h4 className="font-bold truncate text-sm">{event.title}</h4>
+                                                                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{new Date(event.date).toLocaleDateString()}</p>
+                                                                </div>
+                                                                <ArrowRight className="h-4 w-4 text-neutral-300 ml-auto group-hover:text-blue-500 transition-colors" />
+                                                            </GlassTile>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </GlassTile>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'achievements' && (
+                                    <motion.div
+                                        key="achievements"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                    >
+                                        <GlassTile className="p-10" interactive={false}>
+                                            <h3 className="text-2xl font-black tracking-tighter mb-8">Your Achievements</h3>
+                                            {badges.length === 0 ? (
+                                                <div className="text-center py-20 border-2 border-dashed border-neutral-100 dark:border-white/5 rounded-3xl">
+                                                    <Award className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
+                                                    <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">The mission has just begun.</p>
+                                                    <p className="text-[8px] text-neutral-400 mt-1 uppercase tracking-[0.2em]">Attend events and share reviews to earn badges.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {badges.map((badge: any) => {
+                                                        const config = badgeConfig[badge.badge_type] || { icon: Award, color: 'text-neutral-500', label: badge.badge_type }
+                                                        return (
+                                                            <GlassTile key={badge.id} className="p-6 flex items-center gap-6">
+                                                                <div className={cn("h-16 w-16 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center shadow-xl", config.color)}>
+                                                                    <config.icon className="h-8 w-8" />
+                                                                </div>
+                                                                <div>
+                                                                    <h4 className="font-black tracking-tight text-lg">{config.label}</h4>
+                                                                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Awarded {new Date(badge.awarded_at).toLocaleDateString()}</p>
+                                                                </div>
+                                                            </GlassTile>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+                                        </GlassTile>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
                     </div>
                 </div>

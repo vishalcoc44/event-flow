@@ -208,13 +208,12 @@ export default function InvitationsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#f3f4f6]">
-      {/* Mesh Gradient Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob"></div>
-        <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-cyan-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-4000"></div>
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]"></div>
+    <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#F8FAFC]">
+      {/* Mesh Gradient Background Elements */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-purple-500/10 blur-[100px]" />
+        <div className="absolute top-[40%] right-[10%] w-[20%] h-[20%] rounded-full bg-amber-500/5 blur-[80px]" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -230,8 +229,8 @@ export default function InvitationsPage() {
             <div className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-blue-100/50 text-blue-600 backdrop-blur-sm">
               <MailIcon className="w-6 h-6" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Organization Invitations</h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Organization Invitations</h1>
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
               {loading
                 ? 'Checking for invitations...'
                 : invitations.length > 0
@@ -243,8 +242,8 @@ export default function InvitationsPage() {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24 space-y-4">
-              <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
-              <p className="text-gray-500 animate-pulse">Loading invitations...</p>
+              <div className="w-12 h-12 border-4 border-t-slate-900 border-slate-200 rounded-full animate-spin"></div>
+              <p className="text-slate-500 animate-pulse">Loading invitations...</p>
             </div>
           ) : invitations.length === 0 ? (
             <motion.div
@@ -253,11 +252,11 @@ export default function InvitationsPage() {
               transition={{ duration: 0.5 }}
             >
               <GlassTile className="py-20 flex flex-col items-center justify-center text-center opacity-80" interactive={false}>
-                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                  <MailIcon className="w-12 h-12 text-gray-300" />
+                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <MailIcon className="w-12 h-12 text-slate-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending invitations</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">No pending invitations</h3>
+                <p className="text-slate-500 max-w-md mx-auto">
                   When someone invites you to join their organization, the invitation will appear here for you to accept or decline.
                 </p>
                 <Button
@@ -289,52 +288,52 @@ export default function InvitationsPage() {
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                               <div className="flex items-center gap-3 mb-1">
-                                <h2 className="text-2xl font-bold text-gray-900">{invitation.organization_name}</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">{invitation.organization_name}</h2>
                                 {expiringSoon && (
                                   <Badge variant="destructive" className="animate-pulse">Expires Soon</Badge>
                                 )}
                               </div>
-                              <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 uppercase tracking-wide text-xs font-semibold px-2 py-0.5">
+                              <Badge variant="secondary" className="bg-slate-100 text-slate-700 border-slate-200 uppercase tracking-wide text-[10px] font-bold px-2 py-0.5 rounded-lg">
                                 {invitation.role} Role
                               </Badge>
                             </div>
-                            <div className="text-sm text-gray-500 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60 inline-flex items-center self-start md:self-auto">
-                              <ClockIcon className="w-4 h-4 mr-2 text-gray-400" />
+                            <div className="text-xs font-bold text-slate-500 bg-white/50 px-3 py-1.5 rounded-lg border border-slate-200 inline-flex items-center self-start md:self-auto">
+                              <ClockIcon className="w-4 h-4 mr-2 text-slate-400" />
                               Expires: {formatDate(invitation.expires_at)}
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-white/40 rounded-xl border border-white/50 mb-6">
                             <div className="space-y-3">
-                              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Invitation Details</h4>
-                              <div className="flex items-center gap-3 text-gray-700">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Invitation Details</h4>
+                              <div className="flex items-center gap-3 text-slate-700">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
                                   <UserIcon className="w-4 h-4" />
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500">Invited by</p>
-                                  <p className="font-medium">{invitation.invited_by_name}</p>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Invited by</p>
+                                  <p className="font-bold text-slate-700">{invitation.invited_by_name}</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-3 text-gray-700">
-                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                              <div className="flex items-center gap-3 text-slate-700">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
                                   <CalendarIcon className="w-4 h-4" />
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500">Received on</p>
-                                  <p className="font-medium">{formatDate(invitation.created_at)}</p>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Received on</p>
+                                  <p className="font-bold text-slate-700">{formatDate(invitation.created_at)}</p>
                                 </div>
                               </div>
                             </div>
 
                             <div className="space-y-3">
-                              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Message</h4>
+                              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Message</h4>
                               {invitation.message ? (
-                                <div className="bg-white/60 p-4 rounded-lg text-sm text-gray-600 italic border border-white/60 h-full">
+                                <div className="bg-white/60 p-4 rounded-xl text-sm text-slate-600 italic border border-slate-100 h-full">
                                   "{invitation.message}"
                                 </div>
                               ) : (
-                                <div className="text-sm text-gray-400 italic">No message provided.</div>
+                                <div className="text-sm text-slate-300 italic">No message provided.</div>
                               )}
                             </div>
                           </div>
@@ -348,7 +347,7 @@ export default function InvitationsPage() {
                               )}
                               disabled={isProcessing}
                               variant="outline"
-                              className="border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                              className="border-slate-300 text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
                             >
                               <XCircle className="w-4 h-4 mr-2" />
                               {isProcessing ? 'Processing...' : 'Decline'}
@@ -360,7 +359,7 @@ export default function InvitationsPage() {
                                 invitation.id
                               )}
                               disabled={isProcessing}
-                              className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-200"
+                              className="bg-slate-900 hover:bg-slate-800 text-white shadow-lg py-5 px-6 rounded-xl"
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
                               {isProcessing ? 'Processing...' : 'Accept Invitation'}

@@ -48,6 +48,11 @@ const ReviewProvider = dynamic(() => import('@/contexts/ReviewContext').then(mod
   loading: () => null
 });
 
+const PollProvider = dynamic(() => import('@/contexts/PollContext').then(mod => ({ default: mod.PollProvider })), {
+  ssr: false,
+  loading: () => null
+});
+
 // Optimize PageTransition for better performance
 const OptimizedPageTransition = dynamic(() => import('@/components/PageTransition').then(mod => ({ default: mod.default })), {
   ssr: false,
@@ -97,13 +102,15 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
               <SocialProvider>
                 <NotificationProvider>
                   <ReviewProvider>
-                    {/* Global Side Navbar */}
-                    <SideNavbar />
-                    <div className="pl-0 md:pl-[80px] transition-all duration-300"> {/* Add padding for side navbar */}
-                      {content}
-                    </div>
-                    {/* Auth debugger for development */}
-                    <AuthDebugger />
+                    <PollProvider>
+                      {/* Global Side Navbar */}
+                      <SideNavbar />
+                      <div className="pl-0 md:pl-[80px] transition-all duration-300"> {/* Add padding for side navbar */}
+                        {content}
+                      </div>
+                      {/* Auth debugger for development */}
+                      <AuthDebugger />
+                    </PollProvider>
                   </ReviewProvider>
                 </NotificationProvider>
               </SocialProvider>

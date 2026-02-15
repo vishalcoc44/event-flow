@@ -14,7 +14,8 @@ import {
 	Settings,
 	Rocket,
 	Menu,
-	ChevronDown
+	ChevronDown,
+	RefreshCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -57,6 +58,11 @@ export function OrgNavigation() {
 			label: 'Community',
 			icon: Users,
 			permission: 'canManageMembers'
+		},
+		{
+			href: '/organization/refunds',
+			label: 'Refunds',
+			icon: RefreshCcw,
 		},
 		{
 			href: '/organization/spaces',

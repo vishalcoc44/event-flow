@@ -4,7 +4,7 @@ import { Github, Mail, Briefcase, ExternalLink, ArrowRight } from 'lucide-react'
 
 export default function Footer() {
     return (
-        <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative overflow-hidden z-50">
+        <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative overflow-hidden z-10">
             {/* Ambient Background Elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
             <div className="absolute -top-24 left-[10%] w-[30%] h-48 bg-primary/5 blur-[100px] rounded-full" />

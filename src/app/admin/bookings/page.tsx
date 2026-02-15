@@ -113,13 +113,12 @@ export default function AllBookings() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#f3f4f6]">
-            {/* Mesh Gradient Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob"></div>
-                <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-cyan-200/40 blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-4000"></div>
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]"></div>
+        <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans relative overflow-hidden">
+            {/* Mesh Gradient Background Elements */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
+                <div className="absolute bottom-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-purple-500/10 blur-[100px]" />
+                <div className="absolute top-[40%] right-[10%] w-[20%] h-[20%] rounded-full bg-amber-500/5 blur-[80px]" />
             </div>
 
             <div className="relative z-10 flex flex-col min-h-screen">
@@ -132,8 +131,8 @@ export default function AllBookings() {
                                 <CalendarDays className="w-3 h-3" />
                                 BOOKING MANAGEMENT
                             </div>
-                            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">All Bookings</h1>
-                            <p className="text-gray-600 max-w-lg mt-2 text-lg">
+                            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">All Bookings</h1>
+                            <p className="text-slate-500 max-w-lg mt-2 text-lg">
                                 Manage customer bookings across all your scheduled events.
                             </p>
                         </div>
@@ -169,7 +168,7 @@ export default function AllBookings() {
                         ) : (
                             <Tabs defaultValue={eventGroups[0]?.eventId} className="w-full space-y-8">
                                 <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                                    <TabsList className="inline-flex h-auto items-center justify-start rounded-full bg-white/70 backdrop-blur-md p-1.5 shadow-sm border border-white/40">
+                                    <TabsList className="inline-flex h-auto items-center justify-start rounded-full bg-white/70 backdrop-blur-md p-1.5 shadow-sm border border-slate-200/50">
                                         {eventGroups.map((eventGroup) => (
                                             <TabsTrigger
                                                 key={eventGroup.eventId}

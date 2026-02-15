@@ -356,10 +356,10 @@ export default function OrganizationEvents() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.6, delay: index * 0.05 }}
-                      className={cn("h-full", openMenuEventId === event.id ? "z-50 relative" : "z-0")}
+                      className={cn("h-full", openMenuEventId === event.id ? "z-[60] relative" : "z-0")}
                     >
-                      <GlassTile 
-                        className={cn("p-0 flex flex-col h-full group", openMenuEventId === event.id ? "overflow-visible" : "overflow-hidden")} 
+                      <GlassTile
+                        className={cn("p-0 flex flex-col h-full group", openMenuEventId === event.id ? "overflow-visible" : "overflow-hidden")}
                         hoverScale={1.02}
                       >
                         <div className="relative h-32 overflow-hidden rounded-t-[24px]">
@@ -412,11 +412,11 @@ export default function OrganizationEvents() {
                               <div className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">Attendees</div>
                               <div className="text-sm font-black flex items-center gap-1.5">
                                 <Users className="h-3 w-3" /> {event.total_bookings}
-                              {typeof event.max_attendees === 'number' && event.max_attendees > 0 && (
-                                <span className="text-[10px] font-bold text-neutral-400">
-                                  / {event.max_attendees}
-                                </span>
-                              )}
+                                {typeof event.max_attendees === 'number' && event.max_attendees > 0 && (
+                                  <span className="text-[10px] font-bold text-neutral-400">
+                                    / {event.max_attendees}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <div className="text-right">
@@ -425,15 +425,15 @@ export default function OrganizationEvents() {
                             </div>
                           </div>
 
-                        <div className="pt-4 pb-2">
-                          <EventRating
-                            rating={event.average_rating || 0}
-                            reviewCount={event.total_reviews || 0}
-                            size="sm"
-                            showCount={true}
-                            className="text-[9px] font-black uppercase tracking-widest text-neutral-400"
-                          />
-                        </div>
+                          <div className="pt-4 pb-2">
+                            <EventRating
+                              rating={event.average_rating || 0}
+                              reviewCount={event.total_reviews || 0}
+                              size="sm"
+                              showCount={true}
+                              className="text-[9px] font-black uppercase tracking-widest text-neutral-400"
+                            />
+                          </div>
 
                           <div className="pt-4 flex gap-2">
                             <Button
@@ -450,7 +450,7 @@ export default function OrganizationEvents() {
                                 onClick={() => setOpenMenuEventId(prev => prev === event.id ? null : event.id)}
                                 aria-label="Event actions"
                               >
-                              <MoreVertical className="h-4 w-4" />
+                                <MoreVertical className="h-4 w-4" />
                               </Button>
 
                               <AnimatePresence>
@@ -460,7 +460,7 @@ export default function OrganizationEvents() {
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                                     transition={{ duration: 0.15 }}
-                                    className="absolute right-0 top-12 z-20 w-56 rounded-2xl border border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-2xl overflow-hidden"
+                                    className="absolute right-0 top-12 z-[70] w-56 rounded-2xl border border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-2xl overflow-hidden"
                                   >
                                     <button
                                       className="w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-neutral-700 dark:text-neutral-200 hover:bg-black/5 dark:hover:bg-white/5"

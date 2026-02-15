@@ -12,10 +12,13 @@ import { useBookings } from '@/contexts/BookingContext'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, ArrowLeft, Users, CalendarDays, Heart, Share2, Ticket, Mic } from 'lucide-react'
 import { ReviewSystem } from '@/components/ReviewSystem'
+import { LivePolls } from '@/components/LivePolls'
+import { EventNetworking } from '@/components/EventNetworking'
 import { supabase } from '@/lib/supabase'
 import { GlassTile } from '@/components/ui/glass-tile'
 import { cn, slugify } from '@/lib/utils'
 import { EventRating } from '@/components/EventRating'
+import { MessageSquare } from 'lucide-react'
 
 type Event = {
     id: string
@@ -40,6 +43,7 @@ type Event = {
     event_tags?: Array<{ tag?: { id: string; name: string; slug: string } | null }> | null
     max_attendees?: number | null
     created_at?: string
+    is_networking_enabled?: boolean
 }
 
 type TicketType = {
@@ -81,6 +85,8 @@ export default function EventClient() {
 
     const [event, setEvent] = useState<Event | null>(null)
     const [isBooked, setIsBooked] = useState(false)
+    const [isNetworkingEnabled, setIsNetworkingEnabled] = useState(false)
+    const [isChatOpen, setIsChatOpen] = useState(false)
     const [userBookings, setUserBookings] = useState<any[]>([])
     const [loadingDirect, setLoadingDirect] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
@@ -165,7 +171,8 @@ export default function EventClient() {
                         created_at: directEvent.created_at,
                         created_by_user: directEvent.created_by_user ?? null,
                         event_tags: directEvent.event_tags ?? null,
-                        max_attendees: directEvent.max_attendees ?? null
+                        max_attendees: directEvent.max_attendees ?? null,
+                        is_networking_enabled: directEvent.is_networking_enabled ?? false
                     })
                 }
             } catch (error) {
@@ -261,7 +268,10 @@ export default function EventClient() {
 
             setTicketTypes((tiers || []).map((t: any) => ({ ...t, price: Number(t.price ?? 0) })))
             setSessions(sess || [])
-            setSpeakers(sp || [])
+            setSpeakers((sp || []).map((row: any) => ({
+                ...row,
+                speaker: Array.isArray(row.speaker) ? row.speaker[0] : row.speaker
+            })))
         }
 
         loadExtras()
@@ -275,6 +285,10 @@ export default function EventClient() {
             setUserBookings(userEventBookings)
             const confirmedBookings = userEventBookings.filter(booking => booking.status === 'CONFIRMED')
             setIsBooked(confirmedBookings.length > 0)
+
+            // Check if any confirmed booking has networking enabled
+            const networkingActive = confirmedBookings.some(b => b.is_networking_enabled)
+            setIsNetworkingEnabled(networkingActive)
         }
     }, [user, bookings, event])
 
@@ -496,145 +510,145 @@ export default function EventClient() {
 
                             <div className="space-y-6">
                                 <div className="flex gap-6 border-b border-neutral-100 dark:border-white/5 pb-2">
-                                        <button
-                                            onClick={() => setActiveTab('overview')}
-                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'overview' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
-                                        >
+                                    <button
+                                        onClick={() => setActiveTab('overview')}
+                                        className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'overview' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
+                                    >
                                         Overview
                                     </button>
-                                        <button
-                                            onClick={() => setActiveTab('speakers')}
-                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'speakers' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
-                                        >
+                                    <button
+                                        onClick={() => setActiveTab('speakers')}
+                                        className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'speakers' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
+                                    >
                                         Speakers
                                     </button>
-                                        <button
-                                            onClick={() => setActiveTab('schedule')}
-                                            className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'schedule' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
-                                        >
+                                    <button
+                                        onClick={() => setActiveTab('schedule')}
+                                        className={cn("text-[10px] font-black uppercase tracking-widest pb-3 relative transition-colors", activeTab === 'schedule' ? 'text-black dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-black dark:after:bg-white' : 'text-neutral-400 hover:text-neutral-600')}
+                                    >
                                         Schedule
                                     </button>
                                 </div>
-                                    {activeTab === 'overview' && (
-                                        <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-                                            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap font-medium">
-                                                {event.description}
-                                            </p>
-                                        </div>
-                                    )}
+                                {activeTab === 'overview' && (
+                                    <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-wrap font-medium">
+                                            {event.description}
+                                        </p>
+                                    </div>
+                                )}
 
-                                    {activeTab === 'speakers' && (
-                                        <div className="space-y-3">
-                                            {speakers.length === 0 ? (
-                                                <GlassTile className="p-6" interactive={false}>
-                                                    <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No speakers listed yet.</div>
-                                                </GlassTile>
-                                            ) : (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    {speakers.map((row, idx) => {
-                                                        const sp = row.speaker
-                                                        if (!sp) return null
-                                                        return (
-                                                            <GlassTile key={sp.id} className="p-4" interactive={false}>
-                                                                <div className="flex items-start gap-3">
-                                                                    <div className="h-10 w-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-white/5 flex items-center justify-center shrink-0">
-                                                                        {sp.avatar_url ? (
-                                                                            <img src={sp.avatar_url} className="h-full w-full object-cover" alt={sp.name} />
-                                                                        ) : (
-                                                                            <Mic className="h-4 w-4 text-neutral-400" />
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="min-w-0">
-                                                                        <div className="text-sm font-black tracking-tight leading-tight">{sp.name}</div>
-                                                                        {row.role && (
-                                                                            <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-0.5">
-                                                                                {row.role}
-                                                                            </div>
-                                                                        )}
-                                                                        {sp.bio && (
-                                                                            <p className="text-xs text-neutral-500 font-medium mt-1.5 line-clamp-2">
-                                                                                {sp.bio}
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
+                                {activeTab === 'speakers' && (
+                                    <div className="space-y-3">
+                                        {speakers.length === 0 ? (
+                                            <GlassTile className="p-6" interactive={false}>
+                                                <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No speakers listed yet.</div>
+                                            </GlassTile>
+                                        ) : (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {speakers.map((row, idx) => {
+                                                    const sp = row.speaker
+                                                    if (!sp) return null
+                                                    return (
+                                                        <GlassTile key={sp.id} className="p-4" interactive={false}>
+                                                            <div className="flex items-start gap-3">
+                                                                <div className="h-10 w-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-white/5 flex items-center justify-center shrink-0">
+                                                                    {sp.avatar_url ? (
+                                                                        <img src={sp.avatar_url} className="h-full w-full object-cover" alt={sp.name} />
+                                                                    ) : (
+                                                                        <Mic className="h-4 w-4 text-neutral-400" />
+                                                                    )}
                                                                 </div>
-                                                            </GlassTile>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'schedule' && (
-                                        <div className="space-y-3">
-                                            {sessions.length === 0 ? (
-                                                <GlassTile className="p-6" interactive={false}>
-                                                    <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No sessions scheduled yet.</div>
-                                                </GlassTile>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    {sessions.map(s => {
-                                                        const start = s.start_at ? new Date(s.start_at) : null
-                                                        const end = s.end_at ? new Date(s.end_at) : null
-                                                        return (
-                                                            <GlassTile key={s.id} className="p-4" interactive={false}>
-                                                                <div className="flex items-start justify-between gap-4">
-                                                                    <div className="min-w-0">
-                                                                        <div className="text-sm font-black tracking-tight leading-tight">{s.title}</div>
-                                                                        {s.description && (
-                                                                            <p className="text-xs text-neutral-500 font-medium mt-1 whitespace-pre-wrap line-clamp-2">
-                                                                                {s.description}
-                                                                            </p>
-                                                                        )}
-                                                                        {(s.location || start) && (
-                                                                            <div className="mt-2 flex flex-wrap gap-3 text-[8px] font-black uppercase tracking-widest text-neutral-400">
-                                                                                {start && (
-                                                                                    <span className="inline-flex items-center gap-1.5">
-                                                                                        <Clock className="h-3 w-3 text-blue-500" />
-                                                                                        {start.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
-                                                                                        {end ? ` → ${end.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
-                                                                                    </span>
-                                                                                )}
-                                                                                {s.location && (
-                                                                                    <span className="inline-flex items-center gap-1.5">
-                                                                                        <MapPin className="h-3 w-3 text-blue-500" />
-                                                                                        {s.location}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
+                                                                <div className="min-w-0">
+                                                                    <div className="text-sm font-black tracking-tight leading-tight">{sp.name}</div>
+                                                                    {row.role && (
+                                                                        <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-0.5">
+                                                                            {row.role}
+                                                                        </div>
+                                                                    )}
+                                                                    {sp.bio && (
+                                                                        <p className="text-xs text-neutral-500 font-medium mt-1.5 line-clamp-2">
+                                                                            {sp.bio}
+                                                                        </p>
+                                                                    )}
                                                                 </div>
-                                                            </GlassTile>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                                            </div>
+                                                        </GlassTile>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-                                    {/* Tags */}
-                                    {Array.isArray(event.event_tags) && event.event_tags.length > 0 && (
-                                        <div className="pt-2">
-                                            <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-2">
-                                                Tags
+                                {activeTab === 'schedule' && (
+                                    <div className="space-y-3">
+                                        {sessions.length === 0 ? (
+                                            <GlassTile className="p-6" interactive={false}>
+                                                <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400">No sessions scheduled yet.</div>
+                                            </GlassTile>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {sessions.map(s => {
+                                                    const start = s.start_at ? new Date(s.start_at) : null
+                                                    const end = s.end_at ? new Date(s.end_at) : null
+                                                    return (
+                                                        <GlassTile key={s.id} className="p-4" interactive={false}>
+                                                            <div className="flex items-start justify-between gap-4">
+                                                                <div className="min-w-0">
+                                                                    <div className="text-sm font-black tracking-tight leading-tight">{s.title}</div>
+                                                                    {s.description && (
+                                                                        <p className="text-xs text-neutral-500 font-medium mt-1 whitespace-pre-wrap line-clamp-2">
+                                                                            {s.description}
+                                                                        </p>
+                                                                    )}
+                                                                    {(s.location || start) && (
+                                                                        <div className="mt-2 flex flex-wrap gap-3 text-[8px] font-black uppercase tracking-widest text-neutral-400">
+                                                                            {start && (
+                                                                                <span className="inline-flex items-center gap-1.5">
+                                                                                    <Clock className="h-3 w-3 text-blue-500" />
+                                                                                    {start.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                                    {end ? ` → ${end.toLocaleString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                                                                </span>
+                                                                            )}
+                                                                            {s.location && (
+                                                                                <span className="inline-flex items-center gap-1.5">
+                                                                                    <MapPin className="h-3 w-3 text-blue-500" />
+                                                                                    {s.location}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </GlassTile>
+                                                    )
+                                                })}
                                             </div>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {event.event_tags
-                                                    .map(et => et?.tag)
-                                                    .filter(Boolean)
-                                                    .map((tag: any) => (
-                                                        <span
-                                                            key={tag.id}
-                                                            className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/5 border border-transparent text-[8px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-300"
-                                                        >
-                                                            {tag.name}
-                                                        </span>
-                                                    ))}
-                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Tags */}
+                                {Array.isArray(event.event_tags) && event.event_tags.length > 0 && (
+                                    <div className="pt-2">
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-2">
+                                            Tags
                                         </div>
-                                    )}
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {event.event_tags
+                                                .map(et => et?.tag)
+                                                .filter(Boolean)
+                                                .map((tag: any) => (
+                                                    <span
+                                                        key={tag.id}
+                                                        className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/5 border border-transparent text-[8px] font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-300"
+                                                    >
+                                                        {tag.name}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
 
@@ -797,17 +811,33 @@ export default function EventClient() {
                                     <MapPin className="h-3 w-3 text-neutral-400" />
                                 </div>
                                 <div className="h-24 rounded-xl bg-neutral-100 dark:bg-white/5 relative border border-transparent flex items-center justify-center overflow-hidden">
-                                     <div className="absolute inset-0 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=40.7128,-74.0060&zoom=13&size=600x300&maptype=roadmap&style=feature:all|element:all|saturation:-100&key=YOUR_API_KEY')] bg-cover opacity-20 grayscale" />
-                                     <div className="relative z-10 flex flex-col items-center">
+                                    <div className="absolute inset-0 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=40.7128,-74.0060&zoom=13&size=600x300&maptype=roadmap&style=feature:all|element:all|saturation:-100&key=YOUR_API_KEY')] bg-cover opacity-20 grayscale" />
+                                    <div className="relative z-10 flex flex-col items-center">
                                         <MapPin className="h-5 w-5 text-black dark:text-white mb-1" />
                                         <div className="text-[9px] font-black uppercase text-center max-w-[150px] leading-tight px-2">
                                             {event.location}
                                         </div>
-                                     </div>
+                                    </div>
                                 </div>
                             </GlassTile>
                         </motion.div>
                     </div>
+                </div>
+
+                {/* Live Polls Section */}
+                <div className="container mx-auto px-4 max-w-5xl mt-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <LivePolls
+                            eventId={event.id}
+                            isOrganizer={user?.id === event.created_by}
+                            isAttendee={isBooked}
+                        />
+                    </motion.div>
                 </div>
 
                 {/* Reviews Section */}
@@ -829,6 +859,34 @@ export default function EventClient() {
             </main>
 
             <Footer />
+
+            {/* Networking Chat Button */}
+            {event.is_networking_enabled && isNetworkingEnabled && (
+                <div className="fixed bottom-8 right-8 z-40">
+                    <Button
+                        onClick={() => setIsChatOpen(true)}
+                        className="h-16 w-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-2xl shadow-blue-500/40 group relative overflow-hidden"
+                    >
+                        <motion.div
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            <MessageSquare className="h-6 w-6" />
+                        </motion.div>
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500"></span>
+                        </span>
+                    </Button>
+                </div>
+            )}
+
+            {/* Chat Sidebar */}
+            <EventNetworking
+                eventId={event.id}
+                isOpen={isChatOpen}
+                onClose={() => setIsChatOpen(false)}
+            />
         </div>
     )
 }

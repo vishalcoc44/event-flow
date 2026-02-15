@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useOrganizationData, useOrganizationPermissions, useSubscriptionInfo } from '@/hooks/useOrganizationData';
+import { useOrganizationPermissions, useSubscriptionInfo } from '@/hooks/useOrganizationData';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { organizationAPI, authAPI } from '@/lib/api';
+import { organizationAPI } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { GlassTile } from '@/components/ui/glass-tile';
@@ -22,32 +21,30 @@ import {
   Building2,
   Calendar,
   Users,
-  BarChart3,
   Plus,
   Mail,
   LogOut,
   Settings,
   Sparkles,
-  ArrowUpRight,
   ChevronRight,
-  TrendingUp,
   ShieldCheck,
   Lock,
   Clock,
   MapPin,
   Share2,
-  Activity
+  Activity,
+  Ticket,
+  DollarSign
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { ActivityLog } from '@/components/organization/ActivityLog';
 
 export default function OrganizationDashboard() {
-  const { organization, orgLoading } = useOrganizationData();
-  const { canCreateEvents, canInviteUsers, canManageMembers, isOwner } = useOrganizationPermissions();
+  const { organization, stats, isLoading: orgLoading } = useOrganization();
+  const { canCreateEvents, canInviteUsers, isOwner } = useOrganizationPermissions();
   const subscription = useSubscriptionInfo();
   const { user, isLoading: authLoading } = useAuth();
-  const { members } = useOrganization();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -62,19 +59,6 @@ export default function OrganizationDashboard() {
   const [isLeavingOrg, setIsLeavingOrg] = useState(false);
   const [leaveConfirmation, setLeaveConfirmation] = useState('');
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
-
-  // Calculate stats from organization and members
-  const stats = organization ? {
-    totalEvents: organization.current_events_count || 0,
-    totalBookings: organization.current_events_count || 0,
-    totalMembers: members ? members.length : 0,
-    totalRevenue: 0
-  } : {
-    totalEvents: 0,
-    totalBookings: 0,
-    totalMembers: 0,
-    totalRevenue: 0
-  };
 
   const handleLeaveOrganization = async () => {
     if (!organization || !user) return;
@@ -98,13 +82,12 @@ export default function OrganizationDashboard() {
       setLeaveConfirmation('');
       setShowLeaveDialog(false);
       if (user?.id) {
-        authAPI.clearUserOrganizationCache(user.id);
+        router.push(user.role === 'ADMIN' ? '/admin/dashboard' : '/customer/dashboard');
       }
-      router.push('/customer/dashboard');
     } catch (error: any) {
       toast({
-        title: "Exit Failed",
-        description: error?.message || "Internal system error during exit process.",
+        title: "Error",
+        description: error.message || "Failed to leave organization",
         variant: "destructive",
       });
     } finally {
@@ -112,18 +95,14 @@ export default function OrganizationDashboard() {
     }
   };
 
-  if (orgLoading) {
+  if (orgLoading || authLoading || !user) {
     return (
-      <div className="min-h-screen bg-background flex flex-col pt-32 px-4">
-        <div className="container mx-auto max-w-7xl animate-pulse">
-          <div className="h-16 bg-white/5 rounded-3xl w-64 mb-12" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-white/5 rounded-3xl" />)}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-2 h-96 bg-white/5 rounded-3xl" />
-            <div className="h-96 bg-white/5 rounded-3xl" />
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+          <p className="text-sm font-bold uppercase tracking-widest text-neutral-500 animate-pulse">
+            Syncing Workspace...
+          </p>
         </div>
       </div>
     );
@@ -147,6 +126,21 @@ export default function OrganizationDashboard() {
       </div>
     );
   }
+
+  // Calculate stats from organization and stats view
+  const displayStats = {
+    totalEvents: organization.current_events_count || 0,
+    totalBookings: stats?.total_bookings || 0,
+    totalMembers: organization.current_users_count || 0,
+    totalRevenue: stats?.total_revenue || 0
+  };
+
+  const statItems = [
+    { label: 'Total Events', val: displayStats.totalEvents, icon: Calendar, color: 'blue' },
+    { label: 'Confirmed Bookings', val: displayStats.totalBookings, icon: Ticket, color: 'green' },
+    { label: 'Active Crew', val: displayStats.totalMembers, icon: Users, color: 'purple' },
+    { label: 'Total Revenue', val: `$${displayStats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'amber' },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative overflow-x-hidden">
@@ -196,12 +190,7 @@ export default function OrganizationDashboard() {
 
           {/* Core Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {[
-              { label: 'Live Events', val: stats.totalEvents, icon: Calendar, color: 'blue' },
-              { label: 'Active Crew', val: stats.totalMembers, icon: Users, color: 'purple' },
-              { label: 'Engagement', val: `${stats.totalBookings}`, icon: TrendingUp, color: 'green' },
-              { label: 'Revenue Flow', val: `$${stats.totalRevenue}`, icon: BarChart3, color: 'orange' }
-            ].map((stat, i) => (
+            {statItems.map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -214,7 +203,7 @@ export default function OrganizationDashboard() {
                     stat.color === 'blue' && "bg-blue-500/10 text-blue-500",
                     stat.color === 'purple' && "bg-purple-500/10 text-purple-500",
                     stat.color === 'green' && "bg-green-500/10 text-green-500",
-                    stat.color === 'orange' && "bg-orange-500/10 text-orange-500"
+                    stat.color === 'amber' && "bg-amber-500/10 text-amber-500"
                   )}>
                     <stat.icon className="h-6 w-6" />
                   </div>
@@ -258,7 +247,7 @@ export default function OrganizationDashboard() {
                     </div>
                     <div className="mb-12">
                       <div className="w-14 h-14 rounded-3xl bg-blue-500 text-white flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20">
-                        <Mail className="h-7 h-7" />
+                        <Mail className="h-7 w-7" />
                       </div>
                       <h3 className="text-2xl font-black tracking-tighter mb-2">Invite Members</h3>
                       <p className="text-neutral-500 text-sm font-medium leading-relaxed">

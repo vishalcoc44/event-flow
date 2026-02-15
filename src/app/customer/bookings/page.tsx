@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBookings } from '@/contexts/BookingContext'
@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { useToast } from '@/components/ui/use-toast'
-import { Calendar, Clock, MapPin, DollarSign, Search, Filter, Ticket, ArrowRight, XCircle, CheckCircle2, AlertCircle, RefreshCcw, MessageSquare } from 'lucide-react'
+import { Calendar, Clock, MapPin, DollarSign, Search, Filter, Ticket, ArrowRight, XCircle, CheckCircle2, AlertCircle, RefreshCcw, MessageSquare, QrCode, CalendarPlus, ExternalLink, Download, Image as ImageIcon } from 'lucide-react'
 import { GlassTile } from '@/components/ui/glass-tile'
 import { cn } from '@/lib/utils'
 import {
@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { QRCodeCanvas } from 'qrcode.react'
+import { generateGoogleCalendarUrl, downloadIcsFile } from '@/lib/calendar'
+import html2canvas from 'html2canvas'
 
 export default function CustomerBookings() {
     const { user } = useAuth()
@@ -40,6 +43,11 @@ export default function CustomerBookings() {
     const [refundReason, setRefundReason] = useState('')
     const [isSubmittingRefund, setIsSubmittingRefund] = useState(false)
 
+    // Ticket state
+    const [showTicketDialog, setShowTicketDialog] = useState(false)
+    const [viewingTicket, setViewingTicket] = useState<any>(null)
+    const ticketRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         if (user && bookings) {
             const currentUserBookings = bookings.filter(booking => booking.user_id === user.id)
@@ -51,7 +59,13 @@ export default function CustomerBookings() {
         const eventId = booking.event?.id
         if (!eventId) return groups
 
-        const existingGroup = groups.find(group => group.eventId === eventId)
+        // Group by event AND status AND ticket type to prevent merging inconsistent states (Bug #6)
+        const existingGroup = groups.find(group =>
+            group.eventId === eventId &&
+            group.status === booking.status &&
+            group.ticketTypeId === booking.ticket_type_id
+        )
+
         if (existingGroup) {
             existingGroup.bookings.push(booking)
             existingGroup.quantity += 1
@@ -64,16 +78,20 @@ export default function CustomerBookings() {
                 quantity: 1,
                 totalPrice: booking.event?.price || 0,
                 status: booking.status,
+                ticketTypeId: booking.ticket_type_id,
                 firstBookingId: booking.id,
-                bookedAt: booking.created_at
+                bookedAt: booking.created_at,
+                qrToken: booking.qr_code_token
             })
         }
         return groups
     }, [])
 
     const filteredBookings = groupedBookings.filter(group => {
-        const matchesSearch = group.event?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            group.event?.location?.toLowerCase().includes(searchTerm.toLowerCase())
+        const title = group.event?.title || ''
+        const location = group.event?.location || ''
+        const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            location.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesStatus = statusFilter === 'all' || group.status.toLowerCase() === statusFilter.toLowerCase()
         return matchesSearch && matchesStatus
     }).sort((a, b) => new Date(b.bookedAt).getTime() - new Date(a.bookedAt).getTime())
@@ -81,6 +99,7 @@ export default function CustomerBookings() {
     const handleCancelBooking = async (bookingGroup: any) => {
         try {
             setCancellingId(bookingGroup.firstBookingId)
+            // Cancel all exactly as requested in current UI flow
             const cancelPromises = bookingGroup.bookings.map((booking: any) => cancelBooking(booking.id))
             await Promise.all(cancelPromises)
             toast({
@@ -100,16 +119,18 @@ export default function CustomerBookings() {
 
     const handleRequestRefund = async () => {
         if (!selectedGroup || !refundReason.trim()) return
-        
+
         setIsSubmittingRefund(true)
         try {
-            // For now, we request refund for the first booking in the group as a proxy
-            // In a more complex system, we'd handle multi-ticket refunds
-            await requestRefund(selectedGroup.firstBookingId, refundReason)
-            
+            // Fix Bug #4: Request refund for ALL bookings in the group
+            const refundPromises = selectedGroup.bookings.map((booking: any) =>
+                requestRefund(booking.id, refundReason)
+            )
+            await Promise.all(refundPromises)
+
             toast({
                 title: "Refund Requested",
-                description: "Your request has been submitted to the organizer for review.",
+                description: `Submitted ${selectedGroup.quantity} request(s) for ${selectedGroup.event?.title} to the organizer.`,
             })
             setShowRefundDialog(false)
             setRefundReason('')
@@ -122,6 +143,41 @@ export default function CustomerBookings() {
             })
         } finally {
             setIsSubmittingRefund(false)
+        }
+    }
+
+    const handleViewTicket = (group: any) => {
+        setViewingTicket(group)
+        setShowTicketDialog(true)
+    }
+
+    const handleDownloadImage = async () => {
+        if (!ticketRef.current) return
+        try {
+            const canvas = await html2canvas(ticketRef.current, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true // Important for external images if any
+            })
+            const image = canvas.toDataURL("image/png")
+            const link = document.createElement("a")
+            link.href = image
+            link.download = `${viewingTicket?.event?.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'ticket'}-pass.png`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            toast({
+                title: "Ticket Downloaded",
+                description: "The ticket image has been saved to your device."
+            })
+        } catch (error) {
+            console.error('Download failed:', error)
+            toast({
+                title: "Download Failed",
+                description: "Could not generate ticket image.",
+                variant: "destructive"
+            })
         }
     }
 
@@ -146,7 +202,7 @@ export default function CustomerBookings() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
             </div>
 
-            <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
+            {!showTicketDialog && <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />}
 
             <main className="flex-grow pt-32 pb-20">
                 <div className="container mx-auto px-4 max-w-7xl">
@@ -242,77 +298,89 @@ export default function CustomerBookings() {
                                             transition={{ duration: 0.6, delay: index * 0.05 }}
                                             layout
                                         >
-                                            <GlassTile className="p-0 overflow-hidden flex flex-col h-full" interactive={false}>
-                                                <div className="relative h-48 group">
-                                                    <img
-                                                        src={group.event?.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop'}
-                                                        alt={group.event?.title}
-                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                    />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                            <GlassTile className="p-0 overflow-hidden flex flex-col h-full" interactive={true} hoverScale={1.01}>
+                                                <Link href={`/events/${group.eventId}`} className="flex flex-col flex-grow group/card">
+                                                    <div className="relative h-48 overflow-hidden">
+                                                        <img
+                                                            src={group.event?.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop'}
+                                                            alt={group.event?.title}
+                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+                                                        />
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
-                                                    <div className="absolute top-4 right-4 group">
-                                                        <Badge className={cn("px-3 py-1.5 rounded-xl backdrop-blur-md border font-black tracking-tighter uppercase text-[10px]", status.class)}>
-                                                            <status.icon className="h-3 w-3 mr-1.5" />
-                                                            {status.label}
-                                                        </Badge>
-                                                    </div>
-
-                                                    <div className="absolute bottom-4 left-4 right-4">
-                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1">
-                                                            Pass Holder ID: {group.firstBookingId.slice(0, 8)}
+                                                        <div className="absolute top-4 right-4">
+                                                            <Badge className={cn("px-3 py-1.5 rounded-xl backdrop-blur-md border font-black tracking-tighter uppercase text-[10px]", status.class)}>
+                                                                <status.icon className="h-3 w-3 mr-1.5" />
+                                                                {status.label}
+                                                            </Badge>
                                                         </div>
-                                                        <h3 className="text-xl font-bold text-white tracking-tight leading-tight">
-                                                            {group.event?.title}
-                                                        </h3>
-                                                    </div>
-                                                </div>
 
-                                                <div className="p-6 space-y-4 flex-grow">
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-1">
-                                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Date</div>
-                                                            <div className="text-sm font-bold flex items-center gap-1.5">
-                                                                <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                                                                {new Date(group.event?.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                        <div className="absolute bottom-4 left-4 right-4">
+                                                            <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1">
+                                                                Pass Holder ID: {group.firstBookingId.slice(0, 8)}
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-white tracking-tight leading-tight">
+                                                                {group.event?.title}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-6 space-y-4 flex-grow">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="space-y-1">
+                                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Date</div>
+                                                                <div className="text-sm font-bold flex items-center gap-1.5">
+                                                                    <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                                    {new Date(group.event?.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-1 text-right">
+                                                                <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Time</div>
+                                                                <div className="text-sm font-bold flex items-center justify-end gap-1.5">
+                                                                    <Clock className="h-3.5 w-3.5 text-blue-500" />
+                                                                    {group.event?.time}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="space-y-1 text-right">
-                                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Time</div>
-                                                            <div className="text-sm font-bold flex items-center justify-end gap-1.5">
-                                                                <Clock className="h-3.5 w-3.5 text-blue-500" />
-                                                                {group.event?.time}
+
+                                                        <div className="space-y-1 pt-2 border-t border-neutral-100 dark:border-white/5">
+                                                            <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">Location</div>
+                                                            <div className="text-sm font-bold flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
+                                                                <MapPin className="h-3.5 w-3.5 text-blue-500" />
+                                                                <span className="truncate">{group.event?.location}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center justify-between pt-4">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Quantity</span>
+                                                                <span className="text-lg font-black tracking-tight">{group.quantity} Passes</span>
+                                                            </div>
+                                                            <div className="flex flex-col text-right">
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Investment</span>
+                                                                <span className="text-lg font-black tracking-tight text-blue-500">${group.totalPrice}</span>
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <div className="space-y-1 pt-2 border-t border-neutral-100 dark:border-white/5">
-                                                        <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">Location</div>
-                                                        <div className="text-sm font-bold flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
-                                                            <MapPin className="h-3.5 w-3.5 text-blue-500" />
-                                                            <span className="truncate">{group.event?.location}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between pt-4">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Quantity</span>
-                                                            <span className="text-lg font-black tracking-tight">{group.quantity} Passes</span>
-                                                        </div>
-                                                        <div className="flex flex-col text-right">
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Investment</span>
-                                                            <span className="text-lg font-black tracking-tight text-blue-500">${group.totalPrice}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                </Link>
 
                                                 <div className="p-6 pt-0 flex gap-3">
-                                                    <Link href={`/events/${group.eventId}`} className="flex-grow">
-                                                        <Button variant="outline" className="w-full h-12 rounded-xl border-neutral-200 dark:border-white/10 font-bold uppercase tracking-widest text-[10px] hover:bg-neutral-50 dark:hover:bg-white/5">
-                                                            View Pass <ArrowRight className="h-3.5 w-3.5 ml-2" />
+                                                    {group.status === 'CONFIRMED' ? (
+                                                        <Button
+                                                            onClick={() => handleViewTicket(group)}
+                                                            className="flex-grow h-12 rounded-xl bg-black dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-[10px] shadow-xl"
+                                                        >
+                                                            <QrCode className="h-4 w-4 mr-2" />
+                                                            View Ticket
                                                         </Button>
-                                                    </Link>
-                                                    
+                                                    ) : (
+                                                        <Link href={`/events/${group.eventId}`} className="flex-grow">
+                                                            <Button variant="outline" className="w-full h-12 rounded-xl border-neutral-200 dark:border-white/10 font-bold uppercase tracking-widest text-[10px] hover:bg-neutral-50 dark:hover:bg-white/5">
+                                                                Details <ArrowRight className="h-3.5 w-3.5 ml-2" />
+                                                            </Button>
+                                                        </Link>
+                                                    )}
+
                                                     {group.status === 'CONFIRMED' && (
                                                         <Button
                                                             variant="ghost"
@@ -378,14 +446,115 @@ export default function CustomerBookings() {
                     </div>
                     <DialogFooter className="pt-8">
                         <Button variant="ghost" onClick={() => setShowRefundDialog(false)} className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px]">Cancel</Button>
-                        <Button 
-                            onClick={handleRequestRefund} 
-                            disabled={isSubmittingRefund || !refundReason.trim()} 
+                        <Button
+                            onClick={handleRequestRefund}
+                            disabled={isSubmittingRefund || !refundReason.trim()}
                             className="h-14 px-8 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-blue-500/20"
                         >
                             {isSubmittingRefund ? "Submitting..." : "Submit Request"}
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showTicketDialog} onOpenChange={setShowTicketDialog}>
+                <DialogContent className="rounded-[2rem] border-white/20 backdrop-blur-2xl bg-white dark:bg-neutral-950 p-0 overflow-hidden max-w-sm max-h-[90vh] flex flex-col">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Your Entry Pass</DialogTitle>
+                        <DialogDescription>Scan this QR code at the event entrance</DialogDescription>
+                    </DialogHeader>
+                    <div className="overflow-y-auto flex-grow">
+                        <div className="p-8 text-center space-y-6 bg-white dark:bg-neutral-950" ref={ticketRef}>
+                            <div className="space-y-2">
+                                <h2 className="text-3xl font-black tracking-tighter uppercase leading-none text-center">Your Entry Pass.</h2>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-500 text-center">Scan at the event entrance</p>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-[2rem] shadow-2xl inline-block border-8 border-neutral-100 dark:border-white/5 mx-auto">
+                                {viewingTicket?.qrToken ? (
+                                    <QRCodeCanvas
+                                        value={viewingTicket.qrToken}
+                                        size={200}
+                                        level="H"
+                                        includeMargin={false}
+                                    />
+                                ) : (
+                                    <div className="w-[200px] h-[200px] flex items-center justify-center bg-neutral-50 rounded-xl">
+                                        <AlertCircle className="h-12 w-12 text-neutral-300 animate-pulse" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-4 pt-4">
+                                <div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Pass Holder</div>
+                                    <div className="text-lg font-bold">{user?.first_name} {user?.last_name}</div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 border-t border-neutral-100 dark:border-white/5 pt-4">
+                                    <div className="text-left">
+                                        <div className="text-[8px] font-black uppercase tracking-widest text-neutral-400 mb-1">Event</div>
+                                        <div className="text-xs font-bold truncate">{viewingTicket?.event?.title}</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[8px] font-black uppercase tracking-widest text-neutral-400 mb-1">Passes</div>
+                                        <div className="text-xs font-bold">{viewingTicket?.quantity} PCS</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-neutral-50 dark:bg-white/5 p-6 space-y-3 shrink-0">
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button
+                                onClick={() => {
+                                    const start = new Date(`${viewingTicket.event.date}T${viewingTicket.event.time}`)
+                                    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000)
+                                    const url = generateGoogleCalendarUrl({
+                                        title: viewingTicket.event.title,
+                                        description: viewingTicket.event.description || `Ticket for ${viewingTicket.event.title}`,
+                                        location: viewingTicket.event.location || 'TBA',
+                                        startTime: start,
+                                        endTime: end
+                                    })
+                                    window.open(url, '_blank')
+                                }}
+                                variant="outline"
+                                className="font-black uppercase tracking-widest text-[8px] h-10 rounded-xl border-neutral-200 dark:border-white/10"
+                            >
+                                <ExternalLink className="h-3 w-3 mr-2" />
+                                Google Cal
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    const start = new Date(`${viewingTicket.event.date}T${viewingTicket.event.time}`)
+                                    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000)
+                                    downloadIcsFile({
+                                        title: viewingTicket.event.title,
+                                        description: viewingTicket.event.description || `Ticket for ${viewingTicket.event.title}`,
+                                        location: viewingTicket.event.location || 'TBA',
+                                        startTime: start,
+                                        endTime: end
+                                    })
+                                }}
+                                variant="outline"
+                                className="font-black uppercase tracking-widest text-[8px] h-10 rounded-xl border-neutral-200 dark:border-white/10"
+                            >
+                                <Download className="h-3 w-3 mr-2" />
+                                .iCal File
+                            </Button>
+                        </div>
+                        <Button
+                            onClick={handleDownloadImage}
+                            variant="outline"
+                            className="w-full font-black uppercase tracking-widest text-[8px] h-10 rounded-xl border-neutral-200 dark:border-white/10"
+                        >
+                            <ImageIcon className="h-3 w-3 mr-2" />
+                            Download Image
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowTicketDialog(false)} className="w-full font-black uppercase tracking-widest text-[10px] hover:bg-neutral-200 dark:hover:bg-white/10 h-10 rounded-xl">
+                            Close Pass
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
 

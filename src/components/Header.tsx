@@ -31,6 +31,7 @@ const organizationLinks = [
     { href: '/organization/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { href: '/organization/events', label: 'Events', icon: 'events' },
     { href: '/organization/members', label: 'Members', icon: 'members', permission: 'canManageMembers' },
+    { href: '/organization/refunds', label: 'Refunds', icon: 'refunds' },
     { href: '/organization/spaces', label: 'Event Spaces', icon: 'spaces', permission: 'canManageEventSpaces' },
     { href: '/organization/plans', label: 'Plans & Pricing', icon: 'plans', permission: 'isOwner' },
     { href: '/organization/settings', label: 'Settings', icon: 'settings', permission: 'isOwner' },
@@ -57,18 +58,18 @@ function NavItem({ href, label, isActive, isSpecial = false, className, onClick 
                 isActive
                     ? "text-white"
                     : isSpecial
-                        ? "text-gray-700 dark:text-gray-200 hover:text-primary"
-                        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
+                        ? "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+                        : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400",
                 className
             )}
         >
             {/* Active background with gradient */}
             {isActive && (
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/25 animate-in fade-in duration-300" />
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25 animate-in fade-in duration-300" />
             )}
             {/* Hover background */}
             {!isActive && (
-                <span className="absolute inset-0 rounded-full bg-gray-900/0 group-hover:bg-gray-900/5 dark:group-hover:bg-white/10 transition-all duration-300" />
+                <span className="absolute inset-0 rounded-full bg-blue-500/0 group-hover:bg-blue-500/5 dark:group-hover:bg-blue-400/10 transition-all duration-300" />
             )}
             {/* Label */}
             <span className="relative z-10">{label}</span>
@@ -97,11 +98,11 @@ function MobileNavItem({ href, label, isActive, isSpecial = false, onClick }: Na
         >
             {/* Active background */}
             {isActive && (
-                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/25" />
+                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25" />
             )}
             {/* Hover background */}
             {!isActive && (
-                <span className="absolute inset-0 rounded-2xl bg-gray-900/0 group-hover:bg-gray-900/5 dark:group-hover:bg-white/10 transition-all duration-300" />
+                <span className="absolute inset-0 rounded-2xl bg-blue-500/0 group-hover:bg-blue-500/5 dark:group-hover:bg-blue-400/10 transition-all duration-300" />
             )}
             <span className="relative z-10 flex items-center justify-between">
                 {label}
@@ -188,7 +189,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                 {/* Right side dark shadow */}
                 <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-3/4 bg-black/5 dark:bg-black/20 blur-xl rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500" />
 
-                <header className="relative w-fit mx-auto max-w-[95vw] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 py-2.5 px-3 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:bg-white/80 dark:hover:bg-gray-900/80">
+                <header className="relative w-fit mx-auto max-w-[95vw] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 py-2.5 px-4 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:bg-white/80 dark:hover:bg-gray-900/80">
                     <div className="flex items-center justify-center gap-6 whitespace-nowrap">
                         {/* Logo */}
                         <Link href="/" className="flex items-center flex-shrink-0 pl-3 pr-4 group/logo">
@@ -230,7 +231,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             )}
                         </nav>
 
-                        <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
+                        <div className="hidden md:flex items-center space-x-3 flex-shrink-0 pr-1.5">
                             {user ? (
                                 <>
                                     <NotificationBell />
@@ -242,8 +243,9 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                                 href="/create-organization"
                                                 variant="primary"
                                                 size="sm"
-                                                className="px-4 py-1.5 text-sm rounded-full"
+                                                className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 border-none shadow-lg shadow-blue-500/20 transition-all font-medium"
                                                 containerClassName="rounded-full"
+                                                shineColor="#22d3ee"
                                             >
                                                 Create Organization
                                             </GradientButton>
@@ -267,7 +269,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                         href="/auth"
                                         variant="outline"
                                         size="sm"
-                                        className="px-5 py-1.5 text-sm rounded-full bg-transparent border-neutral-200 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-white/5 transition-all"
+                                        className="px-5 py-1.5 text-sm rounded-full bg-transparent border-neutral-200 dark:border-white/10 hover:border-blue-400/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                                         containerClassName="rounded-full"
                                     >
                                         Login
@@ -276,9 +278,9 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                                         href="/auth"
                                         variant="primary"
                                         size="sm"
-                                        className="px-6 py-1.5 text-sm rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border-none shadow-lg shadow-blue-500/20 transition-all"
+                                        className="px-6 py-1.5 text-sm rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 border-none shadow-lg shadow-blue-500/20 transition-all"
                                         containerClassName="rounded-full"
-                                        shineColor="#818cf8"
+                                        shineColor="#22d3ee"
                                     >
                                         Sign Up
                                     </GradientButton>
@@ -460,7 +462,7 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                     )}
                 </header>
             </div>
-            {pathname !== '/' && <div className="h-28" />}
+            {pathname !== '/' && <div className="h-8" />}
         </>
     )
 }

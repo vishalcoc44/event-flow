@@ -73,7 +73,8 @@ function EventArchitectComponent() {
 		is_public: true,
 		requires_approval: false,
 		max_attendees: '',
-		tags: ''
+		tags: '',
+		is_networking_enabled: false
 	});
 
 	useEffect(() => {
@@ -101,7 +102,8 @@ function EventArchitectComponent() {
 									.map((et: any) => et?.tag?.name)
 									.filter(Boolean)
 									.join(', ')
-								: ''
+								: '',
+							is_networking_enabled: eventData.is_networking_enabled ?? false
 						});
 						if (eventData.image_url) setPreviewImage(eventData.image_url);
 					}
@@ -451,6 +453,17 @@ function EventArchitectComponent() {
 											<Switch
 												checked={form.requires_approval}
 												onCheckedChange={(val) => setForm(prev => ({ ...prev, requires_approval: val }))}
+												className="data-[state=checked]:bg-blue-500"
+											/>
+										</div>
+										<div className="flex items-center justify-between">
+											<div className="flex items-center gap-3">
+												<Users className="h-4 w-4 text-neutral-400" />
+												<span className="text-xs font-bold uppercase tracking-widest">Attendee Chat</span>
+											</div>
+											<Switch
+												checked={form.is_networking_enabled}
+												onCheckedChange={(val) => setForm(prev => ({ ...prev, is_networking_enabled: val }))}
 												className="data-[state=checked]:bg-blue-500"
 											/>
 										</div>

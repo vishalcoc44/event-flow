@@ -279,25 +279,13 @@ export default function AdminRequests() {
         }
     }
 
-    if (user?.role !== 'ADMIN') {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#f3f4f6]">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-                    <p className="text-gray-600">You need admin privileges to access this page.</p>
-                </div>
-            </div>
-        )
-    }
-
     return (
-        <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#f3f4f6]">
+        <div className="min-h-screen flex flex-col font-sans relative overflow-hidden bg-[#F8FAFC]">
             {/* Mesh Gradient Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-purple-200/40 blur-[80px] mix-blend-multiply opacity-70 animate-blob"></div>
-                <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-200/40 blur-[80px] mix-blend-multiply opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-indigo-200/40 blur-[80px] mix-blend-multiply opacity-70 animate-blob animation-delay-4000"></div>
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]"></div>
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
+                <div className="absolute bottom-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-purple-500/10 blur-[100px]" />
+                <div className="absolute top-[40%] right-[10%] w-[20%] h-[20%] rounded-full bg-amber-500/5 blur-[80px]" />
             </div>
 
             <div className="relative z-10 flex flex-col min-h-screen">
@@ -311,8 +299,8 @@ export default function AdminRequests() {
                                     <Shield className="w-3 h-3" />
                                     ADMINISTRATION
                                 </div>
-                                <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Access Requests</h1>
-                                <p className="text-gray-600 max-w-lg text-lg">
+                                <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Access Requests</h1>
+                                <p className="text-slate-500 max-w-lg text-lg">
                                     Manage pending requests for administrative privileges and specialized access.
                                 </p>
                             </div>
@@ -322,7 +310,7 @@ export default function AdminRequests() {
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                                     <Input
                                         placeholder="Search requests..."
-                                        className="pl-10 w-full sm:w-64 bg-white/70 backdrop-blur-sm border-gray-200/50 focus:border-blue-400 focus:ring-blue-100 transition-all shadow-sm"
+                                        className="pl-10 w-full sm:w-64 bg-white/70 backdrop-blur-sm border-slate-200/50 focus:border-blue-400 focus:ring-blue-100 transition-all shadow-sm"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />

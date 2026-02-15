@@ -287,19 +287,73 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="py-32 w-full px-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-blue-600/5 backdrop-blur-[100px] -z-10" />
-                <GlassTile
-                    className="max-w-4xl mx-auto p-20 flex flex-col items-center gap-10"
-                    interactive={false}
-                >
-                    <h2 className="text-4xl md:text-7xl font-bold tracking-tighter">Ready to redefine <br className="hidden md:block" /> your events?</h2>
-                    <p className="text-xl md:text-2xl text-neutral-500 font-medium max-w-xl">Join the elite community of organizers building high-impact experiences.</p>
-                    <div className="flex flex-col md:flex-row gap-6">
-                        <GradientButton size="lg" className="rounded-full h-16 px-12 text-xl font-bold">Start Your Journey</GradientButton>
-                        <Button variant="ghost" className="rounded-full h-16 px-12 text-xl font-bold">Contact Sales</Button>
-                    </div>
-                </GlassTile>
+            <section className="py-40 w-full px-4 relative overflow-hidden flex flex-col items-center">
+                {/* Background bloat/accents */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 blur-[150px] -z-10 rounded-full" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] -z-10 rounded-full rotate-45" />
+
+                <div className="max-w-6xl mx-auto w-full relative">
+                    {/* Floating Decorative Elements */}
+                    <FloatingAsset className="-top-12 -left-8 md:flex hidden" delay={0}>
+                        <GlassTile className="p-4 border-blue-500/20 backdrop-blur-md" interactive={false}>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-blue-500" />
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="h-1.5 w-12 bg-neutral-300 dark:bg-neutral-600 rounded-full" />
+                                    <div className="h-1.5 w-8 bg-neutral-200 dark:bg-neutral-700 rounded-full" />
+                                </div>
+                            </div>
+                        </GlassTile>
+                    </FloatingAsset>
+
+                    <FloatingAsset className="top-1/2 -right-12 md:flex hidden" delay={1.5}>
+                        <GlassTile className="p-4 border-cyan-500/20 backdrop-blur-md" interactive={false}>
+                            <div className="flex items-center gap-3 text-cyan-500">
+                                <Zap className="w-6 h-6" />
+                                <span className="text-xs font-bold uppercase tracking-wider">Instant Data</span>
+                            </div>
+                        </GlassTile>
+                    </FloatingAsset>
+
+                    <GlassTile
+                        className="max-w-4xl mx-auto p-12 md:p-24 flex flex-col items-center gap-12 text-center rounded-[48px] border-white/40 dark:border-white/5 relative overflow-hidden"
+                        interactive={false}
+                    >
+                        {/* Inner Gradient Shine */}
+                        <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_50%)] pointer-events-none" />
+
+                        <div className="space-y-6 relative z-10">
+                            <motion.span
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                className="text-blue-500 dark:text-blue-400 font-bold tracking-[0.3em] uppercase text-xs"
+                            >
+                                Get Started Today
+                            </motion.span>
+                            <h2 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 to-neutral-500 dark:from-white dark:to-neutral-500">
+                                The Future of Events, <br /> Built by You.
+                            </h2>
+                            <p className="text-lg md:text-2xl text-neutral-500 dark:text-neutral-400 font-medium max-w-2xl mx-auto leading-relaxed">
+                                Join the elite community of organizers building high-impact experiences <br className="hidden md:block" /> with our premium event management ecosystem.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col items-center relative z-10 w-full">
+                            <Link href="/auth">
+                                <GradientButton
+                                    size="lg"
+                                    className="rounded-full h-18 px-14 text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 border-none shadow-[0_20px_40px_rgba(37,99,235,0.2)]"
+                                    containerClassName="rounded-full"
+                                    shineColor="#22d3ee"
+                                >
+                                    Start Your Journey
+                                </GradientButton>
+                            </Link>
+                        </div>
+                    </GlassTile>
+                </div>
             </section>
 
             <Footer />

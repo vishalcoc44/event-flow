@@ -1,4 +1,8 @@
-# 🎉 EventFlow - Modern Event Management System
+# 🎉 EventFlow
+
+**A full-stack event management platform that actually does everything** — from creating and selling tickets to real-time networking, QR check-ins, and organization-level analytics.
+
+Built with Next.js 15, React 19, Supabase, and a whole lot of Framer Motion ✨
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.1.0-black?style=flat&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.0.0-61DAFB?style=flat&logo=react)
@@ -7,308 +11,211 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.1-38B2AC?style=flat&logo=tailwind-css)
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.15.0-0055FF?style=flat&logo=framer)
 
-A comprehensive, modern event management platform built with cutting-edge technologies. EventFlow provides a seamless experience for event organizers and attendees with real-time features, beautiful UI, and powerful management tools.
+---
 
-## ✨ Key Features
+## What is EventFlow?
 
-### 🎨 **Modern UI/UX**
-- **Beautiful Design**: Clean, modern interface with smooth animations
-- **Dark Mode**: Complete dark theme with automatic system detection
-- **Responsive**: Mobile-first design that works on all devices
-- **Accessibility**: WCAG compliant with proper ARIA labels
+EventFlow is a multi-tenant event management platform where **organizations** can create, manage, and sell tickets for events — and **attendees** can discover, book, and engage with them in real time.
 
-### 👥 **User Management**
-- **Multi-Role System**: Admin, Organization Owner, User roles
-- **Secure Authentication**: Supabase Auth with email/password
-- **Profile Management**: Complete user profile customization
-- **Organization Management**: Team collaboration features
+Think of it as your own Eventbrite, but with a modern stack, gorgeous UI, and features you'd actually want to use: live polls, networking chat, QR code check-ins, coupon engines, waitlists, and more.
 
-### 📅 **Event Management**
-- **Create & Manage Events**: Full CRUD operations
-- **Categorization**: Organize events by categories
-- **Image Upload**: Cloud storage for event images
-- **Advanced Search**: Filter events by date, category, location
-- **Real-time Updates**: Live event status changes
+---
 
-### 🎫 **Booking System**
-- **Easy Booking**: One-click event registration
-- **Booking Management**: View and manage all bookings
-- **Cancellation**: Flexible cancellation policies
-- **Payment Integration**: Ready for payment processing
+## ✨ Features at a Glance
 
-### 👥 **Social Features**
-- **Follow System**: Follow users and events
-- **Social Profiles**: Comprehensive user profiles
-- **Real-time Notifications**: Live updates and alerts
-- **Community Building**: Social interactions and networking
+### 🏢 Multi-Tenant Organizations
+- Every event belongs to an **organization** — teams can collaborate on event creation and logistics
+- Dedicated **Event Spaces** (slug-based custom hubs) for each org
+- Step-by-step **onboarding wizard** for new organizations
+- Role-based access: **Global Admin → Org Admin → Team Member → Attendee**
 
-### 🛠️ **Admin Panel**
-- **Dashboard Analytics**: Comprehensive statistics
-- **User Management**: Admin controls for all users
-- **Content Moderation**: Event and user management
-- **System Monitoring**: Performance and usage tracking
+### 📅 Event Lifecycle
+- Full event builder with sessions, agendas, speakers, and venue management
+- Smart tagging and categorization for discoverability
+- Cover image uploads with drag-and-drop
+- Venue management with lat/long support
 
-### 🌙 **Dark Mode**
-- **Complete Theme System**: Full black backgrounds with grey accents
-- **Theme Persistence**: Remembers user preference
-- **System Integration**: Respects system theme settings
-- **Smooth Transitions**: Animated theme switching
+### 🎟️ Ticketing & Logistics
+- **Multiple ticket tiers** — Early Bird, VIP, General Admission
+- Real-time inventory tracking with automatic "Sold Out" states
+- **Coupon & discount engine** with usage limits and expiration
+- **Waitlist system** — captures interest when events sell out
+- **QR code tickets** — every booking gets a scannable token
+- **Mobile check-in** — staff can scan and verify attendees on-site
 
-## 🏗️ **Technology Stack**
+### 💬 Engagement & Social
+- **Live polls** during events for real-time attendee feedback
+- **Networking hub** with direct messaging between attendees
+- **Review system** — star ratings, written reviews, "Helpful" votes, and moderation
+- **Follow** organizations, events, or categories
+- **Social profiles** with badges, bio, and activity history
 
-### **Frontend Framework**
-- **Next.js 15.1.0** - React framework with App Router
-- **React 19.0.0** - Latest React with concurrent features
-- **TypeScript 5.0** - Type-safe JavaScript
+### 🔔 Notifications
+- Real-time **toast notifications** + persistent notification center
+- **Scheduled reminders** (24h before events, customizable)
+- Granular **notification preferences** per user
+- Built-in **email campaign composer** for org admins
 
-### **Styling & UI**
-- **Tailwind CSS 3.4.1** - Utility-first CSS framework
-- **Framer Motion 11.15.0** - Animation library for React
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Beautiful icon library
-- **Custom Design System** - Consistent theming with CSS variables
+### 📈 Analytics & Admin
+- **Admin command center** — global stats, user growth, revenue
+- **Org-level dashboard** — event stats, ratings, revenue breakdown
+- **Trending scores** based on views, bookings, and ratings
+- **Audit logging** for admin actions and org activities
 
-### **Backend & Database**
-- **Supabase 2.39.7** - Backend-as-a-Service
-  - PostgreSQL database
-  - Real-time subscriptions
-  - Authentication system
-  - File storage
-  - Edge functions
+### 💸 Payments & Subscriptions
+- Automatic **invoice generation** for subscriptions and purchases
+- **Subscription plans** — Free, Pro, Enterprise
+- **Refund management** workflow for users and admins
 
-### **Additional Libraries**
-- **Axios** - HTTP client for API calls
-- **Date-fns** - Modern date utility library
-- **React Hook Form** - Form management
-- **React Hot Toast** - Notification system
-- **JWT** - JSON Web Token handling
-- **UUID** - Unique identifier generation
+### 🎨 The UI (yes, it matters)
+- Built with **Radix UI** + **Tailwind CSS** + **Framer Motion**
+- Glassmorphism, grainy textures, spotlight effects, 3D hover cards
+- Bento grids, infinite moving carousels, animated border gradients
+- Simplex noise-driven dynamic backgrounds
+- Full **dark mode** with system detection and smooth transitions
 
-## 📁 **Project Structure**
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| **Framework** | Next.js 15.1 (App Router, Turbopack) |
+| **UI** | React 19, Tailwind CSS, Radix UI, Framer Motion |
+| **Backend** | Supabase (Postgres, Auth, Realtime, Storage, Edge Functions) |
+| **Language** | TypeScript (strict mode) |
+| **Forms** | React Hook Form |
+| **Icons** | Lucide React |
+| **Dates** | date-fns |
+| **Deployment** | Netlify / Vercel (static export) |
+
+---
+
+## 📁 Project Structure
 
 ```
-event-management-system/
-├── frontend/                          # Next.js frontend application
-│   ├── public/                        # Static assets (images, icons)
-│   │   ├── hero-image.jpg            # Landing page hero image
-│   │   └── *.svg                     # Icon and logo files
-│   ├── src/
-│   │   ├── app/                      # Next.js App Router pages
-│   │   │   ├── admin/                # Admin dashboard pages
-│   │   │   ├── customer/             # Customer-facing pages
-│   │   │   ├── organization/         # Organization management
-│   │   │   ├── auth/                 # Authentication pages
-│   │   │   ├── events/               # Event browsing and details
-│   │   │   ├── globals.css           # Global styles and theme variables
-│   │   │   └── layout.tsx            # Root layout with providers
-│   │   ├── components/               # Reusable React components
-│   │   │   ├── ui/                   # Base UI components (shadcn/ui)
-│   │   │   ├── Header.tsx            # Navigation header
-│   │   │   ├── Footer.tsx            # Site footer
-│   │   │   └── *.tsx                 # Feature-specific components
-│   │   ├── contexts/                 # React Context providers
-│   │   │   ├── AuthContext.tsx       # Authentication state
-│   │   │   ├── ThemeContext.tsx      # Dark/light theme management
-│   │   │   └── *.tsx                 # Other context providers
-│   │   ├── hooks/                    # Custom React hooks
-│   │   │   ├── useAuth.tsx           # Authentication hooks
-│   │   │   └── *.ts                  # Utility hooks
-│   │   └── lib/                      # Utility libraries
-│   │       ├── supabase.ts           # Supabase client configuration
-│   │       ├── api.ts                # API utility functions
-│   │       └── utils.ts              # General utilities
-│   ├── supabase/                     # Supabase Edge Functions
-│   │   └── functions/                # Serverless functions
-│   ├── tailwind.config.ts            # Tailwind CSS configuration
-│   ├── next.config.ts                # Next.js configuration
-│   └── package.json                  # Frontend dependencies
-├── database schema/                  # Database schema files
-├── netlify.toml                      # Deployment configuration
-└── README.md                         # Project documentation
+event-flow/
+├── public/                    # Static assets
+├── src/
+│   ├── app/                   # Next.js App Router pages
+│   │   ├── admin/             # Admin dashboard & management
+│   │   ├── auth/              # Login, register, password reset
+│   │   ├── customer/          # Attendee-facing pages
+│   │   ├── events/            # Event browsing & details
+│   │   ├── organization/      # Org dashboard, settings, billing
+│   │   ├── notifications/     # Notification center
+│   │   ├── social/            # Social profiles & follows
+│   │   └── globals.css        # Global styles & theme tokens
+│   ├── components/            # Reusable React components
+│   │   └── ui/                # Base UI primitives (shadcn/ui)
+│   ├── contexts/              # Auth, Theme, and other providers
+│   ├── hooks/                 # Custom React hooks
+│   └── lib/                   # Supabase client, API utils, helpers
+├── supabase/                  # Migrations, functions, schema
+├── conductor/                 # Orchestration scripts
+├── scripts/                   # Build & utility scripts
+├── netlify.toml               # Deployment config
+└── package.json
 ```
 
-## 🚀 **Quick Start**
+---
 
+## 🚀 Getting Started
 
-### **1. Clone and Install**
+### Prerequisites
+- **Node.js** ≥ 18
+- A [Supabase](https://supabase.com) project (free tier works)
+
+### 1. Clone & Install
 
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd event-management-system
-
-# Install dependencies
-cd frontend
+cd event-flow
 npm install
 ```
 
-### **2. Set Up Supabase**
+### 2. Configure Environment
 
-1. **Create a Supabase Project**
-   - Sign up at [supabase.com](https://supabase.com)
-   - Create a new project
-   - Note your project URL and API keys (Settings > API)
+Create a `.env.local` file in the root:
 
-2. **Configure Environment Variables**
-   - Create a `.env.local` file in the frontend directory
-   - Add your Supabase URL and API keys:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-   ```
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
 
-3. **Set Up Database Schema**
-   - Run the database migrations in Supabase SQL Editor
-   - Apply the schema files from the `database schema/` directory
-   - Enable Row Level Security (RLS) policies
+### 3. Set Up Supabase
 
-4. **Configure Authentication**
-   - Set up authentication providers in Supabase Dashboard
-   - Configure redirect URLs for your application
-   - Set up email templates and SMTP settings
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Run the migrations from `supabase/migrations/` in the SQL Editor
+3. Enable Row Level Security (RLS) policies
+4. Create storage buckets for event images
+5. Configure auth providers and redirect URLs
 
-5. **Set Up Storage**
-   - Create storage buckets for event images
-   - Configure storage policies for file uploads
-   - Set up CDN for optimized image delivery
-
-### **3. Run the Development Server**
+### 4. Run It
 
 ```bash
-cd frontend
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see your application!
+Open [http://localhost:3000](http://localhost:3000) and you're live 🚀
 
-## 🛠️ **Development Workflow**
+---
 
-### **Available Scripts**
-
-```bash
-# Development
-npm run dev          # Start development server with Turbopack
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-
-# Advanced builds
-npm run build:debug  # Build with debug information
-npm run build:static # Build for static export
-```
-
-### **Project Architecture**
-
-- **App Router**: Uses Next.js 13+ App Router for file-based routing
-- **Server Components**: Default to server components for better performance
-- **Client Components**: Marked with `'use client'` when needed
-- **Type Safety**: Full TypeScript coverage with strict mode
-- **Performance**: Optimized with bundle splitting and lazy loading
-
-### **Key Components**
-
-- **Theme System**: Complete dark/light mode with system detection
-- **Authentication**: Supabase Auth integration with role-based access
-- **Real-time**: Live updates using Supabase subscriptions
-- **Forms**: React Hook Form with validation
-- **Notifications**: Toast notifications for user feedback
-- **Loading States**: Skeleton components and loading indicators
-
-## 🚀 **Deployment**
-
-### **Static Export (Recommended)**
-
-The project is configured for static export, making it easy to deploy to any static hosting service:
+## 📜 Available Scripts
 
 ```bash
-# Build for static export
-npm run build:static
-
-# The built files will be in the 'out' directory
-# Deploy the 'out' folder to your hosting service
+npm run dev           # Start dev server (Turbopack)
+npm run build         # Production build
+npm run build:static  # Static export build
+npm run start         # Start production server
+npm run lint          # Run ESLint
 ```
 
-### **Supported Platforms**
-- **Vercel** (recommended)
-- **Netlify**
+---
+
+## 🚢 Deployment
+
+The project supports **static export**, so you can deploy the `out/` folder to pretty much anywhere:
+
+- **Netlify** (configured via `netlify.toml`)
+- **Vercel**
 - **GitHub Pages**
 - **AWS S3 + CloudFront**
-- **Any static hosting service**
+- Any static hosting
 
+```bash
+npm run build:static
+# Deploy the `out/` directory
+```
 
-## 🤝 **Contributing**
+---
 
-We welcome contributions! Here's how you can help:
+## 🔒 Security
 
-### **Development Setup**
+- **Row Level Security (RLS)** — database-level policies ensuring data isolation between orgs
+- **Supabase Auth** — JWT-based authentication with social login support
+- **Role-based access control** — enforced at both UI and database layers
+- **Automated triggers** — backend automation for profile creation, follower syncing, and stat updates
 
-1. **Fork the repository**
-2. **Clone your fork**: `git clone https://github.com/your-username/event-management-system.git`
-3. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-4. **Install dependencies**: `cd frontend && npm install`
-5. **Start development**: `npm run dev`
+---
 
-### **Code Style**
+## 🤝 Contributing
 
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Configured for Next.js
-- **Prettier**: Code formatting (if configured)
-- **Conventional Commits**: Use conventional commit format
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/your-idea`
+3. Make your changes
+4. Open a PR with screenshots if it's a UI change
 
-### **Pull Request Process**
+We use **TypeScript strict mode**, **ESLint**, and **conventional commits**.
 
-1. **Test your changes** thoroughly
-2. **Update documentation** if needed
-3. **Ensure all tests pass**
-4. **Create a descriptive PR** with screenshots if UI changes
+---
 
-### **Areas for Contribution**
+## 🙏 Acknowledgments
 
-- **UI/UX Improvements**: Enhance the user interface
-- **Performance Optimization**: Improve loading times and bundle size
-- **Accessibility**: Improve WCAG compliance
-- **Internationalization**: Add multi-language support
-- **Testing**: Add comprehensive test coverage
-- **Documentation**: Improve documentation and guides
+- [Next.js](https://nextjs.org) for the framework
+- [Supabase](https://supabase.com) for the backend
+- [shadcn/ui](https://ui.shadcn.com) for the component primitives
+- [Framer Motion](https://www.framer.com/motion/) for making everything feel alive
 
-## 📊 **Performance Features**
-
-### **Optimization Techniques**
-- **Static Generation**: Pages are statically generated for fast loading
-- **Image Optimization**: Next.js automatic image optimization
-- **Bundle Splitting**: Code splitting for smaller initial bundles
-- **Lazy Loading**: Components loaded on demand
-- **Caching**: Intelligent caching strategies
-
-### **SEO Features**
-- **Meta Tags**: Dynamic meta tags for each page
-- **Open Graph**: Social media sharing optimization
-- **Structured Data**: Event schema markup
-- **Sitemap**: Automatic sitemap generation
-
-## 🔒 **Security**
-
-- **Row Level Security**: Database-level security with RLS
-- **Authentication**: Secure authentication with Supabase Auth
-- **Authorization**: Role-based access control
-- **Input Validation**: Client and server-side validation
-- **HTTPS**: SSL encryption in production
-
-
-## 🙋‍♂️ **Support**
-
-If you need help or have questions:
-
-- **Documentation**: Check the [docs](./docs) folder
-- **Issues**: Open an issue on GitHub
-- **Discussions**: Join our GitHub Discussions
-- **Email**: Contact the maintainers
-
-## 🎉 **Acknowledgments**
-
-- **Next.js Team** for the amazing framework
-- **Supabase Team** for the incredible backend platform
-- **shadcn/ui** for the beautiful component library
-- **All Contributors** who help make this project better
-
+---

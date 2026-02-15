@@ -108,7 +108,7 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 				)}>
 					<Icon className="w-full h-full" strokeWidth={isActive ? 2.5 : 2} />
 				</div>
-				
+
 				<span className={cn(
 					"text-xs font-bold uppercase tracking-widest overflow-hidden whitespace-nowrap transition-all duration-300 origin-left",
 					isDisplayCollapsed ? "w-0 opacity-0 scale-0 hidden" : "w-auto opacity-100 scale-100 block"
@@ -138,10 +138,11 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			className={cn(
-				"fixed left-0 top-0 flex flex-col h-screen z-[90] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+				"fixed left-0 top-0 flex flex-col h-screen z-[90] transition-all duration-300",
 				"bg-white/80 dark:bg-black/80 backdrop-blur-xl border-r border-neutral-200 dark:border-white/10",
 				isDisplayCollapsed ? "w-[72px]" : "w-[240px]"
 			)}
+			style={{ transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)' }}
 		>
 			{/* Live Chronometer (Replaces Logo) */}
 			<div className={cn(
@@ -205,7 +206,7 @@ export function SideNavbar({ activeItem, onNavigate }: SidebarProps) {
 							{user.first_name?.[0] || user.email?.[0]?.toUpperCase() || "U"}
 						</AvatarFallback>
 					</Avatar>
-					
+
 					<div className={cn(
 						"flex-1 min-w-0 text-left transition-all duration-300 overflow-hidden",
 						isDisplayCollapsed ? "w-0 opacity-0 hidden" : "w-auto opacity-100 block"

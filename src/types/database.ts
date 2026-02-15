@@ -141,6 +141,7 @@ export interface Event {
 	is_approved: boolean; // boolean, default true
 	max_attendees: number | null; // int
 	venue_id: string | null; // uuid, FK -> venues
+	is_networking_enabled: boolean; // boolean, default false
 }
 
 /** Event with relations (for API responses) */
@@ -171,6 +172,7 @@ export interface Booking {
 	booking_date: string; // timestamptz, default CURRENT_TIMESTAMP
 	status: BookingStatus; // varchar, default 'PENDING'
 	created_at: string; // timestamptz, default CURRENT_TIMESTAMP
+	is_networking_enabled: boolean; // boolean, default false
 }
 
 /** coupons table */
@@ -214,6 +216,64 @@ export interface UserBadge {
 	badge_type: BadgeType; // enum, NOT NULL
 	awarded_at: string; // timestamptz, default now()
 	metadata: Record<string, unknown>; // jsonb, default '{}'
+}
+
+/** event_polls table */
+export interface EventPoll {
+	id: string; // uuid, PK, NOT NULL
+	event_id: string; // uuid, NOT NULL, FK -> events
+	question: string; // text, NOT NULL
+	options: string[]; // jsonb, NOT NULL
+	results: number[]; // jsonb, default '[]'
+	is_active: boolean; // boolean, default true
+	created_by: string | null; // uuid, FK -> users
+	created_at: string; // timestamptz, default now()
+	updated_at: string; // timestamptz, default now()
+}
+
+/** event_poll_votes table */
+export interface EventPollVote {
+	id: string; // uuid, PK, NOT NULL
+	poll_id: string; // uuid, NOT NULL, FK -> event_polls
+	user_id: string; // uuid, NOT NULL, FK -> users
+	option_index: number; // int, NOT NULL
+	created_at: string; // timestamptz, default now()
+}
+
+/** networking_messages table */
+export interface NetworkingMessage {
+	id: string; // uuid, PK, NOT NULL
+	event_id: string; // uuid, NOT NULL, FK -> events
+	user_id: string; // uuid, NOT NULL, FK -> users
+	content: string; // text, NOT NULL
+	created_at: string; // timestamptz, default now()
+	user?: Pick<User, 'id' | 'first_name' | 'last_name' | 'username'>;
+}
+
+/** email_campaigns table */
+export interface EmailCampaign {
+	id: string; // uuid, PK, NOT NULL
+	event_id: string; // uuid, NOT NULL, FK -> events
+	organization_id: string; // uuid, NOT NULL, FK -> organizations
+	subject: string; // text, NOT NULL
+	content: string; // text, NOT NULL
+	status: 'DRAFT' | 'SENT' | 'FAILED'; // text, default 'DRAFT'
+	recipient_count: number; // int, default 0
+	created_by: string | null; // uuid, FK -> users
+	sent_at: string | null; // timestamptz
+	created_at: string; // timestamptz, default now()
+	updated_at: string; // timestamptz, default now()
+}
+
+/** Attendee Export type */
+export interface AttendeeExport {
+	id: string;
+	first_name: string | null;
+	last_name: string | null;
+	email: string;
+	status: string;
+	booking_date: string;
+	ticket_type: string | null;
 }
 
 /** event_spaces table */
@@ -551,6 +611,8 @@ export interface OrganizationDashboardStats {
 	total_users: number | null;
 	events_last_30_days: number | null;
 	bookings_last_30_days: number | null;
+	total_revenue: number | null;
+	revenue_last_30_days: number | null;
 }
 
 /** event_rating_summary view */
@@ -627,6 +689,7 @@ export interface CreateEventInput {
 	max_attendees?: number | null;
 	venue_id?: string | null;
 	tags?: string[] | null;
+	is_networking_enabled?: boolean;
 }
 
 /** Input for updating an event */
@@ -718,77 +781,87 @@ export interface UpdateOrganizationInput {
 // ============================================================
 
 export interface Database {
-  public: {
-    Tables: {
-      users: { Row: User; Insert: Partial<User>; Update: Partial<User> };
-      organizations: { Row: Organization; Insert: Partial<Organization>; Update: Partial<Organization> };
-      events: { Row: Event; Insert: Partial<Event>; Update: Partial<Event> };
-      categories: { Row: Category; Insert: Partial<Category>; Update: Partial<Category> };
-      bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> };
-      coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon> };
-      refund_requests: { Row: RefundRequest; Insert: Partial<RefundRequest>; Update: Partial<RefundRequest> };
-      user_badges: { Row: UserBadge; Insert: Partial<UserBadge>; Update: Partial<UserBadge> };
-      event_spaces: { Row: EventSpace; Insert: Partial<EventSpace>; Update: Partial<EventSpace> };
-      follows: { Row: Follow; Insert: Partial<Follow>; Update: Partial<Follow> };
-      tags: { Row: Tag; Insert: Partial<Tag>; Update: Partial<Tag> };
-      event_tags: { Row: EventTag; Insert: Partial<EventTag>; Update: Partial<EventTag> };
-      venues: { Row: Venue; Insert: Partial<Venue>; Update: Partial<Venue> };
-      ticket_types: { Row: TicketType; Insert: Partial<TicketType>; Update: Partial<TicketType> };
-      waitlist_entries: { Row: WaitlistEntry; Insert: Partial<WaitlistEntry>; Update: Partial<WaitlistEntry> };
-      event_sessions: { Row: EventSession; Insert: Partial<EventSession>; Update: Partial<EventSession> };
-      speakers: { Row: Speaker; Insert: Partial<Speaker>; Update: Partial<Speaker> };
-      event_speakers: { Row: EventSpeaker; Insert: Partial<EventSpeaker>; Update: Partial<EventSpeaker> };
-      event_checkins: { Row: EventCheckin; Insert: Partial<EventCheckin>; Update: Partial<EventCheckin> };
-      reviews: { Row: Review; Insert: Partial<Review>; Update: Partial<Review> };
-      review_helpful_votes: { Row: ReviewHelpfulVote; Insert: Partial<ReviewHelpfulVote>; Update: Partial<ReviewHelpfulVote> };
-      review_reports: { Row: ReviewReport; Insert: Partial<ReviewReport>; Update: Partial<ReviewReport> };
-      notifications: { Row: Notification; Insert: Partial<Notification>; Update: Partial<Notification> };
-      notification_preferences: { Row: NotificationPreferences; Insert: Partial<NotificationPreferences>; Update: Partial<NotificationPreferences> };
-      notification_templates: { Row: NotificationTemplate; Insert: Partial<NotificationTemplate>; Update: Partial<NotificationTemplate> };
-      admin_requests: { Row: AdminRequest; Insert: Partial<AdminRequest>; Update: Partial<AdminRequest> };
-      organization_invitations: { Row: OrganizationInvitation; Insert: Partial<OrganizationInvitation>; Update: Partial<OrganizationInvitation> };
-      organization_settings: { Row: OrganizationSetting; Insert: Partial<OrganizationSetting>; Update: Partial<OrganizationSetting> };
-      admin_audit_log: { Row: AdminAuditLog; Insert: Partial<AdminAuditLog>; Update: Partial<AdminAuditLog> };
-      subscription_plans: { Row: SubscriptionPlanDetails; Insert: Partial<SubscriptionPlanDetails>; Update: Partial<SubscriptionPlanDetails> };
-      user_profiles: { Row: UserProfile; Insert: Partial<UserProfile>; Update: Partial<UserProfile> };
-    };
-    Views: {
-      organization_dashboard_stats: { Row: OrganizationDashboardStats };
-      event_rating_summary: { Row: EventRatingSummary };
-      event_booking_summary: { Row: EventBookingSummary };
-      event_discovery_stats: { Row: EventDiscoveryStats };
-      notification_summary: { Row: NotificationSummary };
-      user_review_summary: { Row: UserReviewSummary };
-    };
-    Functions: {
-      create_organization_event: {
-        Args: {
-          p_title: string;
-          p_description: string;
-          p_category_id: string | null;
-          p_location: string | null;
-          p_price: number;
-          p_date: string;
-          p_time: string;
-          p_image_url: string | null;
-          p_organization_id: string;
-          p_created_by: string;
-        };
-        Returns: string;
-      };
-      delete_event_space: {
-        Args: {
-          p_space_id: string;
-          p_user_id: string;
-        };
-        Returns: boolean;
-      };
-      cancel_booking_admin: {
-        Args: {
-          booking_id: string;
-        };
-        Returns: Booking;
-      };
-    };
-  };
+	public: {
+		Tables: {
+			users: { Row: User; Insert: Partial<User>; Update: Partial<User> };
+			organizations: { Row: Organization; Insert: Partial<Organization>; Update: Partial<Organization> };
+			events: { Row: Event; Insert: Partial<Event>; Update: Partial<Event> };
+			categories: { Row: Category; Insert: Partial<Category>; Update: Partial<Category> };
+			bookings: { Row: Booking; Insert: Partial<Booking>; Update: Partial<Booking> };
+			coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon> };
+			refund_requests: { Row: RefundRequest; Insert: Partial<RefundRequest>; Update: Partial<RefundRequest> };
+			user_badges: { Row: UserBadge; Insert: Partial<UserBadge>; Update: Partial<UserBadge> };
+			event_spaces: { Row: EventSpace; Insert: Partial<EventSpace>; Update: Partial<EventSpace> };
+			follows: { Row: Follow; Insert: Partial<Follow>; Update: Partial<Follow> };
+			tags: { Row: Tag; Insert: Partial<Tag>; Update: Partial<Tag> };
+			event_tags: { Row: EventTag; Insert: Partial<EventTag>; Update: Partial<EventTag> };
+			venues: { Row: Venue; Insert: Partial<Venue>; Update: Partial<Venue> };
+			ticket_types: { Row: TicketType; Insert: Partial<TicketType>; Update: Partial<TicketType> };
+			waitlist_entries: { Row: WaitlistEntry; Insert: Partial<WaitlistEntry>; Update: Partial<WaitlistEntry> };
+			event_sessions: { Row: EventSession; Insert: Partial<EventSession>; Update: Partial<EventSession> };
+			speakers: { Row: Speaker; Insert: Partial<Speaker>; Update: Partial<Speaker> };
+			event_speakers: { Row: EventSpeaker; Insert: Partial<EventSpeaker>; Update: Partial<EventSpeaker> };
+			event_checkins: { Row: EventCheckin; Insert: Partial<EventCheckin>; Update: Partial<EventCheckin> };
+			reviews: { Row: Review; Insert: Partial<Review>; Update: Partial<Review> };
+			review_helpful_votes: { Row: ReviewHelpfulVote; Insert: Partial<ReviewHelpfulVote>; Update: Partial<ReviewHelpfulVote> };
+			review_reports: { Row: ReviewReport; Insert: Partial<ReviewReport>; Update: Partial<ReviewReport> };
+			notifications: { Row: Notification; Insert: Partial<Notification>; Update: Partial<Notification> };
+			notification_preferences: { Row: NotificationPreferences; Insert: Partial<NotificationPreferences>; Update: Partial<NotificationPreferences> };
+			notification_templates: { Row: NotificationTemplate; Insert: Partial<NotificationTemplate>; Update: Partial<NotificationTemplate> };
+			admin_requests: { Row: AdminRequest; Insert: Partial<AdminRequest>; Update: Partial<AdminRequest> };
+			organization_invitations: { Row: OrganizationInvitation; Insert: Partial<OrganizationInvitation>; Update: Partial<OrganizationInvitation> };
+			organization_settings: { Row: OrganizationSetting; Insert: Partial<OrganizationSetting>; Update: Partial<OrganizationSetting> };
+			admin_audit_log: { Row: AdminAuditLog; Insert: Partial<AdminAuditLog>; Update: Partial<AdminAuditLog> };
+			subscription_plans: { Row: SubscriptionPlanDetails; Insert: Partial<SubscriptionPlanDetails>; Update: Partial<SubscriptionPlanDetails> };
+			user_profiles: { Row: UserProfile; Insert: Partial<UserProfile>; Update: Partial<UserProfile> };
+			event_polls: { Row: EventPoll; Insert: Partial<EventPoll>; Update: Partial<EventPoll> };
+			event_poll_votes: { Row: EventPollVote; Insert: Partial<EventPollVote>; Update: Partial<EventPollVote> };
+			networking_messages: { Row: NetworkingMessage; Insert: Partial<NetworkingMessage>; Update: Partial<NetworkingMessage> };
+			email_campaigns: { Row: EmailCampaign; Insert: Partial<EmailCampaign>; Update: Partial<EmailCampaign> };
+		};
+		Views: {
+			organization_dashboard_stats: { Row: OrganizationDashboardStats };
+			event_rating_summary: { Row: EventRatingSummary };
+			event_booking_summary: { Row: EventBookingSummary };
+			event_discovery_stats: { Row: EventDiscoveryStats };
+			notification_summary: { Row: NotificationSummary };
+			user_review_summary: { Row: UserReviewSummary };
+		};
+		Functions: {
+			create_organization_event: {
+				Args: {
+					p_title: string;
+					p_description: string;
+					p_category_id: string | null;
+					p_location: string | null;
+					p_price: number;
+					p_date: string;
+					p_time: string;
+					p_image_url: string | null;
+					p_organization_id: string;
+					p_created_by: string;
+				};
+				Returns: string;
+			};
+			delete_event_space: {
+				Args: {
+					p_space_id: string;
+					p_user_id: string;
+				};
+				Returns: boolean;
+			};
+			cancel_booking_admin: {
+				Args: {
+					booking_id: string;
+				};
+				Returns: Booking;
+			};
+			get_event_attendees: {
+				Args: {
+					p_event_id: string;
+				};
+				Returns: AttendeeExport[];
+			};
+		};
+	};
 }

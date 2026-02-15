@@ -53,6 +53,8 @@ type DashboardStats = {
     recentBookings: BookingItem[]
 }
 
+import { DashboardChart } from '@/components/admin/DashboardChart'
+
 export default function AdminDashboard() {
     const { user, isLoading: authLoading } = useAuth()
     const { events } = useEvents()
@@ -68,6 +70,9 @@ export default function AdminDashboard() {
     })
 
     const [loading, setLoading] = useState(true)
+
+    // Mock revenue data for chart
+    const revenueData = [450, 600, 550, 800, 750, 1100, 950, 1300, 1200, 1500, 1400, 1800]
 
     // Redirect to auth page if user is not authenticated
     useEffect(() => {
@@ -171,182 +176,184 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
-            {/* Mesh Gradient Background Elements */}
+        <div className="min-h-screen flex flex-col bg-slate-50 relative">
+            {/* Ultra-Modern Background Effects */}
             <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
-                <div className="absolute bottom-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-purple-500/10 blur-[100px]" />
-                <div className="absolute top-[40%] right-[10%] w-[20%] h-[20%] rounded-full bg-amber-500/5 blur-[80px]" />
+                <div className="absolute top-[-15%] left-[-5%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[150px] animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-purple-500/15 blur-[120px]" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-primary/10 blur-[100px]" />
             </div>
 
             <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
-            <main className="flex-grow container mx-auto px-4 py-12 max-w-7xl">
-                {/* Dashboard Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+            <main className="flex-grow container mx-auto px-6 py-12 max-w-7xl">
+                {/* Hero-Style Header Section */}
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
                     <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                     >
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                <Activity size={20} />
-                            </div>
-                            <span className="text-sm font-semibold text-primary uppercase tracking-wider">Administration</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-4 border border-primary/20 backdrop-blur-md">
+                            <Activity size={14} className="animate-spin-slow" />
+                            Live System Status: Optimal
                         </div>
-                        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">System Overview</h1>
-                        <p className="text-slate-500 mt-2 text-lg">Manage events, bookings, and system operations.</p>
+                        <h1 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-none">
+                            Command <span className="text-primary italic">Center</span>
+                        </h1>
+                        <p className="text-slate-500 mt-6 text-xl max-w-xl leading-relaxed">
+                            A high-fidelity overview of your event ecosystem. Monitor performance, manage users, and accelerate growth.
+                        </p>
                     </motion.div>
 
                     <motion.div
-                        className="flex gap-3"
+                        className="flex flex-wrap gap-4"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
                     >
-                        <Button variant="outline" className="rounded-2xl border-slate-200 bg-white shadow-sm hover:bg-slate-50 py-6 px-6">
-                            Export Data
+                        <Button variant="outline" className="rounded-2xl border-slate-200 bg-white shadow-xl shadow-slate-200/50 hover:bg-slate-50 py-7 px-8 text-base font-semibold transition-premium">
+                            Analytics Report
                         </Button>
                         <Link href="/admin/event">
-                            <Button className="rounded-2xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg py-6 px-6 flex gap-2">
-                                <PlusCircle size={20} />
-                                New Event
+                            <Button className="rounded-2xl bg-slate-900 hover:bg-slate-800 text-white shadow-2xl shadow-slate-900/40 py-7 px-8 text-base font-semibold flex gap-2 transition-premium group">
+                                <PlusCircle size={22} className="group-hover:rotate-90 transition-transform duration-500" />
+                                Launch Event
                             </Button>
                         </Link>
                     </motion.div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                    <GlassTile delay={0.1} className="bg-white/60">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-blue-50 text-blue-600">
-                                    <Calendar size={24} />
+                {/* Bento Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-16">
+                    {/* Revenue Trend - Large Tile */}
+                    <div className="lg:col-span-8 h-full">
+                        <GlassTile delay={0.2} className="bg-white/80 p-8 h-full flex flex-col justify-between group">
+                            <div className="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Revenue Performance</h3>
+                                    <span className="text-4xl font-black text-slate-900">
+                                        {loading ? '...' : `$${dashboardStats.revenue.toLocaleString()}`}
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full">
-                                    <TrendingUp size={12} />
-                                    +12%
+                                <div className="flex items-center gap-2 text-emerald-600 text-xs font-black bg-emerald-100/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-200/50">
+                                    <TrendingUp size={14} />
+                                    +24.8% <span className="text-emerald-500/50 font-medium">vs last month</span>
                                 </div>
                             </div>
-                            <div>
-                                <span className="text-slate-500 text-sm font-medium">Total Events</span>
-                                <h3 className="text-3xl font-bold text-slate-900">{loading ? '...' : dashboardStats.totalEvents}</h3>
-                            </div>
-                        </div>
-                    </GlassTile>
 
-                    <GlassTile delay={0.2} className="bg-white/60">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-purple-50 text-purple-600">
-                                    <Ticket size={24} />
-                                </div>
-                                <div className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full">
-                                    <TrendingUp size={12} />
-                                    +8%
-                                </div>
+                            <div className="flex-grow flex items-end">
+                                <DashboardChart data={revenueData} color="hsl(var(--primary))" />
                             </div>
-                            <div>
-                                <span className="text-slate-500 text-sm font-medium">Bookings</span>
-                                <h3 className="text-3xl font-bold text-slate-900">{loading ? '...' : dashboardStats.totalBookings}</h3>
-                            </div>
-                        </div>
-                    </GlassTile>
+                        </GlassTile>
+                    </div>
 
-                    <GlassTile delay={0.3} className="bg-white/60">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
-                                    <DollarSign size={24} />
-                                </div>
-                                <div className="flex items-center gap-1 text-slate-500 text-xs font-bold bg-slate-100 px-2 py-1 rounded-full">
-                                    Steady
+                    {/* Stats Stack */}
+                    <div className="lg:col-span-4 grid grid-cols-1 gap-6">
+                        <GlassTile delay={0.3} className="bg-primary text-white p-8 overflow-hidden group">
+                            <div className="absolute -right-8 -bottom-8 text-white/10 group-hover:scale-110 transition-transform duration-700">
+                                <Calendar size={180} />
+                            </div>
+                            <div className="relative z-10 flex flex-col justify-between h-full">
+                                <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Active Events</span>
+                                <div className="mt-4">
+                                    <h3 className="text-5xl font-black">{loading ? '...' : dashboardStats.totalEvents}</h3>
+                                    <p className="text-white/70 mt-2 flex items-center gap-1 font-medium">
+                                        <ArrowUpRight size={16} /> 3 starting this week
+                                    </p>
                                 </div>
                             </div>
-                            <div>
-                                <span className="text-slate-500 text-sm font-medium">Revenue</span>
-                                <h3 className="text-3xl font-bold text-slate-900">{loading ? '...' : `$${dashboardStats.revenue.toLocaleString()}`}</h3>
-                            </div>
-                        </div>
-                    </GlassTile>
+                        </GlassTile>
 
-                    <GlassTile delay={0.4} className="bg-white/60">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-amber-50 text-amber-600">
-                                    <UserPlus size={24} />
+                        <GlassTile delay={0.4} className="bg-white/40 p-8 border-dashed group">
+                            <div className="flex justify-between items-center h-full">
+                                <div>
+                                    <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Bookings</span>
+                                    <h3 className="text-4xl font-black text-slate-900 mt-2">{loading ? '...' : dashboardStats.totalBookings}</h3>
                                 </div>
-                                <div className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full">
-                                    New
+                                <div className="w-16 h-16 rounded-3xl bg-white shadow-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
+                                    <Ticket size={28} />
                                 </div>
                             </div>
-                            <div>
-                                <span className="text-slate-500 text-sm font-medium">New Users</span>
-                                <h3 className="text-3xl font-bold text-slate-900">+{dashboardStats.newUsers}</h3>
-                            </div>
-                        </div>
-                    </GlassTile>
-                </div>
+                        </GlassTile>
+                    </div>
 
-                {/* Main Content Sections */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                    {/* Recent Bookings Table */}
-                    <motion.div
-                        className="lg:col-span-2"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.5 }}
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-slate-900">Latest Bookings</h2>
-                            <Link href="/admin/bookings" className="text-primary font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all">
-                                View Full History <ArrowRight size={16} />
+                    {/* Quick Access Grid */}
+                    <div className="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {[
+                            { label: 'Categories', sub: 'Manage logic', icon: <Layers size={20} />, href: '/admin/categories', color: 'blue' },
+                            { label: 'Customers', sub: 'User database', icon: <Users size={20} />, href: '/admin/customers', color: 'emerald' },
+                            { label: 'Bookings', sub: 'Transactions', icon: <ClipboardList size={20} />, href: '/admin/bookings', color: 'purple' },
+                            { label: 'Access', sub: 'Review perms', icon: <ShieldCheck size={20} />, href: '/admin/admin-requests', color: 'amber' },
+                            { label: 'Team', sub: 'Add managers', icon: <UserPlus size={20} />, href: '/admin/register', color: 'slate' },
+                        ].map((item, i) => (
+                            <Link key={i} href={item.href}>
+                                <GlassTile delay={0.5 + (i * 0.05)} className="px-5 py-6 flex flex-col gap-4 group bg-white/40 hover:bg-white transition-premium">
+                                    <div className={`w-12 h-12 rounded-2xl bg-white shadow-lg shadow-${item.color}-200/20 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-premium`}>
+                                        {item.icon}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 text-sm whitespace-nowrap">{item.label}</h4>
+                                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">{item.sub}</p>
+                                    </div>
+                                </GlassTile>
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Table & Activity Feed Section */}
+                    <div className="lg:col-span-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none px-1">Global Activity</h2>
+                            <Link href="/admin/bookings" className="text-primary font-bold text-sm flex items-center gap-1 group">
+                                Analytics <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
 
-                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                        <GlassTile delay={0.7} className="bg-white/80 overflow-visible p-1">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
-                                    <thead className="bg-slate-50/50">
-                                        <tr>
-                                            <th className="px-8 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Event</th>
-                                            <th className="px-8 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">User</th>
-                                            <th className="px-8 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Status</th>
-                                            <th className="px-8 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Action</th>
+                                    <thead>
+                                        <tr className="border-b border-slate-100">
+                                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Entry</th>
+                                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Operator</th>
+                                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                            <th className="px-8 py-6 text-right pr-12">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500 ml-auto animate-ping" />
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
                                         <AnimatePresence>
                                             {loading ? (
-                                                <tr><td colSpan={4} className="px-8 py-10 text-center text-slate-400 animate-pulse">Synchronizing system data...</td></tr>
+                                                <tr><td colSpan={4} className="px-8 py-16 text-center text-slate-400 font-medium italic">Streaming data packets...</td></tr>
                                             ) : dashboardStats.recentBookings.length === 0 ? (
-                                                <tr><td colSpan={4} className="px-8 py-10 text-center text-slate-400">No recent activity detected.</td></tr>
+                                                <tr><td colSpan={4} className="px-8 py-16 text-center text-slate-400">Idle state. No recent activity.</td></tr>
                                             ) : dashboardStats.recentBookings.map((booking, i) => (
                                                 <motion.tr
                                                     key={booking.id}
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: 0.1 * i }}
-                                                    className="hover:bg-slate-50/50 transition-colors"
+                                                    className="hover:bg-white transition-colors group"
                                                 >
-                                                    <td className="px-8 py-5">
-                                                        <span className="font-semibold text-slate-900">{booking.eventName}</span>
+                                                    <td className="px-8 py-6">
+                                                        <span className="font-bold text-slate-900 block">{booking.eventName}</span>
+                                                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">Event Access</span>
                                                     </td>
-                                                    <td className="px-8 py-5">
-                                                        <span className="text-slate-600">{booking.user}</span>
+                                                    <td className="px-8 py-6">
+                                                        <span className="text-slate-600 font-semibold">{booking.user}</span>
                                                     </td>
-                                                    <td className="px-8 py-5">
-                                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${booking.status === 'CONFIRMED' ? 'bg-emerald-50 text-emerald-600' :
+                                                    <td className="px-8 py-6">
+                                                        <span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${booking.status === 'CONFIRMED' ? 'bg-emerald-50 text-emerald-600' :
                                                             booking.status === 'PENDING' ? 'bg-amber-50 text-amber-600' :
-                                                                'bg-rose-50 text-rose-600'
+                                                                'bg-slate-100 text-slate-400'
                                                             }`}>
                                                             {booking.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-8 py-5 text-primary">
-                                                        <button className="p-2 hover:bg-primary/10 rounded-xl transition-colors">
+                                                    <td className="px-8 py-6 text-right pr-6">
+                                                        <button className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-xl transition-premium group-hover:scale-110">
                                                             <ArrowUpRight size={18} />
                                                         </button>
                                                     </td>
@@ -356,119 +363,46 @@ export default function AdminDashboard() {
                                     </tbody>
                                 </table>
                             </div>
+                        </GlassTile>
+                    </div>
+
+                    {/* Stream/Feed - Mini */}
+                    <div className="lg:col-span-4">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">Notifications</h2>
+                            <div className="w-2 h-2 rounded-full bg-primary" />
                         </div>
-                    </motion.div>
-
-                    {/* Quick Panel - Operations */}
-                    <motion.div
-                        className="flex flex-col gap-8"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.6 }}
-                    >
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-6 font-heading">Operations Hub</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-                                <Link href="/admin/categories">
-                                    <GlassTile className="p-5 flex items-center justify-between group bg-white/40">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                <Layers size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">Categories</h4>
-                                                <p className="text-xs text-slate-500">Manage event types</p>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-blue-600 transition-all group-hover:translate-x-1" />
-                                    </GlassTile>
-                                </Link>
-
-                                <Link href="/admin/customers">
-                                    <GlassTile className="p-5 flex items-center justify-between group bg-white/40">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                                                <Users size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">Customers</h4>
-                                                <p className="text-xs text-slate-500">User database & activity</p>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-emerald-600 transition-all group-hover:translate-x-1" />
-                                    </GlassTile>
-                                </Link>
-
-                                <Link href="/admin/bookings">
-                                    <GlassTile className="p-5 flex items-center justify-between group bg-white/40">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                                                <ClipboardList size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">Bookings</h4>
-                                                <p className="text-xs text-slate-500">Transaction history</p>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-purple-600 transition-all group-hover:translate-x-1" />
-                                    </GlassTile>
-                                </Link>
-
-                                <Link href="/admin/admin-requests">
-                                    <GlassTile className="p-5 flex items-center justify-between group bg-white/40">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all">
-                                                <ShieldCheck size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">Access Requests</h4>
-                                                <p className="text-xs text-slate-500">Review permissions</p>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-amber-600 transition-all group-hover:translate-x-1" />
-                                    </GlassTile>
-                                </Link>
-
-                                <Link href="/admin/register">
-                                    <GlassTile className="p-5 flex items-center justify-between group bg-white/40">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                                <UserPlus size={20} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900">System Admins</h4>
-                                                <p className="text-xs text-slate-500">Add new managers</p>
-                                            </div>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-primary transition-all group-hover:translate-x-1" />
-                                    </GlassTile>
-                                </Link>
+                        <GlassTile delay={0.8} className="bg-slate-900 p-8 h-[500px] flex flex-col group overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 text-primary/5 pointer-events-none group-hover:scale-150 transition-transform duration-1000 rotate-12">
+                                <Activity size={240} />
                             </div>
-                        </div>
 
-                        {/* Recent Activity Mini-Feed */}
-                        <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-8 text-slate-50">
-                                <Activity size={80} />
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-6 relative z-10">Stream</h3>
-                            <div className="space-y-6 relative z-10">
+                            <div className="relative z-10 flex-grow scrollbar-none overflow-y-auto space-y-8 pr-2">
                                 {loading ? (
-                                    <div className="animate-pulse flex flex-col gap-4">
-                                        {[1, 2, 3].map(i => <div key={i} className="h-10 bg-slate-100 rounded-xl" />)}
+                                    <div className="space-y-6">
+                                        {[1, 2, 3, 4].map(i => <div key={i} className="h-16 bg-white/5 rounded-2xl animate-pulse" />)}
                                     </div>
                                 ) : dashboardStats.recentActivity.map((activity, i) => (
-                                    <div key={i} className="flex gap-4">
-                                        <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${activity.color}`} />
-                                        <div>
-                                            <p className="text-sm font-semibold text-slate-800 leading-tight">{activity.title}</p>
-                                            <span className="text-xs text-slate-400 font-medium">{activity.time}</span>
+                                    <div key={i} className="flex gap-5 group/item">
+                                        <div className="relative flex flex-col items-center">
+                                            <div className={`w-3 h-3 rounded-full mt-2 ring-4 ring-slate-900 bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-500 group-hover/item:scale-125`} />
+                                            {i !== dashboardStats.recentActivity.length - 1 && (
+                                                <div className="w-[1px] flex-grow bg-slate-800 my-2" />
+                                            )}
+                                        </div>
+                                        <div className="pb-8">
+                                            <p className="text-white font-bold leading-tight group-hover/item:text-primary transition-colors">{activity.title}</p>
+                                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2 block">{activity.time}</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </motion.div>
+
+                            <Button className="w-full bg-white/10 hover:bg-white hover:text-slate-900 text-white font-bold text-xs uppercase tracking-widest py-6 rounded-2xl mt-6 transition-premium backdrop-blur-md">
+                                Clear Feed
+                            </Button>
+                        </GlassTile>
+                    </div>
                 </div>
             </main>
 
@@ -476,3 +410,4 @@ export default function AdminDashboard() {
         </div>
     )
 }
+

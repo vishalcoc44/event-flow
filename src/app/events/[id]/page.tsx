@@ -17,7 +17,7 @@ export async function generateStaticParams() {
     const { data: events, error } = await supabase
       .from('events')
       .select('id')
-      .orderBy('created_at', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.error('❌ Failed to fetch event IDs:', error)

@@ -645,9 +645,11 @@ export const ReviewSystem: React.FC<ReviewSystemProps> = ({ eventId, eventTitle,
       {/* Review Form Dialog */}
       <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
         <DialogContent className="max-w-2xl">
-          <DialogTitle className="text-xl font-semibold mb-4">
-            {editingReview ? 'Edit Your Review' : 'Write a Review'}
-          </DialogTitle>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold mb-4">
+              {editingReview ? 'Edit Your Review' : 'Write a Review'}
+            </DialogTitle>
+          </DialogHeader>
           <ReviewForm
             eventId={eventId}
             eventTitle={eventTitle}

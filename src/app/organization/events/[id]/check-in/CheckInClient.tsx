@@ -8,7 +8,9 @@ import { GlassTile } from '@/components/ui/glass-tile'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { CheckCircle2, QrCode, Users } from 'lucide-react'
+import { CheckCircle2, QrCode, Users, Download, Mail } from 'lucide-react'
+import { exportToCsv } from '@/lib/csv'
+import { CampaignComposer } from '@/components/CampaignComposer'
 
 type BookingRow = {
   id: string
@@ -32,12 +34,30 @@ export default function CheckInClient() {
   const [loading, setLoading] = useState(true)
   const [bookings, setBookings] = useState<BookingRow[]>([])
   const [checkedInBookingIds, setCheckedInBookingIds] = useState<Set<string>>(new Set())
+  const [organizationId, setOrganizationId] = useState<string | null>(null)
+
+  const handleExport = () => {
+    const exportData = bookings.map(b => ({
+      'Booking ID': b.id,
+      'Email': b.user?.email || 'N/A',
+      'First Name': b.user?.first_name || 'N/A',
+      'Last Name': b.user?.last_name || 'N/A',
+      'Username': b.user?.username || 'N/A',
+      'Booking Date': new Date(b.created_at).toLocaleDateString(),
+      'Checked In': checkedInBookingIds.has(b.id) ? 'Yes' : 'No'
+    }))
+    exportToCsv(`attendees-${eventId}`, exportData)
+  }
 
   const load = async () => {
     if (!eventId) return
     setLoading(true)
 
-    const [{ data: bookingData, error: bookingError }, { data: checkinsData, error: checkinsError }] = await Promise.all([
+    const [
+      { data: bookingData, error: bookingError }, 
+      { data: checkinsData, error: checkinsError },
+      { data: eventData, error: eventError }
+    ] = await Promise.all([
       supabase
         .from('bookings')
         .select('id, user_id, status, created_at, user:users(id, email, first_name, last_name, username)')
@@ -48,10 +68,16 @@ export default function CheckInClient() {
         .from('event_checkins')
         .select('booking_id')
         .eq('event_id', eventId),
+      supabase
+        .from('events')
+        .select('organization_id')
+        .eq('id', eventId)
+        .single()
     ])
 
     if (bookingError) console.error('Failed to load bookings:', bookingError)
     if (checkinsError) console.error('Failed to load check-ins:', checkinsError)
+    if (eventData) setOrganizationId(eventData.organization_id)
 
     setBookings((bookingData || []) as any)
     setCheckedInBookingIds(new Set((checkinsData || []).map((c: any) => c.booking_id).filter(Boolean)))
@@ -100,16 +126,34 @@ export default function CheckInClient() {
                   Checked in {checkedInCount} / {bookings.length}
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-neutral-500">
-                <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                  <Users className="h-5 w-5" />
-                </div>
-                <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                  <QrCode className="h-5 w-5" />
+              <div className="flex items-center gap-3">
+                <Button 
+                  onClick={handleExport}
+                  variant="outline" 
+                  className="h-12 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+                  disabled={bookings.length === 0}
+                >
+                  <Download className="h-4 w-4 mr-2" /> Export CSV
+                </Button>
+                <div className="flex items-center gap-3 text-neutral-500">
+                  <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                    <QrCode className="h-5 w-5" />
+                  </div>
                 </div>
               </div>
             </div>
           </GlassTile>
+
+          {eventId && organizationId && (
+            <CampaignComposer 
+              eventId={eventId}
+              organizationId={organizationId}
+              recipientCount={bookings.length}
+            />
+          )}
 
           {loading ? (
             <div className="grid grid-cols-1 gap-4">
@@ -162,4 +206,3 @@ export default function CheckInClient() {
     </div>
   )
 }
-

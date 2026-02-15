@@ -110,19 +110,9 @@ export default function OrganizationSettings() {
         logoUrl: organization.logo_url || '',
         customCss: ''
       });
-      loadCounts();
     }
   }, [organization]);
 
-  const loadCounts = async () => {
-    if (!organization) return;
-    try {
-      const { count: memberCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('organization_id', organization.id);
-      setMemberCount(memberCount || 0);
-      const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true }).eq('organization_id', organization.id);
-      setEventCount(eventCount || 0);
-    } catch (error) { console.error('Error loading counts:', error); }
-  };
 
   const handleDeleteOrganization = async () => {
     if (!organization || deleteConfirmation !== organization.name) return;
@@ -328,11 +318,11 @@ export default function OrganizationSettings() {
                       </div>
                       <div className="flex items-center justify-between p-4 rounded-2xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5">
                         <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Total Events</span>
-                        <span className="text-sm font-black">{eventCount}</span>
+                        <span className="text-sm font-black">{organization?.current_events_count || 0}</span>
                       </div>
                       <div className="flex items-center justify-between p-4 rounded-2xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/5">
                         <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Organization Size</span>
-                        <span className="text-sm font-black">{memberCount} Members</span>
+                        <span className="text-sm font-black">{organization?.current_users_count || 0} Members</span>
                       </div>
                     </div>
                   </GlassTile>

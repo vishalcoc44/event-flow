@@ -213,7 +213,7 @@ export default function CreateOrganizationPage() {
 
       <Header user={user ? { role: user.role === 'USER' ? 'customer' : user.role } : null} />
 
-      <main className="flex-grow pt-32 pb-20 flex flex-col items-center justify-center">
+      <main className="flex-grow pt-12 pb-20 flex flex-col items-center justify-center">
         <div className="container mx-auto px-4 max-w-3xl">
           {/* Step Indicator */}
           <div className="flex items-center justify-center mb-12 gap-8">

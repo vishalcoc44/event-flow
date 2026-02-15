@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter()
     const { toast } = useToast()
 
-    // Stabilized loading setter to prevent flickering
+    // Stabilized loading setter to prevent flickering (Bug #15)
     const setLoadingStabilized = (loading: boolean) => {
         if (loadingTimeout) {
             clearTimeout(loadingTimeout)
@@ -70,9 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsLoading(true)
         } else {
             // Add a small delay before setting loading to false to prevent flickering
+            // Use a shorter delay if we're already initialized
+            const delay = user ? 50 : 150;
             const timeout = setTimeout(() => {
                 setIsLoading(false)
-            }, 100)
+            }, delay)
             setLoadingTimeout(timeout)
         }
     }
@@ -135,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 if (session && session.user) {
                     // Get user data including custom metadata
-                    const userData = {
+                    const userData: User = {
                         id: session.user.id,
                         email: session.user.email || '',
                         role: (session.user.user_metadata.role as 'ADMIN' | 'USER') || 'USER',
@@ -151,36 +153,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         created_at: session.user.created_at
                     };
 
-                    // Load organization data asynchronously (non-blocking) - prevent infinite loops
-                    if (!isLoadingOrgData && !userData.organization_id) {
+                    // Load organization data and role from DB to ensure sync (Bug #13)
+                    if (!isLoadingOrgData) {
                         setIsLoadingOrgData(true);
-                        Promise.race([
-                            authAPI.getUserOrganizationData(session.user.id),
-                            new Promise((_, reject) =>
-                                setTimeout(() => reject(new Error('Organization data timeout')), 6000)
-                            )
-                        ])
+                        authAPI.getUserOrganizationData(session.user.id)
                             .then((orgData: any) => {
                                 if (orgData) {
-                                    // Update user data with organization info
                                     setUser(prevUser => {
                                         if (prevUser && prevUser.id === session.user.id) {
-                                            return {
-                                                ...prevUser,
-                                                organization_id: orgData.organization_id,
-                                                role_in_org: orgData.role_in_org,
-                                                is_org_admin: orgData.is_org_admin,
-                                                joined_at: orgData.joined_at,
-                                                onboarding_step: orgData.onboarding_step
-                                            };
+                                            // Source of truth: role from DB
+                                            const dbRole = orgData.role || prevUser.role;
+                                            const roleMismatch = prevUser.role !== dbRole;
+
+                                            if (roleMismatch || prevUser.organization_id !== orgData.organization_id) {
+                                                console.log('🔄 Synced user data from DB. Role:', dbRole);
+                                                return {
+                                                    ...prevUser,
+                                                    organization_id: orgData.organization_id,
+                                                    role_in_org: orgData.role_in_org,
+                                                    is_org_admin: orgData.is_org_admin,
+                                                    joined_at: orgData.joined_at,
+                                                    onboarding_step: orgData.onboarding_step,
+                                                    role: dbRole
+                                                };
+                                            }
                                         }
                                         return prevUser;
                                     });
                                 }
                             })
                             .catch((error) => {
-                                console.log('Organization data loading skipped or failed:', error.message);
-                                // Continue without organization data - user can still use the app
+                                console.log('Organization data sync failed:', error.message);
                             })
                             .finally(() => {
                                 setIsLoadingOrgData(false);
@@ -266,10 +269,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         isInitialized = true;
                         setLoadingStabilized(false);
                         return;
-                    } else if (authResult.error.includes('timeout')) {
-                        // Don't block the app due to timeout - proceed as unauthenticated
-                        console.log('⏰ Auth check timeout, proceeding as unauthenticated');
-                        setUser(null);
+                    } else if (authResult.error.includes('timeout') || authResult.error.includes('fetch') || authResult.error.includes('network')) {
+                        // Don't block the app due to network/timeout - proceed as potentially unauthenticated
+                        // but DON'T clear the session yet. (Bug #17)
+                        console.log('📶 Network/timeout detected, maintaining current session state');
+                        // Try to get session from local storage directly as fallback
+                        const { data: { session: localSession } } = await supabase.auth.getSession();
+                        if (localSession?.user) {
+                            // Load from metadata solo if network failed
+                            const metaUser = {
+                                id: localSession.user.id,
+                                email: localSession.user.email || '',
+                                role: (localSession.user.user_metadata.role as any) || 'USER',
+                                // ... other fields
+                            } as User;
+                            setUser(metaUser);
+                        }
                         isInitialized = true;
                         setLoadingStabilized(false);
                         return;
@@ -390,8 +405,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     console.log('🔄 Invalid refresh token during refresh, clearing session...');
                     await clearInvalidSession();
                     return;
-                } else if (authResult.error.includes('timeout')) {
-                    console.log('⏰ Auth refresh timeout');
+                } else if (authResult.error.includes('timeout') || authResult.error.includes('network') || authResult.error.includes('fetch')) {
+                    console.log('📶 Auth refresh network issue - keeping current session (Bug #17)');
                     setIsLoading(false);
                     return;
                 }
@@ -598,7 +613,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('supabase.auth.token');
                 sessionStorage.removeItem('passwordResetMode');
-                
+
                 // Comprehensive cleanup matching clearInvalidSession
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith('supabase.auth.') || key.startsWith('sb-')) {

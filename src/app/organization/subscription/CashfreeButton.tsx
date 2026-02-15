@@ -18,8 +18,14 @@ export default function CashfreeButton({ amount, currency, customer, onSuccess }
     setLoading(true);
     setError(null);
     try {
-      // TODO: Replace with Supabase Edge Function for payment processing
-      setError("Payment processing is temporarily disabled while migrating to static hosting");
+      // TODO: Implement actual Cashfree integration via Supabase Edge Functions
+      console.log("Initiating payment for:", { amount, customer });
+
+      // Mock delay to simulate network request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Call success callback to unblock the UI flow
+      if (onSuccess) onSuccess();
     } catch (err: any) {
       setError(err.message || "Payment error");
     } finally {

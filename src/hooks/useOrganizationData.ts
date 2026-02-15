@@ -30,35 +30,8 @@ export const useOrganizationData = () => {
   const loadingRef = useRef<{ [key: string]: boolean }>({});
   const membershipsLoadingRef = useRef<boolean>(false);
 
-  useEffect(() => {
-    // Only load organization data if AuthContext hasn't already provided it in user object
-    // and we actually need the full organization details
-    if (!userLoading && user?.organization_id && !organization && loadOrganizationById) {
-      if (!loadingRef.current[user.organization_id]) {
-        console.log('Loading organization details by ID:', user.organization_id);
-        loadingRef.current[user.organization_id] = true;
-        loadOrganizationById(user.organization_id).finally(() => {
-          // Keep it true for a bit to prevent immediate retry if it failed
-          setTimeout(() => {
-            if (loadingRef.current) loadingRef.current[user!.organization_id!] = false;
-          }, 5000);
-        });
-      }
-    }
-
-    // Load user memberships if we have a user but no memberships loaded
-    if (!userLoading && user?.id && loadUserMemberships && orgContext?.userMemberships?.length === 0) {
-      if (!membershipsLoadingRef.current) {
-        console.log('Loading user memberships for:', user.id);
-        membershipsLoadingRef.current = true;
-        loadUserMemberships(user.id).finally(() => {
-          setTimeout(() => {
-            membershipsLoadingRef.current = false;
-          }, 5000);
-        });
-      }
-    }
-  }, [user?.id, user?.organization_id, userLoading, organization, loadOrganizationById, loadUserMemberships, orgContext?.userMemberships?.length]);
+  // No internal useEffect logic needed anymore as the Context Providers 
+  // handle the atomic loading of data (Bug #19 & #20 resolution)
 
   return {
     organization,

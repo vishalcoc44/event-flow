@@ -8,6 +8,7 @@ type Booking = {
   event_id: string
   user_id: string
   status: string
+  is_networking_enabled: boolean
   booking_date?: string
   created_at?: string
   event?: {
@@ -88,7 +89,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null)
       const updatedBooking = await bookingsAPI.cancelBooking(id)
       if (updatedBooking) {
-        setBookings(prev => prev.map(booking => 
+        setBookings(prev => prev.map(booking =>
           booking.id === id ? { ...booking, status: 'CANCELLED' } : booking
         ))
       }
@@ -148,14 +149,14 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }
 
   return (
-    <BookingContext.Provider value={{ 
-      bookings, 
-      loading, 
-      error, 
-      addBooking, 
-      cancelBooking, 
+    <BookingContext.Provider value={{
+      bookings,
+      loading,
+      error,
+      addBooking,
+      cancelBooking,
       requestRefund,
-      getUserBookings, 
+      getUserBookings,
       getAllBookings,
       fetchBookings
     }}>

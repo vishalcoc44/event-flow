@@ -16,11 +16,27 @@
     "enum_value": null
   },
   {
+    "type_name": "_badge_type",
+    "enum_value": null
+  },
+  {
     "type_name": "_bookings",
     "enum_value": null
   },
   {
     "type_name": "_categories",
+    "enum_value": null
+  },
+  {
+    "type_name": "_coupons",
+    "enum_value": null
+  },
+  {
+    "type_name": "_discount_type",
+    "enum_value": null
+  },
+  {
+    "type_name": "_email_campaigns",
     "enum_value": null
   },
   {
@@ -33,6 +49,14 @@
   },
   {
     "type_name": "_event_discovery_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_poll_votes",
+    "enum_value": null
+  },
+  {
+    "type_name": "_event_polls",
     "enum_value": null
   },
   {
@@ -69,6 +93,10 @@
   },
   {
     "type_name": "_migration_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "_networking_messages",
     "enum_value": null
   },
   {
@@ -124,6 +152,14 @@
     "enum_value": null
   },
   {
+    "type_name": "_refund_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "_refund_status",
+    "enum_value": null
+  },
+  {
     "type_name": "_review_helpful_votes",
     "enum_value": null
   },
@@ -149,6 +185,10 @@
   },
   {
     "type_name": "_ticket_types",
+    "enum_value": null
+  },
+  {
+    "type_name": "_user_badges",
     "enum_value": null
   },
   {
@@ -188,11 +228,47 @@
     "enum_value": null
   },
   {
+    "type_name": "badge_type",
+    "enum_value": "FREQUENT_FLYER"
+  },
+  {
+    "type_name": "badge_type",
+    "enum_value": "EVENT_ENTHUSIAST"
+  },
+  {
+    "type_name": "badge_type",
+    "enum_value": "VIP_MEMBER"
+  },
+  {
+    "type_name": "badge_type",
+    "enum_value": "EARLY_ADOPTER"
+  },
+  {
+    "type_name": "badge_type",
+    "enum_value": "TOP_REVIEWER"
+  },
+  {
     "type_name": "bookings",
     "enum_value": null
   },
   {
     "type_name": "categories",
+    "enum_value": null
+  },
+  {
+    "type_name": "coupons",
+    "enum_value": null
+  },
+  {
+    "type_name": "discount_type",
+    "enum_value": "PERCENTAGE"
+  },
+  {
+    "type_name": "discount_type",
+    "enum_value": "FIXED"
+  },
+  {
+    "type_name": "email_campaigns",
     "enum_value": null
   },
   {
@@ -205,6 +281,14 @@
   },
   {
     "type_name": "event_discovery_stats",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_poll_votes",
+    "enum_value": null
+  },
+  {
+    "type_name": "event_polls",
     "enum_value": null
   },
   {
@@ -241,6 +325,10 @@
   },
   {
     "type_name": "migration_log",
+    "enum_value": null
+  },
+  {
+    "type_name": "networking_messages",
     "enum_value": null
   },
   {
@@ -296,6 +384,26 @@
     "enum_value": null
   },
   {
+    "type_name": "refund_requests",
+    "enum_value": null
+  },
+  {
+    "type_name": "refund_status",
+    "enum_value": "PENDING"
+  },
+  {
+    "type_name": "refund_status",
+    "enum_value": "APPROVED"
+  },
+  {
+    "type_name": "refund_status",
+    "enum_value": "REJECTED"
+  },
+  {
+    "type_name": "refund_status",
+    "enum_value": "PROCESSED"
+  },
+  {
     "type_name": "review_helpful_votes",
     "enum_value": null
   },
@@ -321,6 +429,10 @@
   },
   {
     "type_name": "ticket_types",
+    "enum_value": null
+  },
+  {
+    "type_name": "user_badges",
     "enum_value": null
   },
   {

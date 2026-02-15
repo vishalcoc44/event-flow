@@ -62,7 +62,7 @@ export default function OrganizationRefunds() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  
+
   const [selectedRefund, setSelectedRefund] = useState<RefundRequest | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [isProcessing, setIsUpdating] = useState(false);
@@ -79,31 +79,22 @@ export default function OrganizationRefunds() {
     setLoading(true);
     try {
       if (!organization) return;
-      
-      // Get events for this organization to filter bookings
-      const { data: events } = await supabase
-        .from('events')
-        .select('id')
-        .eq('organization_id', organization.id);
-      
-      if (!events || events.length === 0) {
-        setRefunds([]);
-        return;
-      }
-
-      const eventIds = events.map(e => e.id);
 
       const { data, error } = await supabase
         .from('refund_requests')
         .select(`
           *,
-          booking:booking_id (
+          booking:booking_id!inner (
             id,
-            event:event_id (title, price),
+            event:event_id!inner (
+              title, 
+              price,
+              organization_id
+            ),
             user:user_id (email, first_name, last_name)
           )
         `)
-        .in('booking.event_id', eventIds)
+        .eq('booking.event.organization_id', organization.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -132,11 +123,11 @@ export default function OrganizationRefunds() {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Status Updated", 
-        description: `Refund request marked as ${targetStatus.toLowerCase()}.` 
+      toast({
+        title: "Status Updated",
+        description: `Refund request marked as ${targetStatus.toLowerCase()}.`
       });
-      
+
       loadRefunds();
       setShowStatusDialog(false);
       setSelectedRefund(null);
@@ -154,11 +145,11 @@ export default function OrganizationRefunds() {
 
   const filteredRefunds = refunds.filter(r => {
     const userFullName = `${r.booking.user.first_name} ${r.booking.user.last_name}`.toLowerCase();
-    const matchesSearch = !searchTerm || 
-      userFullName.includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = !searchTerm ||
+      userFullName.includes(searchTerm.toLowerCase()) ||
       r.booking.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.booking.event.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -406,13 +397,13 @@ export default function OrganizationRefunds() {
           </div>
           <DialogFooter className="pt-8">
             <Button variant="ghost" onClick={() => setShowStatusDialog(false)} className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px]">Abort</Button>
-            <Button 
-              onClick={handleUpdateStatus} 
+            <Button
+              onClick={handleUpdateStatus}
               disabled={isProcessing}
               className={cn(
                 "h-14 px-8 rounded-2xl text-white font-black uppercase tracking-widest text-[10px] shadow-xl",
-                targetStatus === 'APPROVED' ? "bg-green-600 shadow-green-500/20" : 
-                targetStatus === 'REJECTED' ? "bg-red-600 shadow-red-500/20" : "bg-blue-600 shadow-blue-500/20"
+                targetStatus === 'APPROVED' ? "bg-green-600 shadow-green-500/20" :
+                  targetStatus === 'REJECTED' ? "bg-red-600 shadow-red-500/20" : "bg-blue-600 shadow-blue-500/20"
               )}
             >
               {isProcessing ? "Updating..." : `Confirm ${targetStatus}`}
