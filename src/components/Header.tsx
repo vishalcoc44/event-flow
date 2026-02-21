@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { OrgNavigation } from './OrgNavigation'
 import { OrgSwitcher } from './OrgSwitcher'
 import { adminLinks, customerLinks, guestLinks } from '@/config/navigation'
+import { PreviewMarquee } from './ui/PreviewMarquee'
 
 // Lazy load NotificationBell for better performance
 const NotificationBell = dynamic(() => import('./NotificationBell').then(mod => ({ default: mod.NotificationBell })), {
@@ -200,6 +201,10 @@ export default function Header({ onRegisterClick, onLoginClick, user: propUser }
                             <span className="ml-2.5 text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-all duration-300">EventFlow</span>
                         </Link>
 
+                        {/* Interactive Premium Marquee */}
+                        <div className="hidden lg:block ml-2">
+                            <PreviewMarquee />
+                        </div>
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center justify-center">

@@ -387,3 +387,8 @@ h6 {
     transform: translate(calc(-50% - 0.5rem));
   }
 }
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
