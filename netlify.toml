@@ -1,7 +1,6 @@
 [build]
-  base = "frontend"
   command = "npm run build"
-  publish = "out"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -9,24 +8,10 @@
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
   SECRETS_SCAN_OMIT_PATHS = ".next/cache/**,.next/static/**"
 
-# Handle authentication callbacks and preserve query parameters
-[[redirects]]
-  from = "/reset-password*"
-  to = "/reset-password.html"
-  status = 200
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
-[[redirects]]
-  from = "/login*"
-  to = "/login.html"
-  status = 200
-
-[[redirects]]
-  from = "/auth/callback*"
-  to = "/auth/callback.html"
-  status = 200
-
-# Catch-all for other routes - redirect to index
+# Catch-all — let Next.js handle all routing
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "/.netlify/functions/___netlify-handler"
