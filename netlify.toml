@@ -10,8 +10,3 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# Catch-all — let Next.js handle all routing
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/___netlify-handler"
